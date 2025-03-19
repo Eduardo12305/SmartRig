@@ -1,0 +1,162 @@
+/* Definir box-sizing global para garantir que padding e bordas não afetam o layout */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Estilos para o header */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2%;
+    box-shadow: transparent;
+    transition: background-color 0.3s, padding 0.3s;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    background-color: rgb(33, 33, 33);
+    font-family: 'Poppins', sans-serif;
+    flex-wrap: wrap; /* Permite que o conteúdo se ajuste em telas pequenas */
+}
+
+header .flex {
+    display: flex;
+    align-items: center;
+    gap: 2rem;  /* Aumenta o espaço entre logo e navegação */
+    flex-wrap: wrap; /* Permite o ajuste de elementos no espaço disponível */
+}
+
+header ul {
+    list-style-type: none;
+    display: flex;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+    flex-wrap: wrap; /* Permite que os itens se ajustem conforme necessário */
+}
+
+header ul li {
+    display: inline-block;
+}
+
+.navigation {
+    display: flex;
+    justify-content: flex-end;
+    width: auto;
+}
+
+.navigation ul li {
+    list-style: none;
+}
+
+.navigation ul li a {
+    text-decoration: none;
+    color: var(--whitecolor);
+    font-size: 1.2rem;
+    transition: color 0.3s;
+    display: flex;
+    align-items: center;
+}
+
+.navigation ul li a:hover {
+    color: var(--darkcolor);
+}
+
+.IconSoft {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.link-with-text {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    gap: 0.5rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.IconImage {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.name {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Estilos para telas pequenas */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        padding: 1rem 5%;
+        box-shadow: none;  /* Retira a sombra do header em telas menores */
+    }
+
+    .flex {
+        display: flex;
+        flex-wrap: nowrap;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .navigation {
+        width: 100%;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .IconSoft {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+
+    .navigation ul {
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .navigation ul li {
+        margin: 0.5rem 0;
+    }
+
+    .navigation ul li a {
+        font-size: 1rem;
+    }
+
+    .name {
+        font-size: 1rem;
+    }
+}
+
+/* Para tablets, entre 768px e 1024px */
+@media (min-width: 768px) and (max-width: 1024px) {
+    header {
+        padding: 1.5rem 3%;
+    }
+
+    .navigation ul li a {
+        font-size: 1.1rem;
+    }
+}
+
+/* Para telas grandes (laptops, desktops) */
+@media (min-width: 1025px) {
+    header {
+        padding: 2rem 3%;
+    }
+}

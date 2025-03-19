@@ -1,0 +1,40 @@
+body {
+    background-color: rgb(207, 207, 207);
+}
+
+.layout {
+    background-color: black;
+    height: 70px; /* Aumentei a altura para acomodar o conteúdo */
+    width: 100%; /* Ocupar toda a largura da tela */
+    position: fixed; /* A barra ficará fixa no topo */
+    top: 0; /* Garantir que esteja no topo */
+    left: 0; /* Iniciar da borda esquerda */
+    display: flex; /* Usar flexbox para alinhar o conteúdo */
+    align-items: center; /* Alinhar verticalmente */
+    justify-content: space-between; /* Espaço entre os itens (logo e perfil) */
+    padding: 0 20px; /* Garantir um pouco de espaço ao redor */
+    box-sizing: border-box; /* Para garantir que o padding não afete o tamanho */
+}
+
+.searchbar {
+    
+}
+.layout h1 {
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.IconSoft {
+    width: 50px; /* Ajusta o tamanho da imagem do logo (ou foto de perfil) */
+    height: 50px; /* Garantir que tenha o mesmo tamanho */
+    border-radius: 50%; /* Torna a imagem redonda, estilo de foto de perfil */
+    object-fit: cover; /* Garante que a imagem ocupe todo o espaço sem distorcer */
+    cursor: pointer; /* Aponta que o elemento é clicável */
+}
+
+.navbar-links {
+    display: flex;
+    align-items: center;
+}
+

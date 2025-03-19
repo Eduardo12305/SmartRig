@@ -1,4 +1,9 @@
-
+import '../css/home.css'
+import { Header } from "./header";
 export const Home = () => {
-   return <h1>Chegou ate aqui</h1>
-}
+   return (
+      <div >
+            <Header/>
+      </div>
+   );
+};
