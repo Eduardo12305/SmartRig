@@ -27,4 +27,7 @@ def registrar(data):
             "status" : 400
         }))
     user.save()
-    return HttpResponse("Usuário criado com sucesso", status=201)
+    return HttpResponse(json.dumps({
+        "message" : "Usuário criado com sucesso",
+         "status" : 201
+    }))

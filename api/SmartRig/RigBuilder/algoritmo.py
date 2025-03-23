@@ -8,10 +8,10 @@ from pathlib import Path
 PROJECT_DIR = Path(__file__).parent
 
 # Load PC parts datasets
-cpu_parts = pd.read_csv(PROJECT_DIR / "cpu.csv")
-gpu_parts = pd.read_csv(PROJECT_DIR / "video-card.csv")
+cpu_parts = pd.read_csv(PROJECT_DIR / "cpu_clean.csv")
+gpu_parts = pd.read_csv(PROJECT_DIR / "gpu_clean.csv")
 ram_parts = pd.read_csv(PROJECT_DIR / "memory.csv")
-motherboard_parts = pd.read_csv(PROJECT_DIR / "motherboard.csv")
+motherboard_parts = pd.read_csv(PROJECT_DIR / "mobo_clean.csv")
 psu_parts = pd.read_csv(PROJECT_DIR / "power-supply.csv")
 storage_parts = pd.read_csv(PROJECT_DIR / "internal-hard-drive.csv")
 
@@ -57,32 +57,16 @@ toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 # Fitness Function
 def fitness_function(individual):
-    cost = sum(part[1] for part in individual)
+   cpu_perf = float((sum((individual[0][8], individual[0][9]))/1000))
+   gpu_perf = float(individual[1][6] + (individual[1][10]*((individual[1][5]*individual[1][7]*2)/8)))
 
-    # Performance calculation
-    cpu_performance = float(individual[0][2]) * float(individual[0][3]) + float(individual[0][4])
-    gpu_performance = float(individual[1][3]) + float(individual[1][4])
+   perf = cpu_perf + gpu_perf
 
+   if(individual[0][6] != individual[3][3]):
+       return 0,
 
-    performance = cpu_performance + gpu_performance
+   return perf,
 
-    # Compatibility checks
-    cpu_socket = individual[0][7]
-    motherboard_socket = individual[3][3]
-
-    total_power = individual[0][4] + individual[1][4]
-    psu_wattage = individual[4][4]
-
-    compatible = (
-        psu_wattage >= total_power
-    )
-
-    budget_penalty = max(0, (cost - BUDGET) / BUDGET)
-
-    if not compatible:
-        return 0,
-
-    return performance * (1 - budget_penalty),
 
 def custom_mutation(individual):
     part_index = random.randint(0, len(individual) - 1)
@@ -128,5 +112,9 @@ def run_ga():
 if __name__ == "__main__":
     best_pc_build = run_ga()
     print("\n🎯 Best PC Build Found:")
-    for part in best_pc_build:
-        print(f"{part[0]}: {part[1]} | Price: ${part[1]}")
+    print(best_pc_build[0][2])
+    print(best_pc_build[1][2])
+    print(best_pc_build[2][0])
+    print(best_pc_build[3][1])
+    print(best_pc_build[4][0])
+    print(best_pc_build[5][0], best_pc_build[5][2])
