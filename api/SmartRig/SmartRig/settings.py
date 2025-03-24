@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'ninja_jwt',
     'db.apps.DbConfig',
     'django.contrib.admin',
     'django.contrib.auth',
