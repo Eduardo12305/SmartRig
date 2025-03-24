@@ -11,3 +11,5 @@ api.add_router('/token', tags=['Auth'], router=obtain_pair_router)
 @api.post("/registrar")
 def post_registrar(request, data: registrarSchema):
     return views.registrar(data)
+def post_login(request):
+    return views.login(request)
