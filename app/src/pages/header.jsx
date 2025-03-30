@@ -14,7 +14,7 @@ export function Header() {
     const navigate = useNavigate(); // Usando o hook useNavigate
 
     const handleClick = () => {
-        navigate('/teste'); // Redireciona para o URL desejado
+        navigate('/register'); // Redireciona para o URL desejado
     };
 
     return (

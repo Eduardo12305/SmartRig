@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import { PublicRoute } from "../components/auth/notAuthRoute";
 import { Home } from "../pages/home";
 import { Forbidden } from "../pages/error/forbidden";
-import { Teste } from "../pages/teste";
+import { Register } from "../pages/register";
 
 export function AppRoutes () {
     return (
@@ -12,7 +12,7 @@ export function AppRoutes () {
             </Route>
 
             <Route >
-                <Route path="/teste" element={<Teste/>} />
+                <Route path="/register" element={<Register/>} />
             </Route>
 
             {/* Pagina de erro */}

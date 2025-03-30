@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import InputField from "../components/inputField";
 import { registerUser } from "../components/apiService";
-export const Teste = () => {
+export const Register = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
