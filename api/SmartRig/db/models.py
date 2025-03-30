@@ -2,7 +2,7 @@ from django.db import models
 
 class Users(models.Model):
     nome = models.CharField(max_length=100)
-    senha = models.CharField(max_length=64)
+    senha = models.TextField()
     email = models.EmailField()
     data_criacao = models.DateTimeField()
 

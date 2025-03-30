@@ -1,41 +1,53 @@
 from datetime import datetime
 from hashlib import sha256
 import json
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from dotenv import load_dotenv
 import os
 import jwt
+from django.contrib.auth.hashers import make_password
+from django.utils import timezone
 from db.models import Users
 
 def registrar(data):
-    user = Users(nome=data.nome, senha=None, email=None, data_criacao=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-
-    # Verificar se o email já está em uso
-    if not Users.objects.filter(email=data.email).exists():
-        user.email = data.email
-    else:
-        return HttpResponseBadRequest(json.dumps({
-            "message": "Email já em uso",
-            "status": 400
-        }))
+    
+        # Verificar se o email já está em uso
+    if Users.objects.filter(email=data.email).exists():
+       return HttpResponseBadRequest(json.dumps({
+           "message": "Usuario ja cadastrado",
+           "status": 400
+       }))
     
     # Verificar se as senhas coincidem
-    if data.senha == data.senha_conf:
-        user.senha = sha256(data.senha.encode()).hexdigest()
-    else:
+    if data.password != data.confPassword:
         return HttpResponseBadRequest(json.dumps({
-            "message": "As senhas não coincidem",
-            "status": 400
+            "message": "Senhas não conferem",
+            "status": 400,
         }))
     
+    password_hash = make_password(data.password) 
+
     # Salvar o usuário no banco de dados
+    user = Users(
+        nome = data.name,
+        senha = password_hash,
+        email = data.email,
+        data_criacao = timezone.now()
+    )
+
     user.save()
 
-    return HttpResponse(json.dumps({
-        "message": "Usuário criado com sucesso",
+    return JsonResponse({
+        "message": "Usuario cadastrado com sucesso",
         "status": 201,
-    }))
+        "data" : {
+            "id": user.id,
+            "nome": user.nome,
+            "email": user.email,
+            "data_criacao": user.data_criacao,
+        }
+    })
 
 def login(request):
     # Tentar fazer o parse do JSON
@@ -84,23 +96,9 @@ def login(request):
     token = jwt.encode(payload, secret_key, algorithm="HS256")
 
     # Retornar a resposta com o token
-    return HttpResponse(json.dumps({
+    return JsonResponse({
         "message": "Login bem-sucedido",
         "status": 200,
         "token": token
-    }), content_type="application/json")
-    # usando o token, para fins de testes
-    SECRET_KEY = "sdfs54610"
-    payload = {
-        "email": data.email,
-        "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-    }
-
-    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
-
-    return JsonResponse({
-        "message": "Usuário criado com sucesso",
-        "status": 201,
-        "token": token,
-    })
+    }, content_type="application/json")
 
