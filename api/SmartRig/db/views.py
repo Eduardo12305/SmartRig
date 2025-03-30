@@ -89,3 +89,18 @@ def login(request):
         "status": 200,
         "token": token
     }), content_type="application/json")
+    # usando o token, para fins de testes
+    SECRET_KEY = "sdfs54610"
+    payload = {
+        "email": data.email,
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+    }
+
+    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+
+    return JsonResponse({
+        "message": "Usuário criado com sucesso",
+        "status": 201,
+        "token": token,
+    })
+
