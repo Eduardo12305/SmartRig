@@ -1,4 +1,4 @@
-from SmartRig.schema import registrarSchema
+from SmartRig.schema import registrarSchema, loginSchema
 from ninja import NinjaAPI
 from ninja_jwt.routers.blacklist import blacklist_router
 from ninja_jwt.routers.obtain import obtain_pair_router, sliding_router
@@ -12,6 +12,6 @@ api.add_router('/token', tags=['Auth'], router=obtain_pair_router)
 def post_registrar(request, data: registrarSchema):
     return views.registrar(data)
 
-
-def post_login(request):
-    return views.login(request)
+@api.post("/users/login")
+def post_login(request, data: loginSchema):
+    return views.login(data)

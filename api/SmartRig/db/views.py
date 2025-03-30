@@ -6,7 +6,7 @@ from django.shortcuts import render
 from dotenv import load_dotenv
 import os
 import jwt
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
 from django.utils import timezone
 from db.models import Users
 
@@ -49,13 +49,12 @@ def registrar(data):
         }
     })
 
-def login(request):
-    # Tentar fazer o parse do JSON
+def login(data):
+    # Tentar acessar os dados
     try:
-        req = json.loads(request.body)
-        email = req.get('email')
-        password = req.get('password')
-    except json.JSONDecodeError:
+        email = data.email  # Acesso direto ao atributo "email"
+        password = data.password  # Acesso direto ao atributo "password"
+    except AttributeError:
         return HttpResponseBadRequest(json.dumps({
             "message": "Email e Senha são obrigatórios",
             "status": 400
@@ -79,12 +78,11 @@ def login(request):
     # Comparar a senha fornecida com a senha armazenada
     stored_password = user.senha  # Certifique-se de usar o campo correto
 
-    if sha256(password.encode()).hexdigest() != stored_password:
-        return HttpResponseBadRequest(json.dumps({
+    if not check_password(password,stored_password):
+        return JsonResponse({
             "message": "E-mail ou Senha incorretos",
             "status": 400
-        }))
-    
+        }, status=400)
     # Criar o token JWT
     load_dotenv()  # Carregar variáveis de ambiente
     secret_key = os.getenv('SECRET_KEY')  # Obter chave secreta do .env

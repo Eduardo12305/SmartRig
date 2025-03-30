@@ -8,3 +8,12 @@ export const registerUser = async (userData) => {
         throw error.response ? error.response.data: new Error("Erro no servidor");
     }
 }
+
+export const loginUser = async (userData) => {
+    try {
+        const response = await axiosInstance.post("/users/login", userData);
+        console.log("Login realizado com sucesso");
+    } catch (error) {
+        throw error.response ? error.response.data: new Error("Erro na requisição login");
+    }
+}

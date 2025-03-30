@@ -6,3 +6,8 @@ class registrarSchema(Schema):
     password: str
     confPassword: str
     email: EmailStr
+
+
+class loginSchema(Schema):
+    email: EmailStr
+    password: str
