@@ -1,7 +1,6 @@
 import { loginUser } from "./apiService";
 import InputField from "./inputField";
 import { useState } from "react";
-import '../css/login.css'
 import {Wrapper, Modal, CloseButton, Form} from '../components/css/modal.styley';
 
 export const LoginModal = () => {
