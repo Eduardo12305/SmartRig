@@ -16,10 +16,8 @@ z-index: 1000;
 export const Modal = styled.div`
 position: relative;
 width: 100%;
-/* max-width: 400px; */
 max-width: ${(prop) => prop.width ? prop.width : '400px'};
 background-color: #ffffff;
-/* padding: 2rem; */
 padding: ${(prop) => prop.padd ? prop.padd : '2rem'};
 border-radius: 10px;
 box-shadow: 0 4px 10px rgba(0,0,0,0.3);
@@ -60,13 +58,24 @@ export const CloseButton = styled.button `
   justify-content: center;
   border-radius: 50%;
 `;
-
 export const Form = styled.form`
 width: 100%;
 display: flex;
 flex-direction: column;
 gap: 1.5rem;
-`
+
+label {
+font-size: 1rem;
+color: #007bff;
+gap: 100px;
+font-weight: bold;
+}
+`;
+export const ErrorMenss = styled.div`
+color: ${(prop) => prop.color ? prop.color: 'red'};
+font-size: ${(prop) => prop.fontSize ? prop.fontSize: '0.9rem'};
+margin-top: ${(prop) => prop.marginT ? prop.marginT: '0.5rem'};
+`;
 
 
 

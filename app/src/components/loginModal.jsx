@@ -1,7 +1,8 @@
 import { loginUser } from "./apiService";
 import InputField from "./inputField";
 import { useState } from "react";
-import {Wrapper, Modal, CloseButton, Form} from '../components/css/modal.styley';
+import {Wrapper, Modal, CloseButton, ErrorMenss, Form} from '../components/css/modal.styley';
+
 
 export const LoginModal = () => {
     const [loginModal, setLoginModal] = useState(false);
@@ -63,7 +64,7 @@ export const LoginModal = () => {
                                 required
                             />
                             {errorMessage && (
-                                <div className="error-message">{errorMessage}</div>
+                                <ErrorMenss color="blue">{errorMessage}</ErrorMenss>
                             )}
                             <button type="submit">Login</button>
                         </Form>

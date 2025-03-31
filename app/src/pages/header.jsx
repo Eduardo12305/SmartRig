@@ -10,6 +10,8 @@ import logoPowerSupply from "../assets/logoPowerSupply.png"
 import logoComputer from "../assets/logoComputer.svg"
 import "../css/header.css";
 import { LoginModal } from "../components/loginModal";
+import { RegisterModal } from "../components/registerModal"; 
+
 export function Header() {
     const navigate = useNavigate(); // Usando o hook useNavigate
 
@@ -66,6 +68,7 @@ export function Header() {
                                     <p className="name">Monte seu PC</p>
                                 </button>
                                 <LoginModal/>
+                                <RegisterModal/>
                         </ul>
                     </nav>
                 </div>

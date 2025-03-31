@@ -1,0 +1,69 @@
+import { useState } from "react";
+import { Wrapper,Modal,CloseButton, ErrorMenss, Form} from "./css/modal.styley";
+import InputField from "./inputField";
+
+export const RegisterModal = () => {
+    const [registerModal, setRegisterModal] = useState(false)
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confPassword, setConfPassword] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+
+    const handleRegisteOpen = () => {
+        setRegisterModal(true);
+    }
+
+    const handleRegisteClose = () => {
+        setRegisterModal(false);
+    }
+
+    const handleRegister = async (e) => {
+            e.preventDefault();
+            setErrorMessage("");
+    
+            if (!name |!email |!password |!confPassword) {
+                setErrorMessage("Todos os campos devem ser preenchidos !");
+                return;
+            }
+    
+            if (password !== confPassword) {
+                setErrorMessage("As senhas não coincidem");
+                return;
+            }
+    
+            try {
+                await registerUser({name, email, password, confPassword})
+                navigate('/')
+            } catch (error) {
+                setErrorMessage(error.message || "Erro ao cadastrar");
+            }
+        }
+
+        return (
+            <div>
+                <button onClick={handleRegisteOpen}>Register</button>
+
+                {registerModal && (
+                    <Wrapper width="850px" padd="5rem">
+                        <Modal>
+                            <CloseButton onClick={handleRegisteClose}>
+                                x
+                            </CloseButton>
+                            <h2>Register</h2>
+                            <Form onSubmit={handleRegister}>
+                                <InputField id="name" label="Nome" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nome" required />
+                                <InputField id="email" label="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-mail" required type="email" />
+                                <InputField id="password" label="Senha" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Senha" required type="password" />
+                                <InputField id="confirmPassword" label="Confirmar Senha" value={confPassword} onChange={(e) => setConfPassword(e.target.value)} placeholder="Confirmar Senha" required type="password" />
+                                {errorMessage && (
+                                    <ErrorMenss>{errorMessage}</ErrorMenss>
+                                )}
+                                <button type="submit">Registar</button>
+                            </Form>
+                        </Modal>
+                    </Wrapper>
+                )}
+            </div>
+        )
+}
