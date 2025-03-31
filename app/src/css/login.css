@@ -1,22 +1,22 @@
 /* Estilos para o fundo escuro do Modal */
-.backgroundModal {
+/* .backgroundModal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7); /* Fundo escuro */
+  background-color: rgba(0, 0, 0, 0.7); 
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10000; /* Garante que fica acima de tudo */
-}
+  z-index: 10000;
+} */
 
 /* Estilos para o conteúdo do modal */
-.modal-content {
+/* .modal-content {
   position: relative;
-  width: 90%; /* Usa 90% da largura da tela */
-  max-width: 400px; /* Máximo de 400px para manter a proporção */
+  width: 90%; 
+  max-width: 400px; 
   background: white;
   padding: 2rem;
   border-radius: 10px;
@@ -25,10 +25,10 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-}
+} */
 
 /* Estilos para o botão de fechar */
-.close-btn {
+/* .close-btn {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -43,28 +43,28 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-}
+} */
 
 /* Ajustes no formulário dentro do modal */
-.modal-content form {
+/* .modal-content form {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
+} */
 
 /* Estilos para os campos de input */
-.modal-content input {
+/* .modal-content input {
   width: 100%;
   padding: 0.8rem;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 1rem;
-}
+} */
 
-.modal-content h2 {
+/* .modal-content h2 {
   color: aqua;
-}
+} */
 
 /* Estilo para mensagens de erro */
 .error-message {

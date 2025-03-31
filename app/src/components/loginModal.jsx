@@ -2,6 +2,8 @@ import { loginUser } from "./apiService";
 import InputField from "./inputField";
 import { useState } from "react";
 import '../css/login.css'
+import {Wrapper, Modal, CloseButton, Form} from '../components/css/modal.styley';
+
 export const LoginModal = () => {
     const [loginModal, setLoginModal] = useState(false);
     const [email, setEmail] = useState("");
@@ -38,13 +40,13 @@ export const LoginModal = () => {
             <button onClick={handleLoginClick}>Login</button>
 
             {loginModal && (
-                <div className="backgroundModal">
-                    <div className="modal-content">
-                        <button className="close-btn" onClick={handleCloseModal}>
+                <Wrapper>
+                    <Modal width="850px" padd="5rem">
+                        <CloseButton onClick={handleCloseModal}>
                             x
-                        </button>
-                        <h2 className="">Login</h2>
-                        <form onSubmit={handleLogin}>
+                        </CloseButton>
+                        <h2 >Login</h2>
+                        <Form onSubmit={handleLogin}>
                             <InputField
                                 id="email"
                                 label="E-mail"
@@ -65,9 +67,9 @@ export const LoginModal = () => {
                                 <div className="error-message">{errorMessage}</div>
                             )}
                             <button type="submit">Login</button>
-                        </form>
-                    </div>
-                </div>
+                        </Form>
+                    </Modal>
+                </Wrapper>
             )}
         </div>
     );
