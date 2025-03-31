@@ -65,11 +65,13 @@ export function Header() {
                                     {/* Nome ao lado da imagem */}
                                     <p className="name">Monte seu PC</p>
                                 </button>
+                                <LoginModal/>
                         </ul>
                     </nav>
                 </div>
             </header>
-            <LoginModal/>
+            
+            
         </div>
         
     );

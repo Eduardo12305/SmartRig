@@ -1,7 +1,7 @@
 import { loginUser } from "./apiService";
 import InputField from "./inputField";
 import { useState } from "react";
-
+import '../css/login.css'
 export const LoginModal = () => {
     const [loginModal, setLoginModal] = useState(false);
     const [email, setEmail] = useState("");
@@ -38,12 +38,12 @@ export const LoginModal = () => {
             <button onClick={handleLoginClick}>Login</button>
 
             {loginModal && (
-                <div className="modal">
+                <div className="backgroundModal">
                     <div className="modal-content">
                         <button className="close-btn" onClick={handleCloseModal}>
                             x
                         </button>
-                        <h2>Login</h2>
+                        <h2 className="">Login</h2>
                         <form onSubmit={handleLogin}>
                             <InputField
                                 id="email"

@@ -17,7 +17,7 @@ header {
     width: 100%;
     top: 0;
     left: 0;
-    z-index: 1000;
+    z-index: 999;
     background-color: rgb(33, 33, 33);
     font-family: 'Poppins', sans-serif;
     flex-wrap: wrap; /* Permite que o conteúdo se ajuste em telas pequenas */
