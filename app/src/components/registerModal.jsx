@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Wrapper,Modal,CloseButton, ErrorMenss, Form} from "./css/modal.styley";
+import { Wrapper,Modal,CloseButton, ErrorMenss, Form} from "./css/modal.styled";
 import InputField from "./inputField";
 
 export const RegisterModal = () => {
@@ -45,8 +45,8 @@ export const RegisterModal = () => {
                 <button onClick={handleRegisteOpen}>Register</button>
 
                 {registerModal && (
-                    <Wrapper width="850px" padd="5rem">
-                        <Modal>
+                    <Wrapper>
+                        <Modal width="850px" padd="5rem">
                             <CloseButton onClick={handleRegisteClose}>
                                 x
                             </CloseButton>

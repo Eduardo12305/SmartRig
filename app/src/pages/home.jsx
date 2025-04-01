@@ -1,9 +1,12 @@
-import '../css/home.css'
+
+import { StyleBody } from '../components/css/page.styled';
 import { Header } from "./header";
 export const Home = () => {
    return (
-      <div >
-            <Header/>
-      </div>
+      <>
+         <StyleBody />
+         <Header/>
+      </>
+      
    );
 };
