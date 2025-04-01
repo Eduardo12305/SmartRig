@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Wrapper,Modal,CloseButton, ErrorMenss, Form} from "./css/modal.styled";
 import InputField from "./inputField";
+import { registerUser } from "./apiService";
+import { useNavigate } from "react-router-dom";
 
 export const RegisterModal = () => {
     const [registerModal, setRegisterModal] = useState(false)
@@ -13,6 +15,7 @@ export const RegisterModal = () => {
     const handleRegisteOpen = () => {
         setRegisterModal(true);
     }
+    const navigate = useNavigate()
 
     const handleRegisteClose = () => {
         setRegisterModal(false);
@@ -34,7 +37,7 @@ export const RegisterModal = () => {
     
             try {
                 await registerUser({name, email, password, confPassword})
-                navigate('/')
+                navigate('/register')
             } catch (error) {
                 setErrorMessage(error.message || "Erro ao cadastrar");
             }
