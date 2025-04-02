@@ -16,9 +16,6 @@ export function AppRoutes () {
                 <Route path="/register" element={<Register/>} />
             </Route>
 
-            <Route>
-                <Route path="/login" element={<LoginModal/>}/>
-            </Route>
 
             {/* Pagina de erro */}
             <Route path="/forbidden" element={Forbidden}/>
