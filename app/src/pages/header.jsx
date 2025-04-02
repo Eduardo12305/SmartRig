@@ -1,24 +1,27 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/logoSmartRig.png"
-// import logo from "../assets/logo.jpg";
-// import logopc from "../assets/logopc.jpg";
+import logo from "../assets/logoSmartRig.png";
 import logoprocess from "../assets/logoProcess.svg";
 import logoPalca from "../assets/logoVideoCard.svg";
-import logoMotherBorad from "../assets/logoMotherboard.svg"
-import logoMemory from "../assets/logoMemory.svg"
-import logoPowerSupply from "../assets/logoPowerSupply.png"
-import logoComputer from "../assets/logoComputer.svg"
+import logoMotherBorad from "../assets/logoMotherboard.svg";
+import logoMemory from "../assets/logoMemory.svg";
+import logoPowerSupply from "../assets/logoPowerSupply.png";
+import logoComputer from "../assets/logoComputer.svg";
 import { LoginModal } from "../components/loginModal";
 import { RegisterModal } from "../components/registerModal"; 
 import { StyledHeader, FlexContainer, IconSoft, Nav, NavList, NavItem, LinkWithText, IconImage, Name } from "../components/css/header.styled";
 
 export function Header() {
-    const navigate = useNavigate(); // Usando o hook useNavigate
+    const navigate = useNavigate();
+    const [activeModal, setActiveModal] = useState(null); // 'login' | 'register' | null
 
     const handleClick = () => {
-        navigate('/register'); // Redireciona para o URL desejado
+        navigate('/register');
     };
 
+    const openLoginModal = () => setActiveModal('login');
+    const openRegisterModal = () => setActiveModal('register');
+    const closeModal = () => setActiveModal(null);
 
     return (
         <StyledHeader>
@@ -65,11 +68,29 @@ export function Header() {
                                 <Name>Monte seu PC</Name>
                             </LinkWithText>
                         </NavItem>
-                        <LoginModal />
-                        <RegisterModal />
+                        <NavItem>
+                            <button onClick={openLoginModal}>Login</button>
+                        </NavItem>
+                        <NavItem>
+                            <button onClick={openRegisterModal}>Registrar</button>
+                        </NavItem>
                     </NavList>
                 </Nav>
             </FlexContainer>
+
+            {/* Renderização condicional dos modais */}
+            {activeModal === 'login' && (
+                <LoginModal 
+                    onClose={closeModal}
+                    onSwitchToRegister={() => setActiveModal('register')}
+                />
+            )}
+            {activeModal === 'register' && (
+                <RegisterModal 
+                    onClose={closeModal}
+                    onSwitchToLogin={() => setActiveModal('login')}
+                />
+            )}
         </StyledHeader>
     );
 }
