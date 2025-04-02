@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "./apiService";
 import InputField from "./inputField";
-import { Wrapper, Modal, CloseButton, ErrorMenss, Form } from "./css/modal.styled";
+import { Wrapper, Modal, CloseButton, ErrorMenss, Form, Cursor } from "./css/modal.styled";
 
 export const RegisterModal = ({ onClose, onSwitchToLogin }) => {
     const [name, setName] = useState("");
@@ -46,9 +46,13 @@ export const RegisterModal = ({ onClose, onSwitchToLogin }) => {
                     <InputField id="confirmPassword" label="Confirmar Senha" value={confPassword} onChange={(e) => setConfPassword(e.target.value)} placeholder="Confirmar Senha" required type="password" />
                     {errorMessage && <ErrorMenss>{errorMessage}</ErrorMenss>}
                     <button type="submit">Registrar</button>
-                    <button type="button" onClick={onSwitchToLogin}>
-                        Já tem conta? Faça login
-                    </button>
+                    <div>
+                        <label>Já tem conta? </label>
+                        <Cursor onClick={onSwitchToLogin}>
+                             Faça login
+                        </Cursor>
+                    </div>
+                    
                 </Form>
             </Modal>
         </Wrapper>

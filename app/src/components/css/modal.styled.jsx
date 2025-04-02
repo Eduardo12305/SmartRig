@@ -77,6 +77,11 @@ font-size: ${(prop) => prop.fontSize ? prop.fontSize: '0.9rem'};
 margin-top: ${(prop) => prop.marginT ? prop.marginT: '0.5rem'};
 `;
 
+export const Cursor = styled.a`
+
+cursor: ${(prop) => prop.cursor ? prop.cursor: 'pointer'}
+`
+
 
 
 

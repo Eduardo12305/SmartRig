@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { loginUser } from "./apiService";
 import InputField from "./inputField";
-import { Wrapper, Modal, CloseButton, ErrorMenss, Form } from './css/modal.styled';
+import { Wrapper, Modal, CloseButton, ErrorMenss, Form, Cursor } from './css/modal.styled';
 
 export const LoginModal = ({ onClose, onSwitchToRegister }) => {
     const [email, setEmail] = useState("");
@@ -49,9 +49,14 @@ export const LoginModal = ({ onClose, onSwitchToRegister }) => {
                     />
                     {errorMessage && <ErrorMenss color="blue">{errorMessage}</ErrorMenss>}
                     <button type="submit">Login</button>
-                    <button type="button" onClick={onSwitchToRegister}>
-                        Não tem conta? Registre-se
-                    </button>
+
+                    <div>
+                        <label>Não tem conta? </label>
+                        <Cursor  onClick={onSwitchToRegister}>
+                            Registre-se
+                        </Cursor>
+                    </div>
+                    
                 </Form>
             </Modal>
         </Wrapper>
