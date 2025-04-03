@@ -1,7 +1,8 @@
 import styled from "styled-components";
 
 export const Card = styled.div`
-border: 1px solid hsl(0,0%,80%);
+background-color: aqua;
+border: 1px solid hsl(0, 1.60%, 24.30%);
 border-radius:10px;
 box-shadow:5px 5px 5px hsla(0,0%,0%,0.1);
 padding:20px;
@@ -28,5 +29,3 @@ p {
     color: hsl(0,0%,30%);
 }
 `
-// export const Img = styled.img`
-// `
