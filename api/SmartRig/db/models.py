@@ -1,10 +1,10 @@
 from django.db import models
 
 class Users(models.Model):
-    nome = models.CharField(max_length=100)
-    senha = models.TextField()
+    name = models.CharField(max_length=100)
+    password = models.TextField()
     email = models.EmailField()
-    data_criacao = models.DateTimeField()
+    creation_date = models.DateTimeField()
 
 class Tipo(models.IntegerChoices):
     PSU = 0, "Fonte"
@@ -15,13 +15,13 @@ class Tipo(models.IntegerChoices):
     UNK = 5, "Desconhecido"
 
 class Produtos(models.Model):
-    categoria = models.IntegerField(choices=Tipo, default=  5)
-    nome = models.CharField()
-    marca = models.CharField()
-    modelo = models.CharField()
-    especificacoes = models.JSONField()
-    imagem = models.CharField()
-    data_adicionado = models.DateField()
+    category = models.IntegerField(choices=Tipo, default=  5)
+    name = models.CharField()
+    brand = models.CharField()
+    model = models.CharField()
+    especifications = models.JSONField()
+    image = models.CharField()
+    date_added = models.DateField()
 
 class Builds(models.Model):
     user = models.ForeignKey(Users, on_delete=models.CASCADE)
@@ -33,17 +33,17 @@ class Builds(models.Model):
 
 
 class Lojas(models.Model):
-    nome = models.CharField()
+    name = models.CharField()
     url = models.URLField()
 
 
 class Precos(models.Model):
-    produto = models.ForeignKey(Produtos, on_delete=models.CASCADE)
+    product = models.ForeignKey(Produtos, on_delete=models.CASCADE)
     loja = models.ForeignKey(Lojas, on_delete=models.CASCADE)
-    url_produto = models.URLField()
-    preco = models.FloatField()
-    data_coleta = models.DateField()
+    url_product = models.URLField()
+    price = models.FloatField()
+    colected_date = models.DateField()
 
 class Favoritos(models.Model):
-    users = models.ForeignKey(Users, on_delete=models.CASCADE)
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
     produto = models.ForeignKey(Produtos, on_delete=models.CASCADE)

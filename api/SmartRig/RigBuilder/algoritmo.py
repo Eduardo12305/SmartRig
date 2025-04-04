@@ -8,17 +8,10 @@ from pathlib import Path
 PROJECT_DIR = Path(__file__).parent
 
 # Load PC parts datasets
-<<<<<<< Updated upstream
 cpu_parts = pd.read_csv(PROJECT_DIR / "cpu_clean.csv")
 gpu_parts = pd.read_csv(PROJECT_DIR / "gpu_clean.csv")
-ram_parts = pd.read_csv(PROJECT_DIR / "memory.csv")
+ram_parts = (4,8,16,32,64,128)
 motherboard_parts = pd.read_csv(PROJECT_DIR / "mobo_clean.csv")
-=======
-cpu_parts = pd.read_csv(PROJECT_DIR / "cpu.csv")
-gpu_parts = pd.read_csv(PROJECT_DIR / "video-card.csv")
-ram_parts = pd.read_csv(PROJECT_DIR / "memory.csv")
-motherboard_parts = pd.read_csv(PROJECT_DIR / "motherboard.csv")
->>>>>>> Stashed changes
 psu_parts = pd.read_csv(PROJECT_DIR / "power-supply.csv")
 storage_parts = pd.read_csv(PROJECT_DIR / "internal-hard-drive.csv")
 
@@ -51,7 +44,7 @@ def random_build():
     return [
         random.choice(pc_parts["CPU"].values.tolist()),
         random.choice(pc_parts["GPU"].values.tolist()),
-        random.choice(pc_parts["RAM"].values.tolist()),
+        random.choice(pc_parts["RAM"]),
         random.choice(pc_parts["Motherboard"].values.tolist()),
         random.choice(pc_parts["PSU"].values.tolist()),
         random.choice(pc_parts["Storage"].values.tolist())
@@ -64,45 +57,16 @@ toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 # Fitness Function
 def fitness_function(individual):
-<<<<<<< Updated upstream
-   cpu_perf = float((sum((individual[0][8], individual[0][9]))/1000))
-   gpu_perf = float(individual[1][6] + (individual[1][10]*((individual[1][5]*individual[1][7]*2)/8)))
+   cpu_perf = float((sum((individual[0][5], individual[0][6]))/1000) + individual[0][7])
+   gpu_perf = float(individual[1][5] + (individual[1][9]*((individual[1][4]*individual[1][6]*2)/8)))
 
    perf = cpu_perf + gpu_perf
 
-   if(individual[0][6] != individual[3][3]):
+   if(individual[0][4] != individual[3][3]):
        return 0,
 
    return perf,
 
-=======
-    cost = sum(part[1] for part in individual)
-
-    # Performance calculation
-    cpu_performance = float(individual[0][2]) * float(individual[0][3]) + float(individual[0][4])
-    gpu_performance = float(individual[1][3]) + float(individual[1][4])
-
-
-    performance = cpu_performance + gpu_performance
-
-    # Compatibility checks
-    cpu_socket = individual[0][7]
-    motherboard_socket = individual[3][3]
-
-    total_power = individual[0][4] + individual[1][4]
-    psu_wattage = individual[4][4]
-
-    compatible = (
-        psu_wattage >= total_power
-    )
-
-    budget_penalty = max(0, (cost - BUDGET) / BUDGET)
-
-    if not compatible:
-        return 0,
-
-    return performance * (1 - budget_penalty),
->>>>>>> Stashed changes
 
 def custom_mutation(individual):
     part_index = random.randint(0, len(individual) - 1)
@@ -145,17 +109,26 @@ def run_ga():
     best_build = tools.selBest(population, 1)[0]
     return best_build
 
+def cpuMax(cpus):
+    cpus["perf"] = (cpus["speed"] + cpus["turbo"]) * cpus["cores"] * (cpus["tdp"] / 65)
+    return cpus["perf"].max()
+
+def gpuMax(gpus):
+    gpu_perfs = [
+        (gpu[7] * gpu[5]) + (gpu[9]* ((gpu[4] * gpu[6] * 2) / 8) * 0.5)
+        for gpu in gpus
+    ]
+    return max(gpu_perfs)
+
 if __name__ == "__main__":
-    best_pc_build = run_ga()
+    max = cpuMax(cpu_parts)
+    cpu_parts["fitness"] = cpu_parts["perf"] / max
+    print(cpu_parts)
+    """ best_pc_build = run_ga()
     print("\n🎯 Best PC Build Found:")
-<<<<<<< Updated upstream
-    print(best_pc_build[0][2])
-    print(best_pc_build[1][2])
-    print(best_pc_build[2][0])
+    print(best_pc_build[0][0])
+    print(best_pc_build[1][1])
+    print(best_pc_build[2], "GB")
     print(best_pc_build[3][1])
     print(best_pc_build[4][0])
-    print(best_pc_build[5][0], best_pc_build[5][2])
-=======
-    for part in best_pc_build:
-        print(f"{part[0]}: {part[1]} | Price: ${part[1]}")
->>>>>>> Stashed changes
+    print(best_pc_build[5][0], best_pc_build[5][2]) """
