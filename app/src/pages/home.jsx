@@ -1,9 +1,15 @@
-import '../css/home.css'
+
+import { StyleBody } from '../components/css/page.styled';
 import { Header } from "./header";
+import { CardPage } from '../components/card';
 export const Home = () => {
    return (
-      <div >
-            <Header/>
-      </div>
+      <>
+         <StyleBody />
+         <Header/>
+         <CardPage/>
+
+      </>
+      
    );
 };
