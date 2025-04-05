@@ -145,11 +145,17 @@ def updateUser(data):
             }))
         
     if data.email != None:
-        user.email = data.email
-        payload = {
-        "email": user.email,  
-        "name": user.name,   
-        }
+        if Users.objects.filter(email=data.email).exists():
+            return HttpResponseBadRequest(json.dumps({
+           "message": "Email em uso!",
+           "status": 400
+       }))
+        else:
+            user.email = data.email
+            payload = {
+            "email": user.email,  
+            "name": user.name,   
+            }
         newToken = jwt.encode(payload, secret_key, algorithm="HS256")
     
     try:
