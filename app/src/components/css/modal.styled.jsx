@@ -17,9 +17,9 @@ export const Modal = styled.div`
 position: relative;
 width: 100%;
 max-width: ${(prop) => prop.width ? prop.width : '400px'};
-background-color: #ffffff;
+background-color: ${(prop) => prop.background ? prop.background: '#ffffff'};
 padding: ${(prop) => prop.padd ? prop.padd : '2rem'};
-border-radius: 10px;
+${(prop) => prop.radius ? prop.radius : '10px'};
 box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 display: flex;
 flex-direction: column;
@@ -29,7 +29,7 @@ text-align: center;
 input {
   width: 100%;
   padding: 0.8rem;
-  border: 1px solid #ccc;
+  border: 1px solid #000000;
   border-radius: 100px;
   font-size: 1rem;
 };
@@ -78,9 +78,8 @@ margin-top: ${(prop) => prop.marginT ? prop.marginT: '0.5rem'};
 `;
 
 export const Cursor = styled.a`
-
 cursor: ${(prop) => prop.cursor ? prop.cursor: 'pointer'}
-`
+`;
 
 
 
