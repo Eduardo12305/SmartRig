@@ -34,6 +34,7 @@ export const LoginModal = ({ onClose, onSwitchToRegister }) => {
                     <InputField
                         id="email"
                         label="E-mail"
+                        type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="seuEmail@exemplo.com"
@@ -42,6 +43,7 @@ export const LoginModal = ({ onClose, onSwitchToRegister }) => {
                     <InputField
                         id="password"
                         label="Senha"
+                        type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Senha"
