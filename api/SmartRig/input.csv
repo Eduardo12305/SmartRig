@@ -1,0 +1,383 @@
+keyword,country
+AMD A6-9500E,br
+AMD Athlon 200GE,br
+AMD Athlon 240GE,br
+AMD Athlon 3000G,br
+AMD Athlon 300GE,br
+AMD Athlon 320GE,br
+AMD Athlon Gold 3150G,br
+AMD Athlon Gold PRO 3150G,br
+AMD Athlon Gold PRO 3150GE,br
+AMD Athlon PRO 200GE,br
+AMD Athlon PRO 300GE,br
+AMD Athlon Silver PRO 3125GE,br
+AMD Ryzen 3 2200G,br
+AMD Ryzen 3 2200GE,br
+AMD Ryzen 3 2300X,br
+AMD Ryzen 3 3100,br
+AMD Ryzen 3 3200G,br
+AMD Ryzen 3 3200GE,br
+AMD Ryzen 3 3300X,br
+AMD Ryzen 3 4100,br
+AMD Ryzen 3 4300G,br
+AMD Ryzen 3 4300GE,br
+AMD Ryzen 3 5300G,br
+AMD Ryzen 3 5300GE,br
+AMD Ryzen 3 PRO 2100GE,br
+AMD Ryzen 3 PRO 2200G,br
+AMD Ryzen 3 PRO 2200GE,br
+AMD Ryzen 3 PRO 3200G,br
+AMD Ryzen 3 PRO 4350G,br
+AMD Ryzen 3 PRO 4350GE,br
+AMD Ryzen 3 PRO 5350G,br
+AMD Ryzen 3 PRO 5350GE,br
+AMD Ryzen 5 2400G,br
+AMD Ryzen 5 2400GE,br
+AMD Ryzen 5 2500X,br
+AMD Ryzen 5 2600,br
+AMD Ryzen 5 2600X,br
+AMD Ryzen 5 3350G,br
+AMD Ryzen 5 3400G,br
+AMD Ryzen 5 3400GE,br
+AMD Ryzen 5 3500,br
+AMD Ryzen 5 3500X,br
+AMD Ryzen 5 3600,br
+AMD Ryzen 5 3600X,br
+AMD Ryzen 5 3600XT,br
+AMD Ryzen 5 4500,br
+AMD Ryzen 5 4600G,br
+AMD Ryzen 5 4600GE,br
+AMD Ryzen 5 5500,br
+AMD Ryzen 5 5600,br
+AMD Ryzen 5 5600G,br
+AMD Ryzen 5 5600GE,br
+AMD Ryzen 5 5600X,br
+AMD Ryzen 5 7600X,br
+AMD Ryzen 5 PRO 2400G,br
+AMD Ryzen 5 PRO 2400GE,br
+AMD Ryzen 5 PRO 2600,br
+AMD Ryzen 5 PRO 3350G,br
+AMD Ryzen 5 PRO 3400G,br
+AMD Ryzen 5 PRO 3400GE,br
+AMD Ryzen 5 PRO 3600,br
+AMD Ryzen 5 PRO 4650G,br
+AMD Ryzen 5 PRO 4650GE,br
+AMD Ryzen 5 PRO 5645,br
+AMD Ryzen 5 PRO 5650G,br
+AMD Ryzen 5 PRO 5650GE,br
+AMD Ryzen 7 2700,br
+AMD Ryzen 7 2700E,br
+AMD Ryzen 7 2700X,br
+AMD Ryzen 7 3700X,br
+AMD Ryzen 7 3800X,br
+AMD Ryzen 7 3800XT,br
+AMD Ryzen 7 4700G,br
+AMD Ryzen 7 4700GE,br
+AMD Ryzen 7 5700,br
+AMD Ryzen 7 5700G,br
+AMD Ryzen 7 5700GE,br
+AMD Ryzen 7 5700X,br
+AMD Ryzen 7 5800,br
+AMD Ryzen 7 5800X,br
+AMD Ryzen 7 5800X3D,br
+AMD Ryzen 7 7700X,br
+AMD Ryzen 7 PRO 2700,br
+AMD Ryzen 7 PRO 2700X,br
+AMD Ryzen 7 PRO 3700,br
+AMD Ryzen 7 PRO 4700G,br
+AMD Ryzen 7 PRO 4750G,br
+AMD Ryzen 7 PRO 4750GE,br
+AMD Ryzen 7 PRO 5750G,br
+AMD Ryzen 7 PRO 5750GE,br
+AMD Ryzen 7 PRO 5845,br
+AMD Ryzen 9 3900,br
+AMD Ryzen 9 3900X,br
+AMD Ryzen 9 3900XT,br
+AMD Ryzen 9 3950X,br
+AMD Ryzen 9 5900,br
+AMD Ryzen 9 5900X,br
+AMD Ryzen 9 5950X,br
+AMD Ryzen 9 7900X,br
+AMD Ryzen 9 7950X,br
+AMD Ryzen 9 PRO 3900,br
+AMD Ryzen 9 PRO 5945,br
+Intel Celeron G4900 @ 3.10GHz,br
+Intel Celeron G4900T @ 2.90GHz,br
+Intel Celeron G4920 @ 3.20GHz,br
+Intel Celeron G4930 @ 3.20GHz,br
+Intel Celeron G5900 @ 3.40GHz,br
+Intel Celeron G5900T @ 3.20GHz,br
+Intel Celeron G5905 @ 3.50GHz,br
+Intel Celeron G5905T @ 3.30GHz,br
+Intel Celeron G5920 @ 3.50GHz,br
+Intel Celeron G5925 @ 3.60GHz,br
+Intel Celeron G6900T,br
+Intel Core i3-10100 @ 3.60GHz,br
+Intel Core i3-10100F @ 3.60GHz,br
+Intel Core i3-10105 @ 3.70GHz,br
+Intel Core i3-10105F @ 3.70GHz,br
+Intel Core i3-10105T @ 3.00GHz,br
+Intel Core i3-10300 @ 3.70GHz,br
+Intel Core i3-10300T @ 3.00GHz,br
+Intel Core i3-10305 @ 3.80GHz,br
+Intel Core i3-10305T @ 3.00GHz,br
+Intel Core i3-10320 @ 3.80GHz,br
+Intel Core i3-10325 @ 3.90GHz,br
+Intel Core i3-12100,br
+Intel Core i3-12100F,br
+Intel Core i3-12100T,br
+Intel Core i3-12300,br
+Intel Core i3-12300T,br
+Intel Core i3-8100T @ 3.10GHz,br
+Intel Core i3-8300 @ 3.70GHz,br
+Intel Core i3-8300T @ 3.20GHz,br
+Intel Core i3-9100 @ 3.60GHz,br
+Intel Core i3-9100F @ 3.60GHz,br
+Intel Core i3-9100T @ 3.10GHz,br
+Intel Core i3-9300 @ 3.70GHz,br
+Intel Core i3-9300T @ 3.20GHz,br
+Intel Core i3-9320 @ 3.70GHz,br
+Intel Core i3-9350KF @ 4.00GHz,br
+Intel Core i5-10400 @ 2.90GHz,br
+Intel Core i5-10400F @ 2.90GHz,br
+Intel Core i5-10400T @ 2.00GHz,br
+Intel Core i5-10500 @ 3.10GHz,br
+Intel Core i5-10500T @ 2.30GHz,br
+Intel Core i5-10505 @ 3.20GHz,br
+Intel Core i5-10600 @ 3.30GHz,br
+Intel Core i5-10600K @ 4.10GHz,br
+Intel Core i5-10600KF @ 4.10GHz,br
+Intel Core i5-10600T @ 2.40GHz,br
+Intel Core i5-11400 @ 2.60GHz,br
+Intel Core i5-11400F @ 2.60GHz,br
+Intel Core i5-11400T @ 1.30GHz,br
+Intel Core i5-11500 @ 2.70GHz,br
+Intel Core i5-11500T @ 1.50GHz,br
+Intel Core i5-11600 @ 2.80GHz,br
+Intel Core i5-11600K @ 3.90GHz,br
+Intel Core i5-11600KF @ 3.90GHz,br
+Intel Core i5-11600T @ 1.70GHz,br
+Intel Core i5-12400,br
+Intel Core i5-12400F,br
+Intel Core i5-12400T,br
+Intel Core i5-12490F,br
+Intel Core i5-12500,br
+Intel Core i5-12500T,br
+Intel Core i5-12600,br
+Intel Core i5-12600K,br
+Intel Core i5-12600KF,br
+Intel Core i5-12600T,br
+Intel Core i5-13400,br
+Intel Core i5-13500,br
+Intel Core i5-13600K,br
+Intel Core i5-13600KF,br
+Intel Core i5-8400T @ 1.70GHz,br
+Intel Core i5-8500 @ 3.00GHz,br
+Intel Core i5-8500T @ 2.10GHz,br
+Intel Core i5-8600 @ 3.10GHz,br
+Intel Core i5-8600T @ 2.30GHz,br
+Intel Core i5-9400 @ 2.90GHz,br
+Intel Core i5-9400T @ 1.80GHz,br
+Intel Core i5-9500 @ 3.00GHz,br
+Intel Core i5-9500F @ 3.00GHz,br
+Intel Core i5-9500T @ 2.20GHz,br
+Intel Core i5-9600 @ 3.10GHz,br
+Intel Core i5-9600K @ 3.70GHz,br
+Intel Core i5-9600KF @ 3.70GHz,br
+Intel Core i5-9600T @ 2.30GHz,br
+Intel Core i7-10700 @ 2.90GHz,br
+Intel Core i7-10700F @ 2.90GHz,br
+Intel Core i7-10700K @ 3.80GHz,br
+Intel Core i7-10700KF @ 3.80GHz,br
+Intel Core i7-10700T @ 2.00GHz,br
+Intel Core i7-11700 @ 2.50GHz,br
+Intel Core i7-11700F @ 2.50GHz,br
+Intel Core i7-11700K @ 3.60GHz,br
+Intel Core i7-11700KF @ 3.60GHz,br
+Intel Core i7-11700T @ 1.40GHz,br
+Intel Core i7-12700,br
+Intel Core i7-12700F,br
+Intel Core i7-12700K,br
+Intel Core i7-12700KF,br
+Intel Core i7-12700T,br
+Intel Core i7-13700,br
+Intel Core i7-13700K,br
+Intel Core i7-13700KF,br
+Intel Core i7-8086K @ 4.00GHz,br
+Intel Core i7-8700T @ 2.40GHz,br
+Intel Core i7-9700 @ 3.00GHz,br
+Intel Core i7-9700E @ 2.60GHz,br
+Intel Core i7-9700F @ 3.00GHz,br
+Intel Core i7-9700K @ 3.60GHz,br
+Intel Core i7-9700KF @ 3.60GHz,br
+Intel Core i7-9700T @ 2.00GHz,br
+Intel Core i9-10850K @ 3.60GHz,br
+Intel Core i9-10900 @ 2.80GHz,br
+Intel Core i9-10900F @ 2.80GHz,br
+Intel Core i9-10900K @ 3.70GHz,br
+Intel Core i9-10900KF @ 3.70GHz,br
+Intel Core i9-10900T @ 1.90GHz,br
+Intel Core i9-10910 @ 3.60GHz,br
+Intel Core i9-11900 @ 2.50GHz,br
+Intel Core i9-11900F @ 2.50GHz,br
+Intel Core i9-11900K @ 3.50GHz,br
+Intel Core i9-11900KF @ 3.50GHz,br
+Intel Core i9-11900T @ 1.50GHz,br
+Intel Core i9-12900,br
+Intel Core i9-12900F,br
+Intel Core i9-12900K,br
+Intel Core i9-12900KF,br
+Intel Core i9-12900KS,br
+Intel Core i9-12900T,br
+Intel Core i9-13900K,br
+Intel Core i9-13900KF,br
+Intel Core i9-9900 @ 3.10GHz,br
+Intel Core i9-9900K @ 3.60GHz,br
+Intel Core i9-9900KF @ 3.60GHz,br
+Intel Core i9-9900KS @ 4.00GHz,br
+Intel Core i9-9900T @ 2.10GHz,br
+Intel Pentium Gold G5400 @ 3.70GHz,br
+Intel Pentium Gold G5420 @ 3.80GHz,br
+Intel Pentium Gold G5420T @ 3.20GHz,br
+Intel Pentium Gold G5500 @ 3.80GHz,br
+Intel Pentium Gold G5500T @ 3.20GHz,br
+Intel Pentium Gold G5600 @ 3.90GHz,br
+Intel Pentium Gold G5600F @ 3.90GHz,br
+Intel Pentium Gold G5620 @ 4.00GHz,br
+Intel Pentium Gold G6400 @ 4.00GHz,br
+Intel Pentium Gold G6400T @ 3.40GHz,br
+Intel Pentium Gold G6405 @ 4.10GHz,br
+Intel Pentium Gold G6405T @ 3.50GHz,br
+Intel Pentium Gold G6500 @ 4.10GHz,br
+Intel Pentium Gold G6500T @ 3.50GHz,br
+Intel Pentium Gold G6505 @ 4.20GHz,br
+Intel Pentium Gold G6600 @ 4.20GHz,br
+Intel Pentium Gold G6605 @ 4.30GHz,br
+AMD Ryzen 9 5950X,br
+Intel Core i5-12400F,br
+GeForce RTX 5090,br
+GeForce RTX 5080,br
+GeForce RTX 5070,br
+GeForce RTX 5060,br
+GeForce RTX 5050,br
+GeForce RTX 3050 6 GB,br
+GeForce RTX 4080 SUPER,br
+GeForce RTX 4070 Ti SUPER,br
+GeForce RTX 4070 SUPER,br
+GeForce RTX 4070,br
+Radeon RX 7600 XT,br
+GeForce RTX 4060 Ti,br
+GeForce RTX 4060,br
+Radeon RX 6550S,br
+GeForce RTX 4090,br
+Radeon RX 7900 GRE,br
+Radeon RX 7800 XT,br
+Arc A580,br
+Radeon RX 7700 XT,br
+Radeon RX 6750 GRE 12 GB,br
+GeForce RTX 4070 Ti,br
+GeForce RTX 4070,br
+Radeon RX 6750 GRE 10 GB,br
+Radeon RX 7700S,br
+Radeon RX 7600S,br
+Radeon RX 7600,br
+Radeon RX 6600 LE,br
+GeForce RTX 4060 Ti 8 GB,br
+GeForce RTX 4060 Ti 16 GB,br
+GeForce RTX 4060,br
+Arc A380,br
+Radeon RX 6500 XT,br
+Radeon RX 6400,br
+GeForce GTX 1630,br
+Arc A350,br
+Arc A310,br
+Radeon RX 7900 XTX,br
+GeForce RTX 4090,br
+GeForce RTX 3090 Ti,br
+GeForce RTX 3080 12 GB,br
+Radeon RX 7900 XT,br
+GeForce RTX 3080 Ti 20 GB,br
+Radeon RX 6950 XT,br
+GeForce RTX 4080,br
+GeForce RTX 3070 Ti 8 GB,br
+GeForce RTX 3060 Ti,br
+Arc A770,br
+Arc A750,br
+Radeon RX 6750 XT,br
+Radeon RX 6800S,br
+Radeon RX 6700S,br
+Radeon RX 6650 XT,br
+Radeon RX 6600S,br
+GeForce RTX 3060 8 GB,br
+GeForce RTX 3050 8 GB,br
+GeForce RTX 3050 4 GB,br
+Placa Mãe AM5,br
+Placa Mãe LGA1700,br
+Placa Mãe AM4,br
+Placa Mãe LGA1200,br
+Placa Mãe LGA1151-2,br
+Memória Ram 4GB ddr3,br
+Memória Ram 6GB ddr3,br
+Memória Ram 8GB ddr3,br
+Memória Ram 12GB ddr3,br
+Memória Ram 16GB ddr3,br
+Memória Ram 24GB ddr3,br
+Memória Ram 32GB ddr3,br
+Memória Ram 48GB ddr3,br
+Memória Ram 64GB ddr3,br
+Memória Ram 96GB ddr3,br
+Memória Ram 128GB ddr3,br
+Memória Ram 192GB ddr3,br
+Memória Ram 256GB ddr3,br
+Memória Ram 4GB ddr4,br
+Memória Ram 6GB ddr4,br
+Memória Ram 8GB ddr4,br
+Memória Ram 12GB ddr4,br
+Memória Ram 16GB ddr4,br
+Memória Ram 24GB ddr4,br
+Memória Ram 32GB ddr4,br
+Memória Ram 48GB ddr4,br
+Memória Ram 64GB ddr4,br
+Memória Ram 96GB ddr4,br
+Memória Ram 128GB ddr4,br
+Memória Ram 192GB ddr4,br
+Memória Ram 256GB ddr4,br
+Memória Ram 4GB ddr5,br
+Memória Ram 6GB ddr5,br
+Memória Ram 8GB ddr5,br
+Memória Ram 12GB ddr5,br
+Memória Ram 16GB ddr5,br
+Memória Ram 24GB ddr5,br
+Memória Ram 32GB ddr5,br
+Memória Ram 48GB ddr5,br
+Memória Ram 64GB ddr5,br
+Memória Ram 96GB ddr5,br
+Memória Ram 128GB ddr5,br
+Memória Ram 192GB ddr5,br
+Memória Ram 256GB ddr5,br
+fonte 250W,br
+fonte 300W,br
+fonte 350W,br
+fonte 400W,br
+fonte 450W,br
+fonte 500W,br
+fonte 550W,br
+fonte 600W,br
+fonte 650W,br
+fonte 700W,br
+fonte 750W,br
+fonte 800W,br
+fonte 850W,br
+fonte 900W,br
+fonte 1000W,br
+fonte 1050W,br
+fonte 1200W,br
+fonte 1300W,br
+fonte 1350W,br
+fonte 1500W,br
+fonte 1600W,br
+fonte 1700W,br
+fonte 1800W,br
+fonte 2000W,br
+fonte 2200W,br
+fonte 2400W,br

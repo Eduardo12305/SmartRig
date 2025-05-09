@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from ninja import Schema
 from pydantic import EmailStr
 
@@ -10,6 +11,9 @@ class registrarSchema(Schema):
 class updatePassword(Schema):
     password: str
     confPassword: str
+
+class getProd(Schema):
+    name: str
 
 class update(Schema):
     name: str = None

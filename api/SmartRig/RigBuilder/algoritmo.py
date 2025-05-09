@@ -1,5 +1,6 @@
 # Genetic Algorithm for PC Part Selection
 
+import re
 import random
 import pandas as pd
 from deap import base, creator, tools
@@ -10,8 +11,8 @@ PROJECT_DIR = Path(__file__).parent
 # Load PC parts datasets
 cpu_parts = pd.read_csv(PROJECT_DIR / "cpu_clean.csv")
 gpu_parts = pd.read_csv(PROJECT_DIR / "gpu_clean.csv")
-ram_parts = (4,8,16,32,64,128)
-motherboard_parts = pd.read_csv(PROJECT_DIR / "mobo_clean.csv")
+ram_parts = pd.read_csv(PROJECT_DIR / "ram_clean.csv")
+mobo_parts = pd.read_csv(PROJECT_DIR / "mobo_clean.csv")
 psu_parts = pd.read_csv(PROJECT_DIR / "power-supply.csv")
 storage_parts = pd.read_csv(PROJECT_DIR / "internal-hard-drive.csv")
 
@@ -19,15 +20,6 @@ storage_parts = pd.read_csv(PROJECT_DIR / "internal-hard-drive.csv")
 POPULATION_SIZE = 100
 GENERATIONS = 50
 BUDGET = 1500
-
-pc_parts = {
-    "CPU": cpu_parts,
-    "GPU": gpu_parts,
-    "RAM": ram_parts,
-    "Motherboard": motherboard_parts,
-    "PSU": psu_parts,
-    "Storage": storage_parts
-}
 
 
 # Genetic Algorithm Parameters
@@ -41,13 +33,20 @@ creator.create("Individual", list, fitness=creator.FitnessMax)
 
 # Register Individual (PC Build) and Population
 def random_build():
+    mobo = mobo_parts.sample(n=1)
+    cpu = cpu_parts[cpu_parts["socket"] == mobo.iloc[0]["socket"]].sample(n=1)
+    gpu = gpu_parts.sample(n=1)
+    psu = psu_parts.sample(n=1)
+    ram = ram_parts[re.search("^[0-9]",ram_parts.iloc[0]["modules"]) <= mobo.iloc[0]["memory_slots"]].sample(n=1)
+        
+    storage = storage_parts.sample(n=1)
     return [
-        random.choice(pc_parts["CPU"].values.tolist()),
-        random.choice(pc_parts["GPU"].values.tolist()),
-        random.choice(pc_parts["RAM"]),
-        random.choice(pc_parts["Motherboard"].values.tolist()),
-        random.choice(pc_parts["PSU"].values.tolist()),
-        random.choice(pc_parts["Storage"].values.tolist())
+        cpu,
+        gpu,
+        psu,
+        mobo,
+        ram,
+        storage    
     ]
 
 
@@ -109,26 +108,13 @@ def run_ga():
     best_build = tools.selBest(population, 1)[0]
     return best_build
 
-def cpuMax(cpus):
-    cpus["perf"] = (cpus["speed"] + cpus["turbo"]) * cpus["cores"] * (cpus["tdp"] / 65)
-    return cpus["perf"].max()
-
-def gpuMax(gpus):
-    gpu_perfs = [
-        (gpu[7] * gpu[5]) + (gpu[9]* ((gpu[4] * gpu[6] * 2) / 8) * 0.5)
-        for gpu in gpus
-    ]
-    return max(gpu_perfs)
 
 if __name__ == "__main__":
-    max = cpuMax(cpu_parts)
-    cpu_parts["fitness"] = cpu_parts["perf"] / max
-    print(cpu_parts)
-    """ best_pc_build = run_ga()
+    best_pc_build = run_ga()
     print("\n🎯 Best PC Build Found:")
     print(best_pc_build[0][0])
     print(best_pc_build[1][1])
     print(best_pc_build[2], "GB")
     print(best_pc_build[3][1])
     print(best_pc_build[4][0])
-    print(best_pc_build[5][0], best_pc_build[5][2]) """
+    print(best_pc_build[5][0], best_pc_build[5][2])

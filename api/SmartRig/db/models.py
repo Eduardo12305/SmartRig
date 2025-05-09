@@ -17,9 +17,7 @@ class Tipo(models.IntegerChoices):
 class Produtos(models.Model):
     category = models.IntegerField(choices=Tipo, default=  5)
     name = models.CharField()
-    brand = models.CharField()
-    model = models.CharField()
-    especifications = models.JSONField()
+    specifications = models.JSONField()
     image = models.CharField()
     date_added = models.DateField()
 
