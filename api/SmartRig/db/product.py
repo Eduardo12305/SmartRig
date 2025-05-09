@@ -1,11 +1,14 @@
 from datetime import timezone
 import json
+import os
+from dotenv import load_dotenv
 import pandas as pd
 from pathlib import Path
 from django.http import HttpResponseBadRequest, JsonResponse
 from db.models import Produtos, Tipo
 
-path = "E:/Projetos/Atividades/TCC/api/SmartRig/RigBuilder/"
+load_dotenv()
+path = os.getenv("CSV_PATH")
 
 def generalize(df):
     baseCols = ["name", "price"]
