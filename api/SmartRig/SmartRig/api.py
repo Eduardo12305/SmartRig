@@ -26,8 +26,18 @@ def deleteUser(request, data: schema.update):
     return views.deleteUser(data)
 
 @api.post("/products/get")
-def registerProd(request, data: schema.getProd):
+def getProd(request, data: schema.getProd):
     return product.get(data)
+
+#   PSU = Fonte
+#   MOBO = Placa-mãe
+#   CPU = Processador
+#   RAM = Memória RAM
+#   GPU = Placa De Vídeo
+#   STORAGE = HDD ou SSD 
+@api.post("/products/getCategory")
+def getCategory(request, data: schema.getProd):
+    return product.getCategory(data)
 
 @api.get("/products/getAll")
 def getAllProd(request):

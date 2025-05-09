@@ -34,6 +34,13 @@ def get(data):
     "message": "Produto encontrado",
     "status": 201,
     "data" : json.loads(partsDB[partsDB["name"].str.contains(data.name, case=False, na=False)].to_json(orient="records"))
+    })
+
+def getCategory(data):
+    return JsonResponse({
+    "message": "Produto encontrado",
+    "status": 201,
+    "data" : json.loads(partsDB[partsDB["category"] == data.name].to_json(orient="records"))
     }) 
 
 def getAll():
