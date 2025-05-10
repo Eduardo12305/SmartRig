@@ -1,5 +1,5 @@
 from SmartRig import schema
-from ninja import NinjaAPI
+from ninja import File, NinjaAPI, Query, UploadedFile
 from ninja_jwt.routers.blacklist import blacklist_router
 from ninja_jwt.routers.obtain import obtain_pair_router, sliding_router
 from ninja_jwt.routers.verify import verify_router
@@ -25,9 +25,9 @@ def updateUser(request, data: schema.update):
 def deleteUser(request, data: schema.update):
     return views.deleteUser(data)
 
-@api.post("/products/get")
-def getProd(request, data: schema.getProd):
-    return product.get(data)
+@api.get("/products/get/{product_id}")
+def getProd(request, product_id: str):
+    return product.get(product_id)
 
 #   PSU = Fonte
 #   MOBO = Placa-mãe
@@ -35,10 +35,6 @@ def getProd(request, data: schema.getProd):
 #   RAM = Memória RAM
 #   GPU = Placa De Vídeo
 #   STORAGE = HDD ou SSD 
-@api.post("/products/getCategory")
-def getCategory(request, data: schema.getProd):
-    return product.getCategory(data)
-
-@api.get("/products/getAll")
-def getAllProd(request):
-    return product.getAll()
+@api.get("/products")
+def getProdFilter(request, query: Query[schema.getProd]):
+    return product.getFiltered(query)

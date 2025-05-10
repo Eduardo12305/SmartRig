@@ -13,7 +13,11 @@ class updatePassword(Schema):
     confPassword: str
 
 class getProd(Schema):
-    name: str
+    name: str = None
+    category: str = None
+    maxprice: float = None
+    minprice: float = None
+    specifications: str = None
 
 class update(Schema):
     name: str = None
