@@ -1,48 +1,148 @@
+import uuid
 from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 
 class Users(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
     password = models.TextField()
-    email = models.EmailField()
-    creation_date = models.DateTimeField()
-
-class Type(models.IntegerChoices):
-        PSU = 0, "Fonte"
-        MOBO = 1, "Placa-mãe"
-        CPU = 2, "Processador"
-        RAM = 3, "Memória RAM"
-        GPU = 4, "Placa De Vídeo"
-        UNK = 5, "Desconhecido"
-
-class Products(models.Model):
-
-    type = models.IntegerField(choices=Type, default=  5)
-    name = models.CharField()
-    specifications = models.JSONField()
-    image = models.CharField()
-    date_added = models.DateField()
-
-class Builds(models.Model):
-    user = models.ForeignKey(Users, on_delete=models.CASCADE)
-    psu = models.ForeignKey(Products, related_name = "build_psu", limit_choices_to={"categoria": Type.PSU}, on_delete= models.CASCADE)
-    mobo = models.ForeignKey(Products, related_name = "build_mobo", limit_choices_to={"categoria": Type.MOBO}, on_delete= models.CASCADE)
-    cpu = models.ForeignKey(Products, related_name = "build_cpu", limit_choices_to={"categoria": Type.CPU}, on_delete= models.CASCADE)
-    ram = models.ForeignKey(Products, related_name = "build_ram", limit_choices_to={"categoria": Type.RAM}, on_delete= models.CASCADE)
-    gpu = models.ForeignKey(Products, related_name = "build_gpu", limit_choices_to={"categoria": Type.GPU}, null=True, on_delete= models.SET_NULL)
-
+    email = models.EmailField(max_length=255)
+    creation_date = models.DateField(auto_now_add=True)
 
 class Stores(models.Model):
-    name = models.CharField()
-    url = models.URLField()
-
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200)
+    url = models.URLField(max_length=500)
 
 class Prices(models.Model):
-    product = models.ForeignKey(Products, on_delete=models.CASCADE)
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     store = models.ForeignKey(Stores, on_delete=models.CASCADE)
-    url_product = models.URLField()
+    url_product = models.URLField(max_length=500)
+    sale = models.BooleanField()
     price = models.FloatField()
-    colected_date = models.DateField()
+    old_price = models.FloatField(null=True, blank=True,default=None)
+    sale_percent = models.IntegerField(null=True, blank=True, default=None)
+    sale_end = models.DateTimeField(null=True, default=None, blank=True)
+    colected_date = models.DateTimeField(auto_now_add=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.UUIDField()
+    product = GenericForeignKey("content_type", "object_id")
+
+    def clean(self):
+        if self.sale:
+            if self.old_price is None or self.sale_percent is None:
+                raise ValidationError("Se sale for true, old_price e sale_percent não podem ser vazios!")
+        else:
+            if self.old_price is not None or self.sale_percent is not None:
+                raise ValidationError("Se sale for false, old_price e sale_percent não devem estar vazios")
+        
+
+class PartRegistry(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.UUIDField()
+    part = GenericForeignKey("content_type", "object_id")
+    part_type = models.CharField(max_length=50)
+
+class Igpu(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200)
+    date_added = models.DateField(auto_now_add=True)
+    brand = models.CharField(max_length=50)
+    memory = models.IntegerField()
+    speed = models.IntegerField()
+    turbo = models.IntegerField()
+
+class Cpu(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200)
+    image = models.CharField(max_length=500, blank=True)
+    date_added = models.DateField(auto_now_add=True)
+    brand = models.CharField(max_length=50)
+    igpu = models.ForeignKey(Igpu, null=True, on_delete= models.CASCADE)
+    socket = models.CharField(max_length=50)
+    tdp = models.IntegerField()
+    cores = models.IntegerField()
+    speed = models.IntegerField()
+    turbo = models.IntegerField()
+
+class Gpu(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200)
+    image = models.CharField(max_length=500, blank=True)
+    date_added = models.DateField(auto_now_add=True)
+    brand = models.CharField(max_length=50)
+    chipset = models.CharField(max_length=100)
+    tdp = models.IntegerField()
+    memory = models.IntegerField()
+    speed = models.IntegerField()
+    turbo = models.IntegerField()
+
+class Psu(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200)
+    image = models.CharField(max_length=500, blank=True)
+    date_added = models.DateField(auto_now_add=True)
+    brand = models.CharField(max_length=50)
+    type = models.CharField(max_length=100)
+    wattage = models.IntegerField()
+    efficiency = models.CharField(max_length=50)
+    modular = models.CharField(max_length=50, null=True)
+
+class Mobo(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200)
+    image = models.CharField(max_length=500, blank=True)
+    date_added = models.DateField(auto_now_add=True)
+    brand = models.CharField(max_length=50)
+    socket = models.CharField(max_length=50)
+    form_factor = models.CharField(max_length=50)
+    memory_max = models.IntegerField()
+    memory_type = models.CharField(max_length=50)
+    memory_slots = models.IntegerField()
+    chipset = models.CharField(max_length=100)
+    m2_nvme = models.IntegerField()
+    m2_sata = models.IntegerField()
+
+class Ram(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200)
+    image = models.CharField(max_length=500, blank=True)
+    date_added = models.DateField(auto_now_add=True)
+    brand = models.CharField(max_length=50)
+    memory_type = models.CharField(max_length=50)
+    memory_size = models.IntegerField()
+    memory_modules = models.IntegerField()
+    memory_speed = models.IntegerField()
+
+class Storage(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200)
+    image = models.CharField(max_length=500, blank=True)
+    date_added = models.DateField(auto_now_add=True)
+    brand = models.CharField(max_length=50)
+    type = models.CharField(max_length=10)
+    capacity = models.IntegerField()
+    form_factor = models.CharField(max_length=30)
+    interface = models.CharField(max_length=30)
+
+class Builds(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    build = models.JSONField()
 
 class Favorites(models.Model):
     user = models.ForeignKey(Users, on_delete=models.CASCADE)
-    product = models.ForeignKey(Products, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.UUIDField()
+    favorite = GenericForeignKey("content_type", "object_id")
+    added_at = models.DateField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "content_type", "object_id"],
+                name="unique_favorite"
+            )
+        ]

@@ -3,6 +3,7 @@ from hashlib import sha256
 import json
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render
+from ninja.errors import HttpError
 from dotenv import load_dotenv
 import os
 import jwt
@@ -14,17 +15,11 @@ def registrar(data):
     
         # Verificar se o email já está em uso
     if Users.objects.filter(email=data.email).exists():
-       return HttpResponseBadRequest(json.dumps({
-           "message": "Usuario ja cadastrado",
-           "status": 400
-       }))
+        raise HttpError(400, "Usuário já cadastrado")
     
     # Verificar se as senhas coincidem
     if data.password != data.confPassword:
-        return HttpResponseBadRequest(json.dumps({
-            "message": "Senhas não conferem",
-            "status": 400,
-        }))
+        raise HttpError(400, "Senhas não conferem")
     
     password_hash = make_password(data.password) 
 
@@ -32,28 +27,23 @@ def registrar(data):
     user = Users(
         name = data.name,
         password = password_hash,
-        email = data.email,
-        creation_date = timezone.now()
+        email = data.email
     )
 
     try:
         user.save()
     except:
-        return HttpResponseBadRequest(json.dumps({
-            "message": "Erro ao salvar o usuário",
-            "status": 500
-        }))
+        raise HttpError(500, "Error ao salvar Usuário")
 
     return JsonResponse({
         "message": "Usuario cadastrado com sucesso",
-        "status": 201,
         "data" : {
             "id": user.id,
             "nome": user.name,
             "email": user.email,
             "data_criacao": user.data_criacao,
         }
-    })
+    }, status=201)
 
 def login(data):
     # Tentar acessar os dados
@@ -61,34 +51,23 @@ def login(data):
         email = data.email  # Acesso direto ao atributo "email"
         password = data.password  # Acesso direto ao atributo "password"
     except AttributeError:
-        return HttpResponseBadRequest(json.dumps({
-            "message": "Email e Senha são obrigatórios",
-            "status": 400
-        }))
+        raise HttpError(400, "Input Inválido")
 
     if not email or not password:
-        return HttpResponseBadRequest(json.dumps({
-            "message": "Email e Senha são obrigatórios",
-            "status": 400
-        }))
+        raise HttpError(400, "Email e senha são obrigatorios")
     
     # Buscar o usuário no banco de dados
     user = Users.objects.filter(email=email).first()
 
     if not user:
-        return HttpResponseBadRequest(json.dumps({
-            "message": "Verifique E-mail e Senha",
-            "status": 404
-        }))
+        raise HttpError(400, "E-mail ou Senha incorretos")
     
     # Comparar a senha fornecida com a senha armazenada
     stored_password = user.password  # Certifique-se de usar o campo correto
 
     if not check_password(password,stored_password):
-        return JsonResponse({
-            "message": "E-mail ou Senha incorretos",
-            "status": 400
-        }, status=400)
+        raise HttpError(400, "E-mail ou Senha incorretos")
+    
     # Criar o token JWT
     load_dotenv()  # Carregar variáveis de ambiente
     secret_key = os.getenv('SECRET_KEY')  # Obter chave secreta do .env
@@ -100,11 +79,10 @@ def login(data):
     token = jwt.encode(payload, secret_key, algorithm="HS256")
 
     # Retornar a resposta com o token
-    return JsonResponse({
+    return {
         "message": "Login bem-sucedido",
-        "status": 200,
         "token": token
-    }, content_type="application/json")
+    }
 
 def updateUser(data):
 
@@ -113,18 +91,13 @@ def updateUser(data):
     try:
         token = jwt.decode(data.token, secret_key, algorithms="HS256", do_time_check = True)
     except:
-        return HttpResponseBadRequest(json.dumps({
-            "message": "token invalido"
-        }))
+        raise HttpError(400, "Token Inválido")
     
     newToken = "Email e/ou nome não foram atualizados"
     user = Users.objects.filter(email=token["email"]).first()
 
     if not check_password(data.password, user.password):
-        return HttpResponseBadRequest(json.dumps({
-            "message": "Senha Invalida!",
-            "status": 400
-        }))
+        raise HttpError(400, "Senha Inválida")
     
     if data.name != None:
         user.nome = data.name
@@ -139,17 +112,11 @@ def updateUser(data):
         if data.newPassword.password == data.newPassword.confPassword:
             user.password = make_password(data.newPassword.password)
         else:
-            return HttpResponseBadRequest(json.dumps({
-                "message": "As senhas não coincidem",
-                "status": 400
-            }))
+            raise HttpError(400, "As senhas não coincidem")
         
     if data.email != None:
         if Users.objects.filter(email=data.email).exists():
-            return HttpResponseBadRequest(json.dumps({
-           "message": "Email em uso!",
-           "status": 400
-       }))
+            raise HttpError(400, "E-mail em uso")
         else:
             user.email = data.email
             payload = {
@@ -161,16 +128,12 @@ def updateUser(data):
     try:
         user.save()
     except:
-        return HttpResponseBadRequest(json.dumps({
-            "message": "Erro ao salvar o usuário",
-            "status": 500
-        }))
+        raise HttpError(500, "Erro ao salvar o usuário")
 
-    return JsonResponse({
+    return {
         "message" : "Usuário atualizado com sucesso!",
         "token": newToken,
-        "status": 200
-    })
+    }
 
 def deleteUser(data):
      
@@ -179,27 +142,18 @@ def deleteUser(data):
     try:
         token = jwt.decode(data.token, secret_key, algorithms="HS256", do_time_check = True)
     except:
-        return HttpResponseBadRequest(json.dumps({
-            "message": "token invalido"
-        }))
+        raise HttpError(400, "Token Inválido")
     
     user = Users.objects.filter(email=token["email"]).first()
 
     if not check_password(data.password, user.password):
-        return HttpResponseBadRequest(json.dumps({
-            "message": "Senha Invalida!",
-            "status": 400
-        }))
+        raise HttpError(400, "Senha Inválida")
     
     try:
         user.delete()
     except:
-        return HttpResponseBadRequest(json.dumps({
-            "message": "Erro ao deletar o usuário",
-            "status": 500
-        }))
+        return HttpError(500, "Erro ao tentar deletar o usuário")
     
-    return JsonResponse({
-        "message": "Usuário deletado com sucesso",
-        "status": 200
-    })
+    return {
+        "message": "Usuário deletado com sucesso"
+    }
