@@ -40,6 +40,14 @@ h2 {
     position: relative;
     height: 100%;
 }
+
+/* @media (max-width:745px) {
+    input {
+      width: 10%;
+      border: 1px solid #ff9c07;
+      
+    }
+  } */
 `;
 
 export const CloseButton = styled.button `
@@ -57,6 +65,7 @@ export const CloseButton = styled.button `
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+  z-index: 1100;
 `;
 export const Form = styled.form`
 width: 100%;

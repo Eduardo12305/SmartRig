@@ -27,7 +27,7 @@ export const LoginModal = ({ onClose, onSwitchToRegister }) => {
 
     return (
         <Wrapper>
-        <Modal width="850px" padd="5rem">
+            <Modal width="640px" padd="5rem">
                 <CloseButton onClick={onClose}>x</CloseButton>
                 <h2>Login</h2>
                 <Form onSubmit={handleLogin}>
@@ -54,11 +54,10 @@ export const LoginModal = ({ onClose, onSwitchToRegister }) => {
 
                     <div>
                         <label>Não tem conta? </label>
-                        <Cursor  onClick={onSwitchToRegister}>
+                        <Cursor onClick={onSwitchToRegister}>
                             Registre-se
                         </Cursor>
                     </div>
-                    
                 </Form>
             </Modal>
         </Wrapper>

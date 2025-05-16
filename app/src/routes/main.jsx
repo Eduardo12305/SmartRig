@@ -3,7 +3,7 @@ import { PublicRoute } from "../components/auth/notAuthRoute";
 import { Home } from "../pages/home";
 import { Forbidden } from "../pages/error/forbidden";
 import { Register } from "../pages/register";
-import { LoginModal } from "../components/loginModal";
+import { Products } from "../pages/produtos";
 
 export function AppRoutes () {
     return (
@@ -16,6 +16,9 @@ export function AppRoutes () {
                 <Route path="/register" element={<Register/>} />
             </Route>
 
+            <Route>
+                <Route path="/produto/:id" element={<Products />} />
+            </Route>
 
             {/* Pagina de erro */}
             <Route path="/forbidden" element={Forbidden}/>

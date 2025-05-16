@@ -1,9 +1,15 @@
 
+import styled from "styled-components";
+
+const StyledInput = styled.input`
+background-color: #fff;
+color: black;
+`
 const InputField = ({ id, label, value, onChange, placeholder, required, type = "text" }) => {
     return (
-        <div className="input">
+        <div>
             <label htmlFor={id}>{label}</label>
-            <input
+            <StyledInput
                 type={type}
                 id={id}
                 value={value}
