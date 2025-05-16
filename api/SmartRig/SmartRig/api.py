@@ -1,15 +1,20 @@
+from typing import Optional
 from SmartRig import schema
 from ninja import File, NinjaAPI, Query, UploadedFile
 from ninja.errors import HttpError
 from ninja_jwt.routers.blacklist import blacklist_router
 from ninja_jwt.routers.obtain import obtain_pair_router, sliding_router
-from ninja_jwt.routers.verify import verify_router
+from ninja_jwt.authentication import JWTAuth
 from db import views
 from db import product
+
 from db.datagen import genAll, genAllPrices
 
 api = NinjaAPI()
 api.add_router('/token', tags=['Auth'], router=obtain_pair_router)
+auth = JWTAuth()
+
+# User
 
 @api.post("/users/register")
 def post_registrar(request, data: schema.registrarSchema):
@@ -19,13 +24,29 @@ def post_registrar(request, data: schema.registrarSchema):
 def post_login(request, data: schema.loginSchema):
     return views.login(data)
 
-@api.post("/users/update")
+@api.put("/users/update", auth=auth)
 def updateUser(request, data: schema.update):
-    return views.updateUser(data)
+    user = request.user
+    if user.is_anonymous or not user:
+        raise HttpError(401, "Faça login")
+    return views.updateUser(data,user)
 
-@api.post("/users/delete")
-def deleteUser(request, data: schema.update):
-    return views.deleteUser(data)
+@api.post("/users/delete", auth=auth)
+def deleteUser(request, data: schema.updatePassword):
+    user = request.user
+    if not user.is_anonymous:
+        raise HttpError(401, "Faça login")
+    return views.deleteUser(data, user)
+
+@api.post("/users/favorite/{object_id}", auth=auth)
+def favorite(request, object_id: str):
+    user = request.user
+    if not user.is_anonymous:
+        raise HttpError(401, "Faça login")
+    return views.addFavoritos(object_id, user)
+
+
+# Produtos
 
 @api.post("/products/add")
 def addProd(request, data: schema.addProd):
@@ -42,6 +63,13 @@ def genProd(request):
 @api.get("/products/{product_id}")
 def getProd(request, product_id: str):
     return product.get(product_id)
+
+@api.delete("/products/{product_id}", auth=auth)
+def delProd(request, product_id: str):
+    user = request.user
+    if not user.is_staff:
+        raise HttpError(403, "Acesso Negado")
+    return product.delete(product_id)
 """
 exemplo retorno:
     {
@@ -198,3 +226,13 @@ def getProdFilter(request):
 """
 Retorno igual ao com filtro
 """
+
+# Loja
+
+@api.get("/stores/{uid}")
+def getStore(request, uid: str):
+    return product.getStore(uid)
+
+@api.get("/stores/")
+def getAllStores(request):
+    return product.getStore(None)

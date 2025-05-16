@@ -6,10 +6,13 @@ from django.shortcuts import render
 from ninja.errors import HttpError
 from dotenv import load_dotenv
 import os
+from django.contrib.contenttypes.models import ContentType
 import jwt
 from django.contrib.auth.hashers import make_password, check_password
 from django.utils import timezone
-from db.models import Users
+from django.contrib.auth import authenticate
+from db.models import Builds, Favorites, PartRegistry, Users
+from ninja_jwt.tokens import RefreshToken
 
 def registrar(data):
     # Verificar se o email já está em uso
@@ -46,65 +49,29 @@ def registrar(data):
 
 def login(data):
     # Tentar acessar os dados
-    try:
-        email = data.email  # Acesso direto ao atributo "email"
-        password = data.password  # Acesso direto ao atributo "password"
-    except AttributeError:
-        raise HttpError(400, "Input Inválido")
-
-    if not email or not password:
-        raise HttpError(400, "Email e senha são obrigatorios")
+    user = authenticate(email=data.email, password=data.password)
     
-    # Buscar o usuário no banco de dados
-    user = Users.objects.filter(email=email).first()
-
     if not user:
-        raise HttpError(400, "E-mail ou Senha incorretos")
+        raise HttpError(400, "Email ou senha inválidos")
     
-    # Comparar a senha fornecida com a senha armazenada
-    stored_password = user.password  # Certifique-se de usar o campo correto
+    token = RefreshToken.for_user(user)
 
-    if not check_password(password,stored_password):
-        raise HttpError(400, "E-mail ou Senha incorretos")
-    
-    # Criar o token JWT
-    load_dotenv()  # Carregar variáveis de ambiente
-    secret_key = os.getenv('SECRET_KEY')  # Obter chave secreta do .env
-
-    payload = {
-        "email": user.email,  # Usar email do usuário
-        "name": user.name,    # Usar nome do usuário
-    }
-    token = jwt.encode(payload, secret_key, algorithm="HS256")
-
-    # Retornar a resposta com o token
     return {
-        "message": "Login bem-sucedido",
-        "token": token
+        "access": str(token.access_token),
+        "refresh": str(token),
+        "message": "Login com sucesso"
     }
 
-def updateUser(data):
+def updateUser(data, user):
 
-    load_dotenv()
-    secret_key = os.getenv("SECRET_KEY")
-    try:
-        token = jwt.decode(data.token, secret_key, algorithms="HS256", do_time_check = True)
-    except:
-        raise HttpError(400, "Token Inválido")
-    
-    newToken = "Email e/ou nome não foram atualizados"
-    user = Users.objects.filter(email=token["email"]).first()
+    if data.newPassword == None and data.name == None and data.email == None:
+        raise HttpError(400, "Nenhum valor para atualizar")
 
     if not check_password(data.password, user.password):
         raise HttpError(400, "Senha Inválida")
     
     if data.name != None:
-        user.nome = data.name
-        payload = {
-        "email": user.email,  
-        "name": user.name,   
-        }
-        newToken = jwt.encode(payload, secret_key, algorithm="HS256")
+        user.name = data.name
         
 
     if data.newPassword != None:
@@ -117,37 +84,24 @@ def updateUser(data):
         if Users.objects.filter(email=data.email).exists():
             raise HttpError(400, "E-mail em uso")
         else:
-            user.email = data.email
-            payload = {
-            "email": user.email,  
-            "name": user.name,   
-            }
-        newToken = jwt.encode(payload, secret_key, algorithm="HS256")
-    
-    try:
-        user.save()
-    except:
-        raise HttpError(500, "Erro ao salvar o usuário")
+            user.email = data.email 
+
+    user.save()
+    token = RefreshToken.for_user(user)
 
     return {
         "message" : "Usuário atualizado com sucesso!",
-        "token": newToken,
+        "token": str(token.access_token),
+        "refresh": str(token)
     }
 
-def deleteUser(data):
-     
-    load_dotenv()
-    secret_key = os.getenv("SECRET_KEY")
-    try:
-        token = jwt.decode(data.token, secret_key, algorithms="HS256", do_time_check = True)
-    except:
-        raise HttpError(400, "Token Inválido")
-    
-    user = Users.objects.filter(email=token["email"]).first()
+def deleteUser(data, user):
 
-    if not check_password(data.password, user.password):
-        raise HttpError(400, "Senha Inválida")
-    
+    if data.password != data.confPassword:
+        raise HttpError(400, "Senhas não conhecidem")
+    elif not check_password(data.password, user.password):
+        raise HttpError(400, "Senha está errada")
+
     try:
         user.delete()
     except:
@@ -156,3 +110,36 @@ def deleteUser(data):
     return {
         "message": "Usuário deletado com sucesso"
     }
+
+def addFavoritos(uid, user):
+    try:
+        part = PartRegistry.objects.get(pk=uid).part
+        content_type = ContentType.objects.get_for_model(part.__class__)
+    except:
+        raise HttpError(404, "Produto não encontrado")
+    favArgs = {
+        "user": user,
+        "content_type": content_type,
+        "object_id": uid
+    }
+
+    Favorites.objects.create(**favArgs)
+
+def saveBuild(data, user):
+    build = {
+        "cpu": data.cpu,
+        "gpu": data.gpu,
+        "psu": data.psu,
+        "mobo": data.mobo,
+        "ram": data.ram,
+        "storage": data.storage
+    }
+    try:
+        Builds.objects.create(
+            user=user,
+            build=data
+        )
+    except ValueError:
+        raise HttpError(400, "Valor invaliso")
+    except Exception as e:
+        raise HttpError(500, "Erro ao tentar salvar a build")

@@ -6,28 +6,11 @@ import pandas as pd
 from deap import base, creator, tools
 from pathlib import Path
 
-PROJECT_DIR = Path(__file__).parent
+from db.models import Cpu, Gpu, Ram, Psu, Mobo, Storage
 
-# Load PC parts datasets
-cpu_parts = pd.read_csv(PROJECT_DIR / "cpu_clean.csv")
-gpu_parts = pd.read_csv(PROJECT_DIR / "gpu2_clean.csv")
-ram_parts = pd.read_csv(PROJECT_DIR / "ram_clean.csv")
-mobo_parts = pd.read_csv(PROJECT_DIR / "mobo_clean.csv")
-psu_parts = pd.read_csv(PROJECT_DIR / "psu_clean.csv")
-storage_parts = pd.read_csv(PROJECT_DIR / "storage_clean.csv")
 
-def parse_modules(mod_str):
-    try:
-        count, size = map(int, str(mod_str).split(","))
-        return count, count * size
-    except:
-        return 0, 0  # fallback in case of bad format
-    
-ram_parts[["module_count", "total_gb"]] = ram_parts["modules"].apply(
-    lambda x: pd.Series(parse_modules(x))
-)
 
-# Genetic Algorithm Parameters
+
 POPULATION_SIZE = 100
 GENERATIONS = 50
 BUDGET = 500
@@ -39,12 +22,38 @@ creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMax)
 
 # Register Individual (PC Build) and Population
+countCpu = Cpu.objects.count()
+countGpu = Gpu.objects.count()
+countRam = Ram.objects.count()
+countPsu = Psu.objects.count()
+countMobo = Mobo.objects.count()
+countStorage = Storage.objects.count()
+
+def indran(count):
+    return random.randint(0, count -1)
+
+def estimateWatts(cpu_tdp, gpu_tdp, overhead=150, headroom_factor=1.3):
+    base = cpu_tdp + gpu_tdp + overhead
+    recommended = int(base * headroom_factor)
+    return recommended
+
 def random_build():
-    mobo = mobo_parts.sample(n=1)
-    cpu = cpu_parts[cpu_parts["socket"] == mobo.iloc[0]["socket"]].sample(n=1)
-    gpu = gpu_parts.sample(n=1)
-    psu = psu_parts.sample(n=1)
-    ram = ram_parts[ram_parts["module_count"] <= int(mobo.iloc[0]["memory_slots"])].sample(n=1)
+    index = indran(countMobo)
+    mobo = Mobo.objects.all()[index]
+
+    index = indran(countCpu)
+    cpu = Cpu.objects.filter(socket=mobo.socket)[index]
+
+    index = indran(countGpu)
+    gpu = Gpu.objects.all()[index]
+
+    reqWatts = estimateWatts(cpu.tdp, gpu.tdp)
+    index = indran(countPsu)
+    psu = Psu.objects.filter(wattage__gte=reqWatts)[index]
+
+    index = indran(countRam)
+    ram = Ram.objects.filter(module_type=mobo.memory_type,
+                              memory_size__lte=mobo.memory_max, memory_modules__lte= mobo.memory_slots)[index]
         
     storage = storage_parts.sample(n=1)
     return creator.Individual([
