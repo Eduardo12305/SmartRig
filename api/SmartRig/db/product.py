@@ -6,15 +6,17 @@ import os
 import uuid
 from django.forms import model_to_dict
 from dotenv import load_dotenv
+import jwt
 import pandas as pd
 from pathlib import Path
 from ninja.errors import HttpError
 from django.contrib.contenttypes.models import ContentType
 from django.http import JsonResponse
-from db.models import Cpu, Favorites, Gpu, Igpu, Mobo, PartRegistry, Prices, Ram, Psu, Storage, Stores
+from db.models import Cpu, Favorites, Gpu, Igpu, Mobo, PartRegistry, Prices, Ram, Psu, Storage, Stores, Users
 import logging
 
-def add(data):
+
+def add(data, user):
     type = data.type
     added= []
 
@@ -184,18 +186,7 @@ def add(data):
         except ValueError as e:
             raise HttpError(400, str(e))
 
-    elif type == "favorites":
-        try:
-            for item in data.products:
-                item["content_type"] = ContentType.objects.get(model=type.lower())
-                favorite = Favorites(**item)
-                added.append(model_to_dict(favorite))
-                favorite.save()
-        except KeyError as e:
-                raise HttpError(400, str(e))
-        except ValueError as e:
-            raise HttpError(400, str(e))
-    
+            
     else:
         raise HttpError(400, "Tipo não encontrado")
 
@@ -223,10 +214,28 @@ def get(data):
     except Exception as e:
         raise HttpError(500, f"Erro ao buscar produto: {str(e)}")
 
+def delete(data):
+    try:
+        # Get registry entry (assumes data is UUID)
+        registry = PartRegistry.objects.get(object_id=data)
+        product = registry.part
+
+        # Get related prices using content type and object ID
+        content_type = ContentType.objects.get_for_model(product.__class__)
+        favorites = Favorites.objects.filter(object_id=product.uid).delete()
+        prices = Prices.objects.filter(content_type=content_type, object_id=product.uid).delete()
+
+        registry.delete()
+        product.delete()
+
+    except PartRegistry.DoesNotExist:
+        raise HttpError(404, "Produto não encontrado.")
+    except Exception as e:
+        raise HttpError(500, f"Erro ao deletar produto: {str(e)}")
+
     
     return {
-    "message": "Produto encontrado",
-    "data" : product_dict
+    "message": "Produto deletado"
     }
 
 def getAll():
@@ -350,7 +359,26 @@ def getFiltered(request, type, filters, filter_prices):
         "message": "produtos retornados com sucesso",
         "data": results}
    
+def getStore(uid):
+    result = []
+    if uid:
+        stores = Stores.objects.get(pk=uid)
+        store = model_to_dict(stores)
+        store["uid"] = stores.uid
+        result.append(store)
+    else:
+        stores = Stores.objects.all()
+        for items in stores:
+            store = model_to_dict(items)
+            store["uid"] = items.uid
+            result.append(store)
+    
+    return {
+        "data": result
+    }
 
+    
+    
    
     
         

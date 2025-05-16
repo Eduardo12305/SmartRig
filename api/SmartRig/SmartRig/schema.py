@@ -2,7 +2,7 @@ from datetime import date
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 from ninja import Schema
-from pydantic import EmailStr, Field, conlist
+from pydantic import EmailStr, Field, conlist, model_validator
 
 class registrarSchema(Schema):
     name: str
@@ -16,6 +16,7 @@ class updatePassword(Schema):
 
 class addProd(Schema):
     type: str
+    token: str
     products: List[Any]
 
 class genProd(Schema):
@@ -64,12 +65,11 @@ class priceFilter(Schema):
     price_range: Optional[List[float]] = Field(default=None, max_items=2, min_items=2)
 
 class update(Schema):
-    name: str = None
+    name: Optional[str] = None
     password: str
-    newPassword: updatePassword = None
-    email: EmailStr = None
-    token: str
-
+    newPassword: Optional[updatePassword] = None
+    email: Optional[EmailStr] = None
+    
 
 class loginSchema(Schema):
     email: EmailStr

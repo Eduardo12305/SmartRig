@@ -3,13 +3,48 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
-class Users(models.Model):
-    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+class UserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError("O email deve ser informado")
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)  # hashes the password
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser precisa ter is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser precisa ter is_superuser=True.')
+        return self.create_user(email, password, **extra_fields)
+    
+class Users(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=100)
     password = models.TextField()
-    email = models.EmailField(max_length=255)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    email = models.EmailField(max_length=255, unique=True)
     creation_date = models.DateField(auto_now_add=True)
+
+    
+    USERNAME_FIELD = 'email'  # Use email to login
+    REQUIRED_FIELDS = ['name']  # Required when creating user via createsuperuser
+
+    objects = UserManager()
+
+    @property
+    def id(self):
+        return self.uid
+
+    def __str__(self):
+        return self.email
 
 class Stores(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
