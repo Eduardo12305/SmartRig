@@ -4,6 +4,7 @@ export const registerUser = async (userData) => {
     try {
         const response = await axiosInstance.post("/users/register", userData);
         console.log("Voltou da api :)");
+        console.log("✅ Sucesso:", response.status, response.data);
     } catch (error) {
         throw error.response ? error.response.data: new Error("Erro no servidor");
     }

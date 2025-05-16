@@ -12,8 +12,7 @@ from django.utils import timezone
 from db.models import Users
 
 def registrar(data):
-    
-        # Verificar se o email já está em uso
+    # Verificar se o email já está em uso
     if Users.objects.filter(email=data.email).exists():
         raise HttpError(400, "Usuário já cadastrado")
     
@@ -23,25 +22,25 @@ def registrar(data):
     
     password_hash = make_password(data.password) 
 
-    # Salvar o usuário no banco de dados
+    # Criar e salvar o usuário
     user = Users(
-        name = data.name,
-        password = password_hash,
-        email = data.email
+        name=data.name,
+        password=password_hash,
+        email=data.email
     )
 
     try:
         user.save()
-    except:
-        raise HttpError(500, "Error ao salvar Usuário")
+    except Exception as e:
+        raise HttpError(500, f"Erro ao salvar usuário: {str(e)}")
 
     return JsonResponse({
-        "message": "Usuario cadastrado com sucesso",
-        "data" : {
-            "id": user.id,
+        "message": "Usuário cadastrado com sucesso",
+        "data": {
+            "id": str(user.uid),  # Corrigido de user.id para user.uid
             "nome": user.name,
             "email": user.email,
-            "data_criacao": user.data_criacao,
+            "data_criacao": user.creation_date,
         }
     }, status=201)
 
