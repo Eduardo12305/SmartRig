@@ -16,11 +16,13 @@ import logging
 
 def add(data):
     type = data.type
+    added= []
 
     if type == "cpu":
         for item in data.products:
             try:
                 cpu = Cpu(**item)
+                added.append(model_to_dict(cpu))
                 registry = PartRegistry(
                     content_type = ContentType.objects.get_for_model(cpu),
                     object_id = cpu.uid,
@@ -37,6 +39,7 @@ def add(data):
         try:
             for item in data.products:
                 igpu = Igpu(**item)
+                added.append(model_to_dict(igpu))
                 igpu.save()
                 registry = PartRegistry(
                     content_type = ContentType.objects.get_for_model(igpu),
@@ -52,6 +55,7 @@ def add(data):
         for item in data.products:
             try:
                 gpu = Gpu(**item)
+                added.append(model_to_dict(gpu))
                 registry = PartRegistry(
                     content_type = ContentType.objects.get_for_model(gpu),
                     object_id = gpu.uid,
@@ -68,6 +72,7 @@ def add(data):
         for item in data.products:
             try:
                 psu = Psu(**item)
+                added.append(model_to_dict(psu))
                 registry = PartRegistry(
                     content_type = ContentType.objects.get_for_model(psu),
                     object_id = psu.uid,
@@ -84,6 +89,7 @@ def add(data):
         for item in data.products:
             try:
                 mobo = Mobo(**item)
+                added.append(model_to_dict(mobo))
                 registry = PartRegistry(
                     content_type = ContentType.objects.get_for_model(mobo),
                     object_id = mobo.uid,
@@ -100,6 +106,7 @@ def add(data):
         for item in data.products:
             try:
                 ram = Ram(**item)
+                added.append(model_to_dict(ram))
                 registry = PartRegistry(
                     content_type = ContentType.objects.get_for_model(ram),
                     object_id = ram.uid,
@@ -116,6 +123,7 @@ def add(data):
         for item in data.products:
             try:
                 storage = Storage(**item)
+                added.append(model_to_dict(storage))
                 registry = PartRegistry(
                     content_type = ContentType.objects.get_for_model(storage),
                     object_id = storage.uid,
@@ -129,20 +137,47 @@ def add(data):
                 raise HttpError(400, str(e))
             
     elif type == "prices":
-        try:
-            for item in data.products:
-                item["content_type"] = ContentType.objects.get(model=type.lower())
-                price = Prices(**item)
+        for item in data.products:
+            try:
+                store = Stores.objects.get(pk=item["store"])
+            except Stores.DoesNotExist:
+                raise HttpError(404, "Loja não encontrada")
+
+            try:
+                content_type = ContentType.objects.get(app_label="db", model=item["content_type"].lower())
+            except ContentType.DoesNotExist:
+                raise HttpError(400, "Modelo invalido")
+            if item["sale"]:
+                price = Prices(
+                    store=store,
+                    content_type=content_type,
+                    object_id=item["object_id"],
+                    url_product=item["url_product"],
+                    sale=item["sale"],
+                    price=item["price"],
+                    old_price=item["old_price"],
+                    sale_percent=item["sale_percent"],
+                    sale_end=item["sale_end"],
+                )
+                added.append(model_to_dict(price))
                 price.save()
-        except KeyError as e:
-                raise HttpError(400, str(e))
-        except ValueError as e:
-            raise HttpError(400, str(e))
+            else:
+                price = Prices(
+                    store=store,
+                    content_type=content_type,
+                    object_id=item["object_id"],
+                    url_product=item["url_product"],
+                    sale=item["sale"],
+                    price=item["price"],
+                )
+                added.append(model_to_dict(price))
+                price.save()
         
     elif type == "store":
         try:
             for item in data.products:
                 store = Stores(**item)
+                added.append(model_to_dict(store))
                 store.save()
         except KeyError as e:
                 raise HttpError(400, str(e))
@@ -154,6 +189,7 @@ def add(data):
             for item in data.products:
                 item["content_type"] = ContentType.objects.get(model=type.lower())
                 favorite = Favorites(**item)
+                added.append(model_to_dict(favorite))
                 favorite.save()
         except KeyError as e:
                 raise HttpError(400, str(e))
@@ -164,7 +200,8 @@ def add(data):
         raise HttpError(400, "Tipo não encontrado")
 
     return JsonResponse({
-        "message": f"{type}s adicionadas com sucesso!"
+        "message": f"{type}s adicionadas com sucesso!",
+        "data": added
     }, status=201)
 
 def get(data):
@@ -226,6 +263,7 @@ def getAll():
         # Convert each product to dict and attach its prices
         for product in queryset:
             product_dict = model_to_dict(product)
+            product_dict["uid"] = product.uid
             product_dict["prices"] = price_map.get(product.uid, [])
             all_products.append(product_dict)
 
@@ -304,6 +342,7 @@ def getFiltered(request, type, filters, filter_prices):
         if filter_prices and item.uid not in price_map:
             continue
         item_dict = model_to_dict(item)
+        item_dict["uid"] = item.uid
         item_dict["prices"] = price_map.get(item.uid, [])  # pode ter vários preços
         results.append(item_dict)
 
