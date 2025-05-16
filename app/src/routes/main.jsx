@@ -4,6 +4,7 @@ import { Home } from "../pages/home";
 import { Forbidden } from "../pages/error/forbidden";
 import { Register } from "../pages/register";
 import { Products } from "../pages/produtos";
+import { Categoty } from "../pages/category";
 
 export function AppRoutes () {
     return (
@@ -17,7 +18,11 @@ export function AppRoutes () {
             </Route>
 
             <Route>
-                <Route path="/produto/:id" element={<Products />} />
+                <Route path="/produto/:id" element={<Products />} /> //produto especifico //
+            </Route>
+
+            <Route>
+                <Route path="/produtos/:category/" element={<Categoty/>} /> // categoria de produtos//
             </Route>
 
             {/* Pagina de erro */}

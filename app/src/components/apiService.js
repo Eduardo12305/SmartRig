@@ -18,19 +18,21 @@ export const loginUser = async (userData) => {
     }
 }
 
-export const products = async (data) => {
+export const productsCategory = async (data) => {
     try {
-        const response = await axiosInstance.get("/products", data)
+        const response = await axiosInstance.get("/products/{type}/", data)
         return data;
     } catch (error) {
         throw error.response ? error.response.data: new Error("Erro ao carregar produtos");
     }
 }
 
+// Função para buscar produtos gerais
 export const productscard = async (data) => {
     try {
-        const response = await axiosInstance.get("/products/getAll", data)
+        const response = await axiosInstance.get("/products/", data)
         return response;
+        
     } catch (error) {
         throw error.response ? error.response.data: new Error("Erro ao carregar produtos");
     }
