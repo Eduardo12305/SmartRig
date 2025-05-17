@@ -1,3 +1,5 @@
+from datetime import timedelta
+from django.utils import timezone
 import random
 from django.http import JsonResponse
 from faker import Faker
@@ -238,19 +240,39 @@ def estimate_base_price(part):
     model = part.__class__.__name__
 
     if model == "Cpu":
-        return part.cores * 30 + part.speed * 1.5 + part.turbo * 2
+        # Example: 6 cores, 3600 MHz base, 4500 MHz turbo
+        # Convert MHz to GHz by dividing by 1000
+        base_ghz = part.speed / 1000
+        turbo_ghz = part.turbo / 1000
+        return 200 + part.cores * 80 + base_ghz * 300 + turbo_ghz * 150
+
     elif model == "Gpu":
-        return part.memory * 20 + part.speed * 1.5 + part.tdp * 0.5
+        # VRAM (e.g., 8GB), speed (MHz), TDP (watts)
+        core_ghz = part.speed / 1000
+        return 500 + part.memory * 120 + core_ghz * 200 + part.tdp * 2
+
     elif model == "Ram":
-        return part.memory_size * 8 + part.memory_speed * 0.8
+        # Memory size in GB, speed in MHz
+        return (part.memory_size / 8) * 130 + (part.memory_speed / 1000) * 50
+
     elif model == "Storage":
-        return part.capacity * 0.1 if part.type == "HDD" else part.capacity * 0.15
+        # HDD or SSD
+        if part.type == "HDD":
+            return part.capacity * 0.25  # ~R$250 for 1TB HDD
+        else:
+            return part.capacity * 0.55  # ~R$550 for 1TB SSD
+
     elif model == "Psu":
-        return part.wattage * 0.2
+        # wattage in W
+        return 150 + part.wattage * 1.0  # 600W ~R$750
+
     elif model == "Mobo":
-        return 200 + part.memory_max * 0.2
+        # memory_max in GB, slots as a proxy for expandability
+        return 400 + part.memory_max * 0.4 + part.memory_slots * 50
+
     else:
-        return 100  # Default
+        return 150
+
 
 def genPrice(part):
     """Create and save a Prices instance for a part."""
@@ -266,6 +288,8 @@ def genPrice(part):
     if sale:
         old_price = round(price + random.uniform(10, 50), 2)
         sale_percent = int(((old_price - price) / old_price) * 100)
+        days = random.randint(1,7)
+        sale_end = timezone.now() + timedelta(days=days)
 
     Prices.objects.create(
         store=store,

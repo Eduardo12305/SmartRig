@@ -8,6 +8,7 @@ from ninja_jwt.authentication import JWTAuth
 from db import views
 from db import product
 
+from db.algoritmoOptmized import run_ga
 from db.datagen import genAll, genAllPrices
 
 api = NinjaAPI()
@@ -236,3 +237,8 @@ def getStore(request, uid: str):
 @api.get("/stores/")
 def getAllStores(request):
     return product.getStore(None)
+
+
+@api.get("/builds/{price}")
+def genBuild(request, price: int):
+    return run_ga(price)

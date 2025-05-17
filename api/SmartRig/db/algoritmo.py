@@ -1,13 +1,16 @@
 # Genetic Algorithm for PC Part Selection
 
+from django.utils import timezone
 import re
 import random
+from django.forms import model_to_dict
 import pandas as pd
 from deap import base, creator, tools
 from pathlib import Path
-
-from db.models import Cpu, Gpu, Ram, Psu, Mobo, Storage
-
+from django.db.models import F, ExpressionWrapper, IntegerField
+from db.models import Cpu, Gpu, Prices, Ram, Psu, Mobo, Storage
+import warnings
+warnings.filterwarnings("ignore", category=RuntimeWarning, module='django.db.models.fields')
 
 
 
@@ -29,8 +32,15 @@ countPsu = Psu.objects.count()
 countMobo = Mobo.objects.count()
 countStorage = Storage.objects.count()
 
-def indran(count):
-    return random.randint(0, count -1)
+def getBestPrice(part):
+    price = Prices.objects.filter(object_id=part.uid, sale_end__lte=timezone.now()).order_by("price").first()
+    if price:
+        return price.price
+    else:
+        return 0
+
+def indran(n):
+    return random.randint(0, n - 1) if n > 0 else 0  # avoids IndexError
 
 def estimateWatts(cpu_tdp, gpu_tdp, overhead=150, headroom_factor=1.3):
     base = cpu_tdp + gpu_tdp + overhead
@@ -38,24 +48,43 @@ def estimateWatts(cpu_tdp, gpu_tdp, overhead=150, headroom_factor=1.3):
     return recommended
 
 def random_build():
-    index = indran(countMobo)
-    mobo = Mobo.objects.all()[index]
+    # Pick random motherboard
+    mobos = Mobo.objects.all()
+    mobo = mobos[indran(mobos.count())]
 
-    index = indran(countCpu)
-    cpu = Cpu.objects.filter(socket=mobo.socket)[index]
+    # Pick random CPU compatible with motherboard
+    cpus = Cpu.objects.filter(socket=mobo.socket)
+    cpu = cpus[indran(cpus.count())]
 
-    index = indran(countGpu)
-    gpu = Gpu.objects.all()[index]
+    # Pick random GPU
+    gpus = Gpu.objects.all()
+    if cpu.igpu:
+        gpu = random.choice([gpus[indran(gpus.count())], cpu.igpu])
+    else:
+        gpu = gpus[indran(gpus.count())]
 
-    reqWatts = estimateWatts(cpu.tdp, gpu.tdp)
-    index = indran(countPsu)
-    psu = Psu.objects.filter(wattage__gte=reqWatts)[index]
+    # Estimate power and pick PSU with enough wattage
+    if cpu.igpu == gpu:
+        reqWatts = estimateWatts(cpu.tdp, 0)
+    else:
+        reqWatts = estimateWatts(cpu.tdp, gpu.tdp)
+    psus = Psu.objects.filter(wattage__gte=reqWatts)
+    psu = psus[indran(psus.count())]
 
-    index = indran(countRam)
-    ram = Ram.objects.filter(module_type=mobo.memory_type,
-                              memory_size__lte=mobo.memory_max, memory_modules__lte= mobo.memory_slots)[index]
-        
-    storage = storage_parts.sample(n=1)
+    # Pick random RAM compatible with motherboard
+    rams = Ram.objects.annotate(
+    total_memory=ExpressionWrapper(
+        F('memory_size') * F('memory_modules'),
+        output_field=IntegerField()
+    )).filter(
+        memory_type=mobo.memory_type,
+        memory_modules__lte=mobo.memory_slots,
+        total_memory__lte=mobo.memory_max
+    )
+    ram = rams[indran(rams.count())]
+    
+    storages = Storage.objects.all()
+    storage = storages[indran(storages.count())]
     return creator.Individual([
         cpu,
         gpu,
@@ -73,25 +102,32 @@ toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 # Fitness Function
 def fitness_function(individual):
 
-    cpu = individual[0].iloc[0].to_dict()
-    gpu = individual[1].iloc[0].to_dict()
-    psu = individual[2].iloc[0].to_dict()
-    mobo = individual[3].iloc[0].to_dict()
-    ram = individual[4].iloc[0].to_dict()
-    storage = individual[5].iloc[0].to_dict()
+    cpu = individual[0]
+    gpu = individual[1]
+    psu = individual[2]
+    mobo = individual[3]
+    ram = individual[4]
+    storage = individual[5]
 
-    cpu_perf = ((float(cpu["speed"]) + float(cpu["turbo"])) / 2) * float(cpu["cores"])
-    gpu_perf = ((float(gpu["core_clock"]) + float(gpu["boost_clock"])) / 2) * float(gpu["memory"])
+    cpu_perf = ((cpu.speed + cpu.turbo)/2) * cpu.cores
+    gpu_perf = ((gpu.speed + gpu.turbo)/2) * gpu.memory
 
-    perf = (cpu_perf + gpu_perf) / 3
+    perf = (cpu_perf + gpu_perf) / 2
 
-    if ram["total_gb"] <= 8:
-        perf *= 0.5
+    prices = []
+    for item in individual:
+        if item.__class__.__name__ == "igpu":
+            prices.append(0)
+        else:
+            prices.append(getBestPrice(item))
+    price = sum(prices)
 
-    price = float(cpu["price"] + gpu["price"] + psu["price"] + mobo["price"] + ram["price"] + storage["price"])
-
-    if cpu["socket"] != mobo["socket"]:
+    if cpu.socket != mobo.socket:
         return -1000,
+
+    if gpu.__class__.__name__ == "igpu":
+        if cpu.igpu != gpu:
+            return -1000
 
     if price > BUDGET * 1.1:
         return -price,
@@ -111,40 +147,48 @@ def crossover(ind1, ind2):
 def mutate(individual):
     part_index = random.randint(0, 5)  # 0=CPU, 1=GPU, 2=PSU, 3=Mobo, 4=RAM, 5=Storage
 
+    mobo = individual[3]
+
     if part_index == 3:  # Motherboard
-        new_mobo = mobo_parts.sample(n=1)
-        new_cpu = cpu_parts[cpu_parts["socket"] == new_mobo.iloc[0]["socket"]].sample(n=1)
-        new_ram = ram_parts[
-            ram_parts["module_count"] <= new_mobo.iloc[0]["memory_slots"]
-        ].sample(n=1)
+        count_mobo = Mobo.objects.count()
+        index = indran(count_mobo)
+        new_mobo = Mobo.objects.all()[index]
+
+        # Compatible CPU
+        compatible_cpus = Cpu.objects.filter(socket=new_mobo.socket)
+        new_cpu = compatible_cpus[indran(compatible_cpus.count())] if compatible_cpus.exists() else None
+
+        # Compatible RAM
+        compatible_rams = Ram.objects.filter(memory_modules__lte=new_mobo.memory_slots)
+        new_ram = compatible_rams[indran(compatible_rams.count())] if compatible_rams.exists() else None
+
         individual[3] = new_mobo
-        individual[0] = new_cpu
-        individual[4] = new_ram
+        if new_cpu: individual[0] = new_cpu
+        if new_ram: individual[4] = new_ram
 
     elif part_index == 0:  # CPU
-        socket = individual[3].iloc[0]["socket"]
-        compatible_cpus = cpu_parts[cpu_parts["socket"] == socket]
-        if not compatible_cpus.empty:
-            individual[0] = compatible_cpus.sample(n=1)
+        compatible_cpus = Cpu.objects.filter(socket=mobo.socket)
+        if compatible_cpus.exists():
+            individual[0] = compatible_cpus[indran(compatible_cpus.count())]
 
     elif part_index == 1:  # GPU
-        individual[1] = gpu_parts.sample(n=1)
+        count_gpu = Gpu.objects.count()
+        individual[1] = Gpu.objects.all()[indran(count_gpu)]
 
     elif part_index == 2:  # PSU
-        individual[2] = psu_parts.sample(n=1)
+        count_psu = Psu.objects.count()
+        individual[2] = Psu.objects.all()[indran(count_psu)]
 
     elif part_index == 4:  # RAM
-        slots = individual[3].iloc[0]["memory_slots"]
-        compatible_rams = ram_parts[
-            ram_parts["module_count"] <= slots
-        ]
-        if not compatible_rams.empty:
-            individual[4] = compatible_rams.sample(n=1)
+        compatible_rams = Ram.objects.filter(memory_modules__lte=mobo.memory_slots)
+        if compatible_rams.exists():
+            individual[4] = compatible_rams[indran(compatible_rams.count())]
 
     elif part_index == 5:  # Storage
-        individual[5] = storage_parts.sample(n=1)
+        count_storage = Storage.objects.count()
+        individual[5] = Storage.objects.all()[indran(count_storage)]
 
-    return individual,
+    return individual
 
 # Register Genetic Operators
 toolbox.register("mutate", mutate)
@@ -188,46 +232,23 @@ def run_ga(budget):
 
         population[:] = offspring
         fits = [ind.fitness.values[0] for ind in population]
-        print(f"Generation {generation} - Max Fitness: {max(fits)} | Avg: {sum(fits)/len(fits):.2f}")
 
     best_build = tools.selBest(population, 1)[0]
-    return best_build
 
+    prices = []
+    for item in best_build:
+        if item.__class__.__name__ == "igpu":
+            prices.append(0)
+        else:
+            prices.append(getBestPrice(item))
+    price = sum(prices)
 
-if __name__ == "__main__":
-    
-    try:
-        BUDGET = float(input("Insira seu orçamento: "))
-    except ValueError:
-        print("Input invalido.")
-        BUDGET = 1500.0
-
-    best_build = run_ga(BUDGET)
-    price = 0
-print("\n🎯 Melhor Build Encontrada!:\n")
-print("======================================")
-print("🔧 BUILD")
-print("======================================")
-
-cpu = best_build[0].iloc[0]
-gpu = best_build[1].iloc[0]
-psu = best_build[2].iloc[0]
-mobo = best_build[3].iloc[0]
-ram = best_build[4].iloc[0]
-storage = best_build[5].iloc[0]
-
-print(f"🧠 Processador   : {cpu['name']} ({cpu['cores']} núcleos, Velocidade: {cpu['speed']}GHz base / {cpu['turbo']}GHz turbo, Soquete: {cpu['socket']})")
-print(f"🎮 Placa de Vídeo: {gpu['name']} (Chipset: {gpu['chipset']}, {gpu['memory']}GB VRAM, {gpu['core_clock']}MHz base / {gpu.get('boost_clock', 'N/A')}MHz boost)")
-print(f"🔌 Fonte         : {psu['name']} (Voltagem: {psu["wattage"]}W, Certificação: {psu["efficiency"]}, Modular: {psu["modular"]})")
-print(f"🧩 Placa-Mãe     : {mobo['name']} (Socket {mobo['socket']}, {mobo['memory_slots']} RAM slots)")
-ramsize = ram["modules"].split(",")
-ramspeed = ram["speed"].split(",")
-print(f"💾 RAM           : {ram['name']} (Total: {ram['total_gb']}GB, Quantidade: {ramsize[0]}x{ramsize[1]}GB, Tecnologia: DDR{ramspeed[0]}, Velocidade: {ramspeed[1]}MHz)")
-print(f"📀 Armazenamento : Capacidade: {storage['name']} ({storage['capacity']}GB, Tipo: {f"HDD {storage["type"]}RPM" if not storage["type"] == "SSD" else "SSD"})")
-
-print("======================================")
-for part in best_build:
-    price += float(part.iloc[0]["price"])
-print(f"💰 Preço Estimado      : ${price:.2f}")
-print(f"⚡ Fitness              : {best_build.fitness.values[0]:.2f}")
-print("======================================")
+    return {
+    "cpu": model_to_dict(best_build[0]),
+    "gpu": model_to_dict(best_build[1]),
+    "psu": model_to_dict(best_build[2]),
+    "mobo": model_to_dict(best_build[3]),
+    "ram": model_to_dict(best_build[4]),
+    "storage": model_to_dict(best_build[5]),
+    "total_price": price
+}
