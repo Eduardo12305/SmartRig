@@ -15,7 +15,10 @@ export const StyleBody = createGlobalStyle`
   }
 
   body {
-    background-color: ${(props) => props.color ? props.color : 'rgb(207, 207, 207)'}; /* Cor de fundo personalizada */
+    background-color: ${(props) =>
+      props.color
+        ? props.color
+        : "rgb(207, 207, 207)"}; /* Cor de fundo personalizada */
     min-height: 100vh; /* Garante que o body ocupe pelo menos toda a altura da tela */
     display: flex;
     flex-direction: column;
@@ -24,6 +27,7 @@ export const StyleBody = createGlobalStyle`
   /* Garante que o conteúdo não ultrapasse os limites da tela */
   #root {
     flex-grow: 1; /* Faz o root ocupar o restante do espaço disponível */
+    width: 100%;
   }
   
   /* Reseta o scroll horizontal */
