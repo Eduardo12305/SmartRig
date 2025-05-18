@@ -213,6 +213,10 @@ def get(data):
         raise HttpError(404, "Produto não encontrado.")
     except Exception as e:
         raise HttpError(500, f"Erro ao buscar produto: {str(e)}")
+    
+    return {
+        "data": product_dict
+    }
 
 def delete(data):
     try:
