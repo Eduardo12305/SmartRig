@@ -1,69 +1,129 @@
-from typing import Optional
-from SmartRig import schema
-from ninja import File, NinjaAPI, Query, UploadedFile
+from ninja import NinjaAPI, Query
 from ninja.errors import HttpError
-from ninja_jwt.routers.blacklist import blacklist_router
-from ninja_jwt.routers.obtain import obtain_pair_router, sliding_router
 from ninja_jwt.authentication import JWTAuth
-from db import views
-from db import product
+from ninja_jwt.routers.obtain import obtain_pair_router
 
-from db.algoritmoOptmized import run_ga
+from db import product, views
+from db.algoritmo import run_ga
 from db.datagen import genAll, genAllPrices
+from SmartRig import schema
 
 api = NinjaAPI()
-api.add_router('/token', tags=['Auth'], router=obtain_pair_router)
+api.add_router("/token", tags=["Auth"], router=obtain_pair_router)
 auth = JWTAuth()
 
 # User
+
 
 @api.post("/users/register")
 def post_registrar(request, data: schema.registrarSchema):
     return views.registrar(data)
 
+
 @api.post("/users/login")
 def post_login(request, data: schema.loginSchema):
+    """
+    {"email": str, "password": str}
+    """
     return views.login(data)
+
 
 @api.put("/users/update", auth=auth)
 def updateUser(request, data: schema.update):
     user = request.user
     if user.is_anonymous or not user:
         raise HttpError(401, "Faça login")
-    return views.updateUser(data,user)
+    return views.updateUser(data, user)
+
 
 @api.post("/users/delete", auth=auth)
 def deleteUser(request, data: schema.updatePassword):
     user = request.user
-    if not user.is_anonymous:
+    if user.is_anonymous or not user:
         raise HttpError(401, "Faça login")
     return views.deleteUser(data, user)
+
 
 @api.post("/users/favorite/{object_id}", auth=auth)
 def favorite(request, object_id: str):
     user = request.user
-    if not user.is_anonymous:
+    if user.is_anonymous or not user:
         raise HttpError(401, "Faça login")
     return views.addFavoritos(object_id, user)
 
 
+@api.delete("/users/favorite/{object_id}", auth=auth)
+def favorite(request, object_id: str):
+    user = request.user
+    if user.is_anonymous or not user:
+        raise HttpError(401, "Faça login")
+    return views.deleteFavoritos(object_id, user)
+
+
 # Produtos
 
-@api.post("/products/add")
+
+@api.post("/products/add", auth=auth)
 def addProd(request, data: schema.addProd):
+    user = request.user
+    if not user.is_staff:
+        raise HttpError(403, "Acesso Negado")
     return product.add(data)
+
 
 @api.post("/products/gen")
 def genProd(request, data: schema.genProd):
+    """
+    {"qty: [1,2,3,4,5,6,7,8,9]}
+    """
     return genAll(data)
+
 
 @api.post("/products/genPrices")
 def genProd(request):
     return genAllPrices()
 
+
 @api.get("/products/{product_id}")
 def getProd(request, product_id: str):
     return product.get(product_id)
+
+
+@api.get("/prices/{product_id}")
+def getProd(request, product_id: str):
+    """
+exemplo retorno:
+    {
+    "message": "Produto encontrado",
+    "data": {
+        "name": "AMD stand",
+        "image": "https://dummyimage.com/92x639",
+        "brand": "AMD",
+        "igpu": "b1b90e1c-329f-4ecf-b0c1-d4abfd31d3b2",
+        "socket": "LGA1151",
+        "tdp": 86,
+        "cores": 14,
+        "speed": 3814,
+        "turbo": 4467,
+        "prices": [
+            {
+                "uid": "8e5d0e4f-4e2b-48f9-8188-55316d67db41",
+                "store_id": "cfccb196-3804-4b5d-9f57-3a25b6087532",
+                "url_product": "https://www.rhodes.com/",
+                "sale": true,
+                "price": 15095.96,
+                "old_price": 15145.71,
+                "sale_percent": 0,
+                "sale_end": null,
+                "colected_date": "2025-05-15T18:31:07.368Z",
+                "content_type_id": 6,
+                "object_id": "96c41940-8872-4500-9cde-c42e8db142ed"
+            }
+        ]
+    }
+}
+"""
+    return product.getProductPrices(product_id)
 
 @api.delete("/products/{product_id}", auth=auth)
 def delProd(request, product_id: str):
@@ -106,9 +166,13 @@ exemplo retorno:
 
 
 @api.get("/products/{type}/")
-def getProdFilter(request, type: str, filters: schema.GenericFilterSchema = Query(...), filter_prices: schema.priceFilter = Query(...)):
-    return product.getFiltered(request, type, filters, filter_prices)
-"""
+def getProdFilter(
+    request,
+    type: str,
+    filters: schema.GenericFilterSchema = Query(...),
+    filter_prices: schema.priceFilter = Query(...),
+):
+    """
 📘 Filtros disponíveis por tipo de hardware:
 
     Você pode adicionar filtros à rota usando parâmetros na URL, no formato `?campo=valor`.
@@ -221,24 +285,54 @@ def getProdFilter(request, type: str, filters: schema.GenericFilterSchema = Quer
     /query/db/cpu?brand=Intel&cores=6
 """
 
+    return product.getFiltered(request, type, filters, filter_prices)
+
+
+
+
 @api.get("/products/")
 def getProdFilter(request):
-    return product.getAll()
-"""
+    """
 Retorno igual ao com filtro
 """
+    return product.getAll()
+
+
+
 
 # Loja
+
 
 @api.get("/stores/{uid}")
 def getStore(request, uid: str):
     return product.getStore(uid)
 
+
 @api.get("/stores/")
 def getAllStores(request):
     return product.getStore(None)
 
+# Builds
 
-@api.get("/builds/{price}")
-def genBuild(request, price: int):
-    return run_ga(price)
+@api.get("/builds/gen", auth=auth)
+def genBuild(request, data: schema.genBuild):
+    user = request.user
+    if user.is_anonymous or not user:
+        raise HttpError(401, "Só usuários registrados podem gerar builds!")
+    return run_ga(data)
+
+
+@api.post("/builds/save", auth=auth)
+def favorite(request, data: schema.build):
+    user = request.user
+    if user.is_anonymous or not user:
+        raise HttpError(401, "Faça login")
+    return views.saveBuild(data, user)
+
+@api.delete("/builds/delete/{object_id}", auth=auth)
+def favorite(request, object_id: str):
+    user = request.user
+    if user.is_anonymous or not user:
+        raise HttpError(401, "Faça login")
+    return views.saveBuild(object_id, user)
+
