@@ -1,66 +1,58 @@
-from datetime import datetime
-from hashlib import sha256
-import json
-from django.http import JsonResponse, HttpResponseBadRequest
-from django.shortcuts import render
-from ninja.errors import HttpError
-from dotenv import load_dotenv
-import os
-from django.contrib.contenttypes.models import ContentType
-import jwt
-from django.contrib.auth.hashers import make_password, check_password
-from django.utils import timezone
 from django.contrib.auth import authenticate
-from db.models import Builds, Favorites, PartRegistry, Users
+from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.contenttypes.models import ContentType
+from django.http import JsonResponse
+from ninja.errors import HttpError
 from ninja_jwt.tokens import RefreshToken
+
+from db.models import Builds, Favorites, PartRegistry, Users
+
 
 def registrar(data):
     # Verificar se o email já está em uso
     if Users.objects.filter(email=data.email).exists():
         raise HttpError(400, "Usuário já cadastrado")
-    
+
     # Verificar se as senhas coincidem
     if data.password != data.confPassword:
         raise HttpError(400, "Senhas não conferem")
-    
-    password_hash = make_password(data.password) 
 
-    # Criar e salvar o usuário
-    user = Users(
-        name=data.name,
-        password=password_hash,
-        email=data.email
-    )
+    password_hash = make_password(data.password)
 
+
+    # Salvar o usuário no banco de dados
+    user = Users(name=data.name, password=password_hash, email=data.email)
     try:
         user.save()
     except Exception as e:
         raise HttpError(500, f"Erro ao salvar usuário: {str(e)}")
-
-    return JsonResponse({
-        "message": "Usuário cadastrado com sucesso",
-        "data": {
-            "id": str(user.uid),  # Corrigido de user.id para user.uid
-            "nome": user.name,
-            "email": user.email,
-            "data_criacao": user.creation_date,
-        }
-    }, status=201)
-
+    return JsonResponse(
+        {
+            "message": "Usuario cadastrado com sucesso",
+            "data": {
+                "id": user.id,
+                "nome": user.name,
+                "email": user.email,
+                "data_criacao": user.creation_date,
+            },
+        },
+        status=201,
+    )
 def login(data):
     # Tentar acessar os dados
     user = authenticate(email=data.email, password=data.password)
-    
+
     if not user:
         raise HttpError(400, "Email ou senha inválidos")
-    
+
     token = RefreshToken.for_user(user)
 
     return {
         "access": str(token.access_token),
         "refresh": str(token),
-        "message": "Login com sucesso"
+        "message": "Login com sucesso",
     }
+
 
 def updateUser(data, user):
 
@@ -69,31 +61,31 @@ def updateUser(data, user):
 
     if not check_password(data.password, user.password):
         raise HttpError(400, "Senha Inválida")
-    
+
     if data.name != None:
         user.name = data.name
-        
 
     if data.newPassword != None:
         if data.newPassword.password == data.newPassword.confPassword:
             user.password = make_password(data.newPassword.password)
         else:
             raise HttpError(400, "As senhas não coincidem")
-        
+
     if data.email != None:
         if Users.objects.filter(email=data.email).exists():
             raise HttpError(400, "E-mail em uso")
         else:
-            user.email = data.email 
+            user.email = data.email
 
     user.save()
     token = RefreshToken.for_user(user)
 
     return {
-        "message" : "Usuário atualizado com sucesso!",
+        "message": "Usuário atualizado com sucesso!",
         "token": str(token.access_token),
-        "refresh": str(token)
+        "refresh": str(token),
     }
+
 
 def deleteUser(data, user):
 
@@ -106,24 +98,34 @@ def deleteUser(data, user):
         user.delete()
     except:
         return HttpError(500, "Erro ao tentar deletar o usuário")
-    
-    return {
-        "message": "Usuário deletado com sucesso"
-    }
+
+    return {"message": "Usuário deletado com sucesso"}
+
 
 def addFavoritos(uid, user):
     try:
-        part = PartRegistry.objects.get(pk=uid).part
+        part = PartRegistry.objects.get(object_id=uid).part
         content_type = ContentType.objects.get_for_model(part.__class__)
     except:
         raise HttpError(404, "Produto não encontrado")
-    favArgs = {
-        "user": user,
-        "content_type": content_type,
-        "object_id": uid
-    }
+    favArgs = {"user": user, "content_type": content_type, "object_id": uid}
 
-    Favorites.objects.create(**favArgs)
+    try:
+        Favorites.objects.create(**favArgs)
+    except:
+        return {"message": "Produto já está nos favoritos"}
+    return {"message": "Adicionado aos favoritos com successo"}
+
+
+def deleteFavoritos(uid, user):
+    try:
+        favorite = Favorites.objects.get(object_id=uid, user=user)
+    except:
+        raise HttpError(404, "Produto não encontrado")
+
+    favorite.delete()
+    return {"message": "Favorito removido com successo"}
+
 
 def saveBuild(data, user):
     build = {
@@ -132,14 +134,24 @@ def saveBuild(data, user):
         "psu": data.psu,
         "mobo": data.mobo,
         "ram": data.ram,
-        "storage": data.storage
+        "storage": data.storage,
     }
     try:
-        Builds.objects.create(
-            user=user,
-            build=data
-        )
+        Builds.objects.create(user=user, build=data)
     except ValueError:
-        raise HttpError(400, "Valor invaliso")
+        raise HttpError(400, "Valor invalido")
     except Exception as e:
         raise HttpError(500, "Erro ao tentar salvar a build")
+
+def deleteBuild(uid, user):
+    if uid:
+        try:
+            build = Builds.objects.get(pk=uid, user=user)
+        except:
+            raise HttpError(404, "Build não encontrada")
+        build.delete()    
+        return {
+            "message": "Build deletada com succeso"
+        }
+    else:
+        raise HttpError(400, "Informe o id da build")

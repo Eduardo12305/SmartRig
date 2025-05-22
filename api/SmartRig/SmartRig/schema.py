@@ -1,8 +1,10 @@
 from datetime import date
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 from uuid import UUID
+
 from ninja import Schema
-from pydantic import EmailStr, Field, conlist, model_validator
+from pydantic import EmailStr, Field
+
 
 class registrarSchema(Schema):
     name: str
@@ -10,17 +12,45 @@ class registrarSchema(Schema):
     confPassword: str
     email: EmailStr
 
+
 class updatePassword(Schema):
     password: str
     confPassword: str
+
 
 class addProd(Schema):
     type: str
     token: str
     products: List[Any]
 
+
 class genProd(Schema):
     qty: List[int]
+
+
+class build(Schema):
+    cpu: str
+    gpu: str
+    mobo: str
+    psu: str
+    ram: str
+    storage: str
+
+
+class weightsSchema(Schema):
+    cpu: Optional[float] = None
+    gpu: Optional[float] = None
+    ram: Optional[float] = None
+
+
+class genBuild(Schema):
+    cpu: Optional[str] = None
+    gpu: Optional[str] = None
+    mobo: Optional[str] = None
+    psu: Optional[str] = None
+    budget: float
+    storage: int
+    weights: Optional[weightsSchema] = None
 
 
 class GenericFilterSchema(Schema):
@@ -59,17 +89,19 @@ class GenericFilterSchema(Schema):
     capacity: Optional[int] = None
     interface: Optional[str] = None
 
+
 class priceFilter(Schema):
     store: Optional[str] = None
     sale: Optional[bool] = None
     price_range: Optional[List[float]] = Field(default=None, max_items=2, min_items=2)
+
 
 class update(Schema):
     name: Optional[str] = None
     password: str
     newPassword: Optional[updatePassword] = None
     email: Optional[EmailStr] = None
-    
+
 
 class loginSchema(Schema):
     email: EmailStr

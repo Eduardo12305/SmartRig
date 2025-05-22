@@ -1,9 +1,14 @@
 import uuid
-from django.db import models
+
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+)
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.db import models
 
 
 class UserManager(BaseUserManager):
@@ -17,14 +22,15 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser precisa ter is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser precisa ter is_superuser=True.')
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser precisa ter is_staff=True.")
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser precisa ter is_superuser=True.")
         return self.create_user(email, password, **extra_fields)
-    
+
+
 class Users(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=100)
     password = models.TextField()
@@ -33,9 +39,8 @@ class Users(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True)
     creation_date = models.DateField(auto_now_add=True)
 
-    
-    USERNAME_FIELD = 'email'  # Use email to login
-    REQUIRED_FIELDS = ['name']  # Required when creating user via createsuperuser
+    USERNAME_FIELD = "email"  # Use email to login
+    REQUIRED_FIELDS = ["name"]  # Required when creating user via createsuperuser
 
     objects = UserManager()
 
@@ -46,10 +51,12 @@ class Users(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+
 class Stores(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200)
     url = models.URLField(max_length=500)
+
 
 class Prices(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -57,7 +64,7 @@ class Prices(models.Model):
     url_product = models.URLField(max_length=500)
     sale = models.BooleanField()
     price = models.FloatField()
-    old_price = models.FloatField(null=True, blank=True,default=None)
+    old_price = models.FloatField(null=True, blank=True, default=None)
     sale_percent = models.IntegerField(null=True, blank=True, default=None)
     sale_end = models.DateTimeField(null=True, default=None, blank=True)
     colected_date = models.DateTimeField(auto_now_add=True)
@@ -68,17 +75,22 @@ class Prices(models.Model):
     def clean(self):
         if self.sale:
             if self.old_price is None or self.sale_percent is None:
-                raise ValidationError("Se sale for true, old_price e sale_percent não podem ser vazios!")
+                raise ValidationError(
+                    "Se sale for true, old_price e sale_percent não podem ser vazios!"
+                )
         else:
             if self.old_price is not None or self.sale_percent is not None:
-                raise ValidationError("Se sale for false, old_price e sale_percent não devem estar vazios")
-        
+                raise ValidationError(
+                    "Se sale for false, old_price e sale_percent não devem estar vazios"
+                )
+
 
 class PartRegistry(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.UUIDField()
     part = GenericForeignKey("content_type", "object_id")
     part_type = models.CharField(max_length=50)
+
 
 class Igpu(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -89,18 +101,20 @@ class Igpu(models.Model):
     speed = models.IntegerField()
     turbo = models.IntegerField()
 
+
 class Cpu(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200)
     image = models.CharField(max_length=500, blank=True)
     date_added = models.DateField(auto_now_add=True)
     brand = models.CharField(max_length=50)
-    igpu = models.ForeignKey(Igpu, null=True, on_delete= models.CASCADE)
+    igpu = models.ForeignKey(Igpu, null=True, on_delete=models.CASCADE)
     socket = models.CharField(max_length=50)
     tdp = models.IntegerField()
     cores = models.IntegerField()
     speed = models.IntegerField()
     turbo = models.IntegerField()
+
 
 class Gpu(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -114,6 +128,7 @@ class Gpu(models.Model):
     speed = models.IntegerField()
     turbo = models.IntegerField()
 
+
 class Psu(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200)
@@ -124,6 +139,7 @@ class Psu(models.Model):
     wattage = models.IntegerField()
     efficiency = models.CharField(max_length=50)
     modular = models.CharField(max_length=50, null=True)
+
 
 class Mobo(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -140,6 +156,7 @@ class Mobo(models.Model):
     m2_nvme = models.IntegerField()
     m2_sata = models.IntegerField()
 
+
 class Ram(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200)
@@ -150,6 +167,7 @@ class Ram(models.Model):
     memory_size = models.IntegerField()
     memory_modules = models.IntegerField()
     memory_speed = models.IntegerField()
+
 
 class Storage(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -162,10 +180,12 @@ class Storage(models.Model):
     form_factor = models.CharField(max_length=30)
     interface = models.CharField(max_length=30)
 
+
 class Builds(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(Users, on_delete=models.CASCADE)
     build = models.JSONField()
+
 
 class Favorites(models.Model):
     user = models.ForeignKey(Users, on_delete=models.CASCADE)
@@ -177,7 +197,6 @@ class Favorites(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["user", "content_type", "object_id"],
-                name="unique_favorite"
+                fields=["user", "content_type", "object_id"], name="unique_favorite"
             )
         ]
