@@ -22,6 +22,10 @@ export function AppRoutes () {
             </Route>
 
             <Route>
+                <Route path="/prices/:id" element={<Products />} /> //preço produto especifico //
+            </Route>
+
+            <Route>
                 <Route path="/produtos/:category/" element={<Categoty/>} /> // categoria de produtos//
             </Route>
 

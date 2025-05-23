@@ -19,6 +19,28 @@ export const loginUser = async (userData) => {
     }
 }
 
+// PRODUTOS
+
+export const product = async (id) => {
+    try {
+        const response = await axiosInstance.get(`/products/${id}`);
+        return response.data.data
+
+    } catch (error) {
+        throw error.response ? error.response.data: new Error("Erro ao carregar produto");
+    }
+}
+
+export const produc_price = async (id) => {
+    try {
+        const response = await axiosInstance.get(`/prices/${id}`);
+        return response
+
+    } catch (error) {
+        throw error.response ? error.response.data: new Error("Erro ao carregar produto");
+    }
+}
+
 export const productsCategory = async (data) => {
     try {
         const response = await axiosInstance.get("/products/{type}/", data)
