@@ -28,7 +28,9 @@ export function Header() {
     return (
         <StyledHeader>
             <FlexContainer>
-                <IconSoft src={logo} alt="Logo" />
+                <a href="/">
+                    <IconSoft src={logo} alt="Logo" />
+                </a>
                 <SearchGroup>
                     <SearchBar type="search" placeholder="Pesquisar Produto ..."  onClick={<SearchHeader/>}/>
                 </SearchGroup>
