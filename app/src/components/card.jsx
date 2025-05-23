@@ -43,14 +43,17 @@ export function CardPage({ cardsPerView = 3 }) {
   const nextCard = () => {
     setStartIndex((prevIndex) => {
       const nextIndex = prevIndex + 1;
-      return nextIndex + cardsPerView > cardsData.length ? prevIndex : nextIndex;
+      return nextIndex + cardsPerView > cardsData.length
+        ? prevIndex
+        : nextIndex;
     });
   };
 
   const prevCard = () => {
-    setStartIndex((prevIndex) => (prevIndex - 1 < 0 ? prevIndex : prevIndex - 1));
+    setStartIndex((prevIndex) =>
+      prevIndex - 1 < 0 ? prevIndex : prevIndex - 1
+    );
   };
-
 
   // Verifica se as setas de navegação devem ser exibidas
   const showPrevButton = startIndex > 0;
@@ -68,20 +71,28 @@ export function CardPage({ cardsPerView = 3 }) {
         )}
 
         <CardContainer>
-          {cardsData.slice(startIndex, startIndex + cardsPerView).map((card) => (
-            <Card
-              key={card.id}
-              padding={card.padding}
-              border={card.border}
-              margin={card.margin}
-              colorh2={card.colorh2}
-              onClick={() => handleCardClick(card.id)}
-            >
-              <h2>{card.name}</h2>
-              <p>{card.text}</p>
-              <p>{card.price}</p>
-            </Card>
-          ))}
+          {cardsData
+            .slice(startIndex, startIndex + cardsPerView)
+            .map((card) => (
+              <Card
+                key={card.id}
+                padding={card.padding}
+                border={card.border}
+                margin={card.margin}
+                colorh2={card.colorh2}
+                onClick={() => handleCardClick(card.id)}
+              >
+                <h2>{card.name}</h2>
+                <p>{card.text}</p>
+                <img
+                  src={card.image}
+                  alt={card.name}
+                  width="50px"
+                  height="50px"
+                />
+                <p>{card.prices[0].price}</p>
+              </Card>
+            ))}
         </CardContainer>
 
         {showNextButton && (
