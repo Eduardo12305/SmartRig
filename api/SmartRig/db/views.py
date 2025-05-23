@@ -9,7 +9,6 @@ from db.models import Builds, Favorites, PartRegistry, Users
 
 
 def registrar(data):
-
     # Verificar se o email já está em uso
     if Users.objects.filter(email=data.email).exists():
         raise HttpError(400, "Usuário já cadastrado")
@@ -20,14 +19,13 @@ def registrar(data):
 
     password_hash = make_password(data.password)
 
+
     # Salvar o usuário no banco de dados
     user = Users(name=data.name, password=password_hash, email=data.email)
-
     try:
         user.save()
-    except:
-        raise HttpError(500, "Error ao salvar Usuário")
-
+    except Exception as e:
+        raise HttpError(500, f"Erro ao salvar usuário: {str(e)}")
     return JsonResponse(
         {
             "message": "Usuario cadastrado com sucesso",
@@ -40,8 +38,6 @@ def registrar(data):
         },
         status=201,
     )
-
-
 def login(data):
     # Tentar acessar os dados
     user = authenticate(email=data.email, password=data.password)

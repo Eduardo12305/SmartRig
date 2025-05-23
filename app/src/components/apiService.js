@@ -4,6 +4,7 @@ export const registerUser = async (userData) => {
     try {
         const response = await axiosInstance.post("/users/register", userData);
         console.log("Voltou da api :)");
+        console.log("✅ Sucesso:", response.status, response.data);
     } catch (error) {
         throw error.response ? error.response.data: new Error("Erro no servidor");
     }
@@ -18,19 +19,43 @@ export const loginUser = async (userData) => {
     }
 }
 
-export const products = async (data) => {
+// PRODUTOS
+
+export const product = async (id) => {
     try {
-        const response = await axiosInstance.get("/products", data)
+        const response = await axiosInstance.get(`/products/${id}`);
+        return response.data.data
+
+    } catch (error) {
+        throw error.response ? error.response.data: new Error("Erro ao carregar produto");
+    }
+}
+
+export const produc_price = async (id) => {
+    try {
+        const response = await axiosInstance.get(`/prices/${id}`);
+        return response
+
+    } catch (error) {
+        throw error.response ? error.response.data: new Error("Erro ao carregar produto");
+    }
+}
+
+export const productsCategory = async (data) => {
+    try {
+        const response = await axiosInstance.get("/products/{type}/", data)
         return data;
     } catch (error) {
         throw error.response ? error.response.data: new Error("Erro ao carregar produtos");
     }
 }
 
+// Função para buscar produtos gerais
 export const productscard = async (data) => {
     try {
-        const response = await axiosInstance.get("/products/getAll", data)
+        const response = await axiosInstance.get("/products/", data)
         return response;
+        
     } catch (error) {
         throw error.response ? error.response.data: new Error("Erro ao carregar produtos");
     }

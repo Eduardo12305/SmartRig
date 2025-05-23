@@ -24,7 +24,7 @@ export function CardPage({ cardsPerView = 3 }) {
       const data = response.data?.data || [];
       const dataWithId = data.map((card) => ({
         ...card,
-        id: `${card.name}-${crypto.randomUUID()}`,
+        id: card.uid,
       }));
       setCards(dataWithId);
     } catch (error) {
