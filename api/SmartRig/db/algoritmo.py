@@ -12,46 +12,47 @@ from db.models import Cpu, Gpu, Mobo, Prices, Psu, Ram, Storage
 POPULATION_SIZE = 150
 GENERATIONS = 50
 BUDGET = 500
-MAXCPU = (
-    Cpu.objects.annotate(
+try:
+    MAXCPU = (
+        Cpu.objects.annotate(
+            perf=ExpressionWrapper(
+                ((F("speed") + F("turbo")) / 2) * F("cores"), output_field=FloatField()
+            )
+        ).aggregate(Max("perf"))["perf__max"]
+        or 0
+    )
+
+    # GPU max
+    MAXGPU = (
+        Gpu.objects.annotate(
+            perf=ExpressionWrapper(
+                ((F("speed") + F("turbo")) / 2) * F("memory"), output_field=FloatField()
+            )
+        ).aggregate(Max("perf"))["perf__max"]
+        or 0
+    )
+
+    MAXRAM = Ram.objects.annotate(
         perf=ExpressionWrapper(
-            ((F("speed") + F("turbo")) / 2) * F("cores"), output_field=FloatField()
+            F("memory_speed") * F("memory_size"), output_field=FloatField()
         )
     ).aggregate(Max("perf"))["perf__max"]
-    or 0
-)
 
-# GPU max
-MAXGPU = (
-    Gpu.objects.annotate(
-        perf=ExpressionWrapper(
-            ((F("speed") + F("turbo")) / 2) * F("memory"), output_field=FloatField()
-        )
-    ).aggregate(Max("perf"))["perf__max"]
-    or 0
-)
-
-MAXRAM = Ram.objects.annotate(
-    perf=ExpressionWrapper(
-        F("memory_speed") * F("memory_size"), output_field=FloatField()
-    )
-).aggregate(Max("perf"))["perf__max"]
-
-
-# Global part caches (reduces DB hits)
-ALL_CPUS = list(Cpu.objects.all())
-ALL_GPUS = list(Gpu.objects.all())
-ALL_PSUS = list(Psu.objects.all())
-ALL_MOBOS = list(Mobo.objects.all())
-ALL_RAMS = list(
-    Ram.objects.annotate(
-        total_memory=ExpressionWrapper(
-            F("memory_size") * F("memory_modules"), output_field=IntegerField()
+    # Global part caches (reduces DB hits)
+    ALL_CPUS = list(Cpu.objects.all())
+    ALL_GPUS = list(Gpu.objects.all())
+    ALL_PSUS = list(Psu.objects.all())
+    ALL_MOBOS = list(Mobo.objects.all())
+    ALL_RAMS = list(
+        Ram.objects.annotate(
+            total_memory=ExpressionWrapper(
+                F("memory_size") * F("memory_modules"), output_field=IntegerField()
+            )
         )
     )
-)
-ALL_STORAGES = list(Storage.objects.all())
-
+    ALL_STORAGES = list(Storage.objects.all())
+except:
+    print("Não foi possivel carregar os dados para o algoritmo.")
 # Price cache
 _price_cache = {}
 
