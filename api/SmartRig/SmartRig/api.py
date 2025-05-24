@@ -86,11 +86,6 @@ def genProd(request):
 
 @api.get("/products/{product_id}")
 def getProd(request, product_id: str):
-    return product.get(product_id)
-
-
-@api.get("/prices/{product_id}")
-def getProd(request, product_id: str):
     """
 exemplo retorno:
     {
@@ -123,6 +118,11 @@ exemplo retorno:
     }
 }
 """
+    return product.get(product_id)
+
+
+@api.get("/prices/{product_id}")
+def getProd(request, product_id: str):
     return product.getProductPrices(product_id)
 
 @api.delete("/products/{product_id}", auth=auth)
@@ -131,38 +131,6 @@ def delProd(request, product_id: str):
     if not user.is_staff:
         raise HttpError(403, "Acesso Negado")
     return product.delete(product_id)
-"""
-exemplo retorno:
-    {
-    "message": "Produto encontrado",
-    "data": {
-        "name": "AMD stand",
-        "image": "https://dummyimage.com/92x639",
-        "brand": "AMD",
-        "igpu": "b1b90e1c-329f-4ecf-b0c1-d4abfd31d3b2",
-        "socket": "LGA1151",
-        "tdp": 86,
-        "cores": 14,
-        "speed": 3814,
-        "turbo": 4467,
-        "prices": [
-            {
-                "uid": "8e5d0e4f-4e2b-48f9-8188-55316d67db41",
-                "store_id": "cfccb196-3804-4b5d-9f57-3a25b6087532",
-                "url_product": "https://www.rhodes.com/",
-                "sale": true,
-                "price": 15095.96,
-                "old_price": 15145.71,
-                "sale_percent": 0,
-                "sale_end": null,
-                "colected_date": "2025-05-15T18:31:07.368Z",
-                "content_type_id": 6,
-                "object_id": "96c41940-8872-4500-9cde-c42e8db142ed"
-            }
-        ]
-    }
-}
-"""
 
 
 @api.get("/products/{type}/")
