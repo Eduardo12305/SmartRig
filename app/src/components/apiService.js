@@ -41,22 +41,24 @@ export const produc_price = async (id) => {
     }
 }
 
-export const productsCategory = async (data) => {
+export const productsCategory = async (category) => {
     try {
-        const response = await axiosInstance.get("/products/{type}/", data)
-        return data;
+        const response = await axiosInstance.get(`/products/${category}/`)
+        return response.data;
     } catch (error) {
         throw error.response ? error.response.data: new Error("Erro ao carregar produtos");
     }
 }
 
 // Função para buscar produtos gerais
-export const productscard = async (data) => {
+export const productscard = async (params = {}) => {
     try {
-        const response = await axiosInstance.get("/products/", data)
+        const response = await axiosInstance.get("/products/", {params})
         return response;
         
     } catch (error) {
         throw error.response ? error.response.data: new Error("Erro ao carregar produtos");
     }
 }
+
+

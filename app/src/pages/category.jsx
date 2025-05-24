@@ -1,12 +1,9 @@
 import { CategoryCard } from "../components/cardCategory"
-import { Header } from "../components/header"
-import { Rodape } from "../components/Rodape"
 
-export const Categoty = ()=> {
+export const CategoryPage = ()=> {
     return (
     <>
-        <Header/>
         <CategoryCard/>
-        <Rodape/>
-    </>)
+    </>
+    )
 }

@@ -9,18 +9,27 @@ import {
   Carousel,
 } from "./css/card.styled";
 import { productscard } from "./apiService";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export function CardPage({ cardsPerView = 3 }) {
   const [startIndex, setStartIndex] = useState(0);
   const [cardsData, setCards] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const { search } = useParams();
   const navigate = useNavigate();
 
   const fetchProducts = async () => {
-    setErrorMessage(""); // Reseta mensagem de erro ao tentar carregar os dados
+    setErrorMessage(""); // Limpa erro antes de nova tentativa
     try {
-      const response = await productscard();
+      let response;
+
+      // Busca com ou sem filtro
+      if (search && search.trim() !== "") {
+        response = await productscard({ name: search });
+      } else {
+        response = await productscard();
+      }
+
       const data = response.data?.data || [];
       const dataWithId = data.map((card) => ({
         ...card,
@@ -32,13 +41,13 @@ export function CardPage({ cardsPerView = 3 }) {
     }
   };
 
+  useEffect(() => {
+    fetchProducts(); // Executa sempre que o parâmetro de busca mudar
+  }, [search]);
+
   const handleCardClick = (id) => {
     navigate(`/produto/${id}`);
   };
-
-  useEffect(() => {
-    fetchProducts(); // Carrega os dados ao montar o componente
-  }, []);
 
   const nextCard = () => {
     setStartIndex((prevIndex) => {
@@ -55,7 +64,6 @@ export function CardPage({ cardsPerView = 3 }) {
     );
   };
 
-  // Verifica se as setas de navegação devem ser exibidas
   const showPrevButton = startIndex > 0;
   const showNextButton = startIndex + cardsPerView < cardsData.length;
 

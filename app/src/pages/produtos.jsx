@@ -1,6 +1,4 @@
 import { useParams } from "react-router-dom";
-import { Header } from "../components/header";
-import { Rodape } from "../components/Rodape";
 import { useEffect, useState } from "react";
 import { produc_price, product } from "../components/apiService";
 import { ProductContainer, ProductImage, ProductInfo, ProductName, ProductPrice, ProductText } from "../components/css/product.styled";
@@ -33,7 +31,6 @@ export const Products = () => {
 
     return (
         <>
-            <Header />
             <ProductContainer>
                 <ProductImage src={products.image} alt={products.name} />
                 <ProductInfo>
@@ -51,7 +48,6 @@ export const Products = () => {
                     <ProductText>Velocidade com overclock: {products.turbo}</ProductText>
                 </ProductInfo>
             </ProductContainer>
-            <Rodape />
         </>
     );
 };
