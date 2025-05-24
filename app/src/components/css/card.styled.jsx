@@ -2,14 +2,16 @@ import styled from "styled-components";
 
 // Card individual
 export const Card = styled.div`
-  background-color: ${(prop) => prop.cardcolor || "aqua"};
-  border: 1px solid hsl(0, 1.6%, 24.3%);
-  border-radius: ${(prop) => prop.border || "10px"};
+  flex: 0 0 25vw;
+  max-width: 25vw;
+  background-color: white;
+  height: 180px;
+  border: 2px solid hsl(0, 1.6%, 24.3%);
+  border-radius: 5px;
   box-shadow: 5px 5px 5px hsla(0, 0%, 0%, 0.1);
   padding: ${(prop) => prop.padding || "20px"};
   margin: ${(prop) => prop.margin || "10px"};
   text-align: center;
-  max-width: 200px;
   width: 100%;
   box-sizing: border-box;
   display: inline-block;
@@ -17,8 +19,7 @@ export const Card = styled.div`
 
   img {
     max-width: 60%;
-    height: auto;
-    border-radius: 50%;
+    border-radius: 5px;
     margin-bottom: 10px;
   }
 
@@ -26,25 +27,64 @@ export const Card = styled.div`
     font-family: Arial, sans-serif;
     margin: 0;
     color: ${(prop) => prop.colorh2 || "hsl(0, 0%, 20%)"};
-    font-size: 1.2rem;
+    font-size: 12px;
   }
 
   p {
     font-family: Arial, sans-serif;
     color: hsl(0, 0%, 30%);
-    font-size: 0.9rem;
+    font-size: 10px;
   }
 
-  @media (max-width: 640px) {
-    max-width: 180px;
-    padding: 15px;
-    margin: 5px;
+  @media (min-width: 320px) {
+    flex: 0 0 25vw;
+    max-width: 25vw;
+
     h2 {
-      font-size: 1.1rem;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      color: ${(prop) => prop.colorh2 || "hsl(0, 0%, 20%)"};
+      font-size: 14px;
     }
+
     p {
-      font-size: 0.85rem;
+      font-family: Arial, sans-serif;
+      color: hsl(0, 0%, 30%);
+      font-size: 12px;
     }
+  }
+  @media (min-width: 425px) {
+    flex: 0 0 30vw;
+    max-width: 30vw;
+
+    h2 {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      color: ${(prop) => prop.colorh2 || "hsl(0, 0%, 20%)"};
+      font-size: 14px;
+    }
+
+    p {
+      font-family: Arial, sans-serif;
+      color: hsl(0, 0%, 30%);
+      font-size: 12px;
+    }
+  }
+  @media (min-width: 640px) {
+    flex: 0 0 25vw;
+    max-width: 25vw;
+  }
+  @media (min-width: 768px) {
+    flex: 0 0 27vw;
+    max-width: 27vw;
+  }
+  @media (min-width: 1024px) {
+    flex: 0 0 28vw;
+    max-width: 28vw;
+  }
+  @media (min-width: 1440px) {
+    flex: 0 0 29vw;
+    max-width: 29vw;
   }
 `;
 
@@ -60,10 +100,8 @@ export const CardContainer = styled.div`
   width: 100%;
   box-sizing: border-box;
   flex: 0 0 180px;
+  overflow-x: hidden;
 
-  & > * {
-    flex: 0 0 200px;
-  }
 
   &::-webkit-scrollbar {
     height: 8px;
@@ -83,7 +121,7 @@ export const CardContainer = styled.div`
 // Botão de navegação para os cards (anterior)
 export const PreventCardButton = styled.button`
   position: absolute;
-  left: -20px;  /* Afastar mais à esquerda */
+  left: -20px; /* Afastar mais à esquerda */
   top: 50%;
   transform: translateY(-50%);
   z-index: 300; /* Garantir que a seta fique acima de outros elementos */
@@ -106,7 +144,7 @@ export const PreventCardButton = styled.button`
 // Botão de navegação para os cards (próximo)
 export const NexteCardButton = styled.button`
   position: absolute;
-  right: -40px;  /* Afastar mais à direita */
+  right: -40px; /* Afastar mais à direita */
   top: 50%;
   transform: translateY(-50%);
   z-index: 300; /* Garantir que a seta fique acima de outros elementos */
@@ -136,7 +174,7 @@ export const CardPageWrapper = styled.div`
   flex-direction: column;
   justify-content: space-between;
   width: 100%;
-  max-width: 640px;
+  // max-width: 640px;
   margin-left: auto;
   margin-right: auto;
   box-sizing: border-box;
@@ -158,5 +196,5 @@ export const ErrorMessage = styled.p`
   font-size: 1rem;
   text-align: center;
   margin: 1rem 0;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
 `;
