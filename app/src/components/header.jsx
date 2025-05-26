@@ -18,7 +18,7 @@ export function Header() {
     const [eventSearch, setEventSearch] = useState("");
 
     const CategoryClick = (category) => {
-        navigate(`/produtos/${category}`);
+        navigate(`/produtos/${category}/`);
     }
 
     const handleSearch = (search) => {
@@ -83,31 +83,31 @@ export function Header() {
                         <NavList>
                             <NavItemMenu>
                                 
-                                <LinkWithText onClick={() => CategoryClick("processador")}>
+                                <LinkWithText onClick={() => CategoryClick("cpu")}>
                                     <IconImage src={logoprocess} alt="Processador" />
                                     <Name>Processador</Name>
                                 </LinkWithText>
                             </NavItemMenu>
                             <NavItemMenu>
-                                <LinkWithText onClick={() => CategoryClick("placa-de-video")}>
+                                <LinkWithText onClick={() => CategoryClick("gpu")}>
                                     <IconImage src={logoPalca} alt="Placa de Vídeo" />
                                     <Name>Placa de Vídeo</Name>
                                 </LinkWithText>
                             </NavItemMenu>
                             <NavItemMenu>
-                                <LinkWithText onClick={()=> CategoryClick("placa-mae")}>
+                                <LinkWithText onClick={()=> CategoryClick("mobo")}>
                                     <IconImage src={logoMotherBorad} alt="Placa Mãe" />
                                     <Name>Placa Mãe</Name>
                                 </LinkWithText>
                             </NavItemMenu>
                             <NavItemMenu>
-                                <LinkWithText onClick={()=> CategoryClick("memoria-ram")}>
+                                <LinkWithText onClick={()=> CategoryClick("ram")}>
                                     <IconImage src={logoMemory} alt="Memórias" />
                                     <Name>Memórias</Name>
                                 </LinkWithText>
                             </NavItemMenu>
                             <NavItemMenu>
-                                <LinkWithText onClick={()=> CategoryClick("fonte")}>
+                                <LinkWithText onClick={()=> CategoryClick("psu")}>
                                     <IconImage src={logoPowerSupply} alt="Fonte" />
                                     <Name>Fontes</Name>
                                 </LinkWithText>
