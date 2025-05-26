@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from faker import Faker
 from ninja.errors import HttpError
+from django.contrib.auth.hashers import make_password
 
 from db.models import (
     Cpu,
@@ -28,7 +29,7 @@ fake = Faker()
 
 def genUsers():
     Users.objects.create(
-        **{"name": fake.name(), "password": fake.password(), "email": fake.email()}
+        **{"name": fake.name(), "password": make_password("123"), "email": fake.email()}
     )
 
 

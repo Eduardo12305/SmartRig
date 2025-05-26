@@ -74,7 +74,7 @@ def addProd(request, data: schema.addProd):
 @api.post("/products/gen")
 def genProd(request, data: schema.genProd):
     """
-    {"qty: [1,2,3,4,5,6,7,8,9]}
+    {"qty: [Users,Stores,Igpus,Cpus,Gpus,Psus,Mobos,Ram,Storage]}
     """
     return genAll(data)
 
@@ -282,8 +282,11 @@ def getAllStores(request):
 
 # Builds
 
-@api.get("/builds/gen", auth=auth)
+@api.post("/builds/gen", auth=auth)
 def genBuild(request, data: schema.genBuild):
+    """
+    {"cpu": str, "gpu": str, "mobo": str, "psu": str, "budget": float, "storage": int}
+    """
     user = request.user
     if user.is_anonymous or not user:
         raise HttpError(401, "Só usuários registrados podem gerar builds!")

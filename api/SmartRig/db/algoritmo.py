@@ -83,6 +83,31 @@ def getBestPrice(part):
     return value
 
 
+def getPriceObj(part):
+    
+    now = timezone.now()
+    
+    # Get prices that are either not on sale or on sale but sale_end is in the future
+    valid_prices = Prices.objects.filter(
+        object_id=part.uid
+    ).filter(
+        # either not on sale
+        sale=False
+    ).union(
+        Prices.objects.filter(
+            object_id=part.uid,
+            sale=True,
+            sale_end__gt=now
+        )
+    ).order_by("price")
+    
+    price_obj = valid_prices.first()
+    value = model_to_dict(price_obj) if price_obj else 0
+    if value != 0:
+     value["uid"] = price_obj.uid
+    return value
+
+
 def indran(n):
     return random.randint(0, n - 1) if n > 0 else 0
 
@@ -161,6 +186,8 @@ def fitness_function(ind, weights):
     if cpu.socket != mobo.socket:
         return (-1000,)
     if gpu.__class__.__name__ == "Igpu" and cpu.igpu != gpu:
+        return (-1000,)
+    if ram.memory_type != mobo.memory_type:
         return (-1000,)
 
     # Performance calculation
@@ -298,7 +325,7 @@ def run_ga(data):
     prices = []
     for item in best:
         if item and hasattr(item, "uid"):
-            prices.append(getBestPrice(item))  # Adiciona preço ao objeto
+            prices.append(getPriceObj(item))  # Adiciona preço ao objeto
 
     if best.fitness.values[0] < 0:
         return {"message": "Orçamento muito baixo :("}
@@ -321,6 +348,13 @@ def run_ga(data):
     storage_dict = model_to_dict(best[5])
     storage_dict["price"] = prices[5]
 
+    total_price = 0
+    for price in prices:
+        if isinstance(price, dict):
+            total_price += price.get("price", 0)
+        else:
+            total_price += price
+
     # Final return
     return {
         "cpu": cpu_dict,
@@ -329,6 +363,6 @@ def run_ga(data):
         "mobo": mobo_dict,
         "ram": ram_dict,
         "storage": storage_dict,
-        "total_price": sum(prices),
+        "total_price": total_price,
         "fitness": best.fitness.values[0],
     }
