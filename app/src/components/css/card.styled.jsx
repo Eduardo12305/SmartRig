@@ -13,12 +13,14 @@ export const Card = styled.div`
   height: 450px;
   box-sizing: border-box;
   cursor: pointer;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 
   &:hover {
     box-shadow: 10px 10px 10px hsla(0, 0%, 0%, 0.2);
     transform: scale(1.01);
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   }
+
 
   img {
     display: block;
@@ -78,6 +80,7 @@ export const Card = styled.div`
     background-color: white;
     color: #ff8c00;
     box-shadow: 0 0 0 1px #ff8c00 inset;
+    transition: background 0.3s ease;
   }
 
   old {

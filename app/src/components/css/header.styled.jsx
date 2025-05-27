@@ -1,8 +1,9 @@
 import styled from "styled-components";
 
 // Estilos para o Header principal
-export const StyledHeader = styled.header` 
+export const StyledHeader = styled.header`
   display: flex;
+  position: relative;
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.4em 0.5rem;
@@ -12,7 +13,7 @@ export const StyledHeader = styled.header`
   left: 0;
   z-index: 9999; /* garantir que fique acima do menu modal */
   background-color: rgb(33, 33, 33);
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   box-sizing: border-box;
 `;
 
@@ -43,8 +44,8 @@ export const Nav = styled.nav`
   justify-content: left;
   align-items: center;
   gap: 0.5rem;
-  width: 100%; 
-  box-sizing: border-box; 
+  width: 100%;
+  box-sizing: border-box;
 `;
 
 export const NavList = styled.ul`
@@ -58,7 +59,7 @@ export const NavList = styled.ul`
   justify-content: center;
   align-items: center;
   width: 100%; /* Garante que a lista ocupe toda a largura disponível */
-  
+
   @media (min-width: 640px) {
     flex-direction: row; /* Quando a tela atingir 640px ou mais, itens ficam em linha */
   }
@@ -89,27 +90,26 @@ export const NavItemMenu = styled.li`
   }
 `;
 
-export const NavItemButton = styled.li`
+export const NavItemButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  font-weight: bold;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 5px;
+  background-color: ${(props) => props.buttoncolor || "#007bff"};
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  flex-direction: row;
+  transition: background-color 0.3s;
 
-  button {
-    padding: 0.4rem 0.8rem;
-    border: none;
-    border-radius: 5px;
-    background-color: ${props => props.buttoncolor || "#007bff"};
-    color: white;
-    font-size: 0.9rem;
-    cursor: pointer;
-    flex-direction: row;
-    gap: 1rem;
-    transition: background-color 0.3s;
-
-    &:hover {
-      background-color: ${props => props.buttoncolor ? "#0056b3" : "#0056b3"};
-    }
+  &:hover {
+    color: ${(props) => props.buttoncolor || "#007bff"};
+    background-color: transparent;
+    box-shadow: 0 0 0 1px ${(props) => props.buttoncolor || "#007bff"} inset;
   }
 `;
 
@@ -118,13 +118,16 @@ export const LinkWithText = styled.button`
   align-items: center;
   text-decoration: none;
   color: white;
-  gap: 0.5rem;
+  gap: 0.25rem;
+  padding: 0.25rem;
   border: none;
   background: none;
   cursor: pointer;
+  transition: transform 0.3s, background-color 0.3s;
 
   &:hover {
-    color: #ccc;
+    transform: scale(1.05);
+
   }
 `;
 
@@ -151,66 +154,44 @@ export const Name = styled.p`
   white-space: nowrap;
 `;
 
-export const ModalWrapper = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1050;
-`;
-
 export const ModalContent = styled.div`
-  position: relative;
+  position: fixed;
+  top: 145px;
   background-color: orange;
-  border-radius: 10px;
+  left: 0;
   padding: 1.5rem;
-  width: 95%;
-  max-width: 800px; /* Ajuste para acomodar mais itens lado a lado */
+  width: 100%;
+  /* Ajuste para acomodar mais itens lado a lado */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column; /* Inicialmente empilhados */
   justify-content: center;
-  align-items: center;
+  align-items: space-evenly;
+  z-index: 1; /* Garante que o modal fique acima de outros elementos */
   text-align: center;
   flex-wrap: wrap; /* Permite que quebrem linha em telas pequenas */
-  
+
   @media (min-width: 640px) {
     flex-direction: row; /* Alinha os itens em linha a partir de 640px */
     justify-content: space-around; /* Distribui os itens igualmente */
     align-items: center;
   }
+
+  opacity: ${(props) => (props.active ? 1 : 0)};
+  transform: ${(props) =>
+    props.active ? "translateY(145)" : "translateY(-145px)"};
+  pointer-events: ${(props) => (props.active ? "auto" : "none")};
+  transition: opacity 0.3s ease, transform 0.3s ease;
 `;
 
-export const CloseButton = styled.button`
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  border: none;
-  background: red;
-  color: #0b9b0b;
-  font-size: 18px;
-  cursor: pointer;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-
-  &:hover {
-    background: darkred;
-  }
-`;
 
 export const SearchBar = styled.input`
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
   padding: 0.8rem 1.5rem; // Altura não esqueça de novo
   font-size: 1rem;
-  width: 350px;   // Largura não esqueça de novo
+  width: 350px; // Largura não esqueça de novo
   max-width: 100%;
   border: none;
   border-radius: 5px;
@@ -241,4 +222,10 @@ export const MenuLine = styled.div`
 export const MenuButton = styled.button`
   color: orange;
   background-color: transparent;
+  transition: color 0.3s, background-color 0.3s ease;
+  &:hover {
+    color: rgb(33, 33, 33);
+    background-color: #ff8c00;
+    border-color: transparent;
+  }
 `;
