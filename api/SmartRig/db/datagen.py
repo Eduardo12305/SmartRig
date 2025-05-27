@@ -45,17 +45,29 @@ def genCpus():
 
     socket = random.choice(socket_options[brand])
 
+    if brand == "Intel":
+        series = random.choice(["Core i3", "Core i5", "Core i7", "Core i9"])
+        gen = random.randint(8, 14)  # Example: 8th to 14th gen
+        model = random.randint(1, 9)
+        suffix = random.choice(["", "K", "KF", "F", "T"])
+        cpu_name = f"{brand} {series}-{gen}{model}00{suffix} {gen}th Gen"
+    else:
+        series = random.choice(["Ryzen 3", "Ryzen 5", "Ryzen 7", "Ryzen 9"])
+        model = random.randint(10, 99)
+        suffix = random.choice(["", "X", "XT", "G", "GE"])
+        cpu_name = f"{brand} {series} {model}00{suffix}"
+
     # 50% chance to have an iGPU
     igpu = None
-    if random.random() < 0.5:
+    if suffix in ["G", "GE"] or not suffix in ["F", "KF"]:
         igpu_queryset = Igpu.objects.filter(brand=brand)
         if igpu_queryset.exists():
             igpu = random.choice(list(igpu_queryset))
 
     cpu = Cpu(
         **{
-            "name": f"{brand} {fake.word()}",
-            "image": fake.image_url(),
+            "name": cpu_name,
+            "image": "https://prd.place/200",
             "date_added": fake.date_this_decade(),
             "brand": brand,
             "igpu": igpu,
@@ -156,7 +168,7 @@ def genGpus():
 
     gpu = Gpu(
         name=f"{brand} {chipset}",
-        image=fake.image_url(),
+        image="https://prd.place/200",
         brand=brand,
         chipset=chipset,
         tdp=tdp,
@@ -183,9 +195,14 @@ def genPsus():
         "80+ Platinum",
         "80+ Titanium",
     ]
+    efficiency = random.choices(efficiency_tiers, weights=[30, 10, 35, 20, 5])[0]
     wattage = random.choices(
         [450, 550, 650, 750, 850, 1000, 1200], weights=[10, 20, 30, 25, 10, 4, 1]
     )[0]
+
+    brand = random.choice(
+            ["Corsair", "EVGA", "Seasonic", "Cooler Master", "Thermaltake", "Be Quiet!"]
+        )
 
     # Match modularity more realistically based on wattage
     if wattage >= 750:
@@ -196,14 +213,12 @@ def genPsus():
         modular = random.choices(["None", "Semi"], weights=[80, 20])[0]
 
     psu = Psu(
-        name=f"{fake.company()} {fake.word()}",
-        image=fake.image_url(),
-        brand=random.choice(
-            ["Corsair", "EVGA", "Seasonic", "Cooler Master", "Thermaltake", "Be Quiet!"]
-        ),
+        name=f"{brand} {fake.word().capitalize()} {wattage}W {efficiency}",
+        image="https://prd.place/200",
+        brand=brand,
         type=random.choices(["ATX", "SFX"], weights=[85, 15])[0],  # SFX is rarer
         wattage=wattage,
-        efficiency=random.choices(efficiency_tiers, weights=[30, 10, 35, 20, 5])[0],
+        efficiency=efficiency,
         modular=modular,
     )
 
@@ -230,12 +245,11 @@ def genRam():
     # More than 2 modules is rare for a single RAM product (those are kits)
 
     memory_size_per_module = random.choice([8, 16, 32])
-    total_memory = memory_size_per_module * memory_modules
     brand = random.choice(["Corsair", "G.Skill", "Kingston", "Crucial", "Patriot"])
 
     ram = Ram(
-        name=f"{brand} {fake.word()}",
-        image=fake.image_url(),
+        name=f"{brand} {fake.word().capitalize()} {memory_modules}x{memory_size_per_module}GB {memory_type}",
+        image="https://prd.place/200",
         brand=brand,
         memory_type=memory_type,
         memory_size=memory_size_per_module,
@@ -261,7 +275,7 @@ def genMobo():
         "LGA1200": ["B460", "Z490", "H470", "H410"],
         "LGA1700": ["B660", "Z690", "Z790"],
     }
-
+    brand = random.choice(["ASUS", "Gigabyte", "MSI", "ASRock", "Biostar"])
     socket = random.choice(list(socket_chipsets.keys()))
     chipset = random.choice(socket_chipsets[socket])
 
@@ -276,9 +290,9 @@ def genMobo():
     memory_max = random.choice(memory_max_options.get(memory_slots, [64]))
 
     mobo = Mobo(
-        name=f"{fake.company()} {fake.word()}",
-        image=fake.image_url(),
-        brand=random.choice(["ASUS", "Gigabyte", "MSI", "ASRock", "Biostar"]),
+        name=f"{brand} {chipset} {fake.word().capitalize()} {socket}",
+        image="https://prd.place/200",
+        brand=brand,
         socket=socket,
         form_factor=form_factor,
         memory_max=memory_max,
@@ -321,7 +335,7 @@ def genStorage():
     storage = Storage(
         **{
             "name": f"{fake.company()} {fake.word()}",
-            "image": fake.image_url(),
+            "image": "https://prd.place/200",
             "brand": fake.company(),
             "type": type,
             "capacity": capacity,
@@ -348,13 +362,13 @@ def estimate_base_price(part):
         base_ghz = part.speed / 1000
         turbo_ghz = part.turbo / 1000
         return (
-            400 + part.cores * 150 + base_ghz * 400 + turbo_ghz * 200
+            part.cores * 100 + base_ghz * 210 + turbo_ghz * 200
         )  # adjusted for BR prices
 
     elif model == "Gpu":
         core_ghz = part.speed / 1000
         return (
-            900 + part.memory * 200 + core_ghz * 300 + part.tdp * 3
+            part.memory * 100 + core_ghz * 250 + part.tdp * 3
         )  # adjusted for BR prices
 
     elif model == "Ram":
