@@ -64,6 +64,32 @@ export const NavList = styled.ul`
     flex-direction: row; /* Quando a tela atingir 640px ou mais, itens ficam em linha */
   }
 `;
+export const CloseButton = styled.button`
+  all: unset;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: none;
+  width: 3rem;
+  height: 3rem;
+  background: white;
+  color: gray;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  z-index: 1100;
+  transition: background 0.3s ease, color 0.3s ease;
+
+  &:hover {
+    background: #ff8c00;
+    color: white;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+`;
 
 export const NavItem = styled.li`
   display: flex;
