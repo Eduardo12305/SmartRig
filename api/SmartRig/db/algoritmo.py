@@ -11,7 +11,6 @@ from db.models import Cpu, Gpu, Mobo, Prices, Psu, Ram, Storage
 # Constants
 POPULATION_SIZE = 150
 GENERATIONS = 50
-BUDGET = 500
 try:
     MAXCPU = (
         Cpu.objects.annotate(
@@ -56,6 +55,48 @@ except:
 # Price cache
 _price_cache = {}
 
+def updateProductCache():
+    try:
+        MAXCPU = (
+            Cpu.objects.annotate(
+                perf=ExpressionWrapper(
+                    ((F("speed") + F("turbo")) / 2) * F("cores"), output_field=FloatField()
+                )
+            ).aggregate(Max("perf"))["perf__max"]
+            or 0
+        )
+
+        # GPU max
+        MAXGPU = (
+            Gpu.objects.annotate(
+                perf=ExpressionWrapper(
+                    ((F("speed") + F("turbo")) / 2) * F("memory"), output_field=FloatField()
+                )
+            ).aggregate(Max("perf"))["perf__max"]
+            or 0
+        )
+
+        MAXRAM = Ram.objects.annotate(
+            perf=ExpressionWrapper(
+                F("memory_speed") * F("memory_size"), output_field=FloatField()
+            )
+        ).aggregate(Max("perf"))["perf__max"]
+
+        # Global part caches (reduces DB hits)
+        ALL_CPUS = list(Cpu.objects.all())
+        ALL_GPUS = list(Gpu.objects.all())
+        ALL_PSUS = list(Psu.objects.all())
+        ALL_MOBOS = list(Mobo.objects.all())
+        ALL_RAMS = list(
+            Ram.objects.annotate(
+                total_memory=ExpressionWrapper(
+                    F("memory_size") * F("memory_modules"), output_field=IntegerField()
+                )
+            )
+        )
+        ALL_STORAGES = list(Storage.objects.all())
+    except:
+        print("Não foi possivel carregar os dados para o algoritmo.")
 
 def getBestPrice(part):
     if part.uid in _price_cache:
@@ -177,7 +218,7 @@ creator.create("Individual", list, fitness=creator.FitnessMax)
 toolbox = base.Toolbox()
 
 
-def fitness_function(ind, weights):
+def fitness_function(ind, weights,budget):
     if not weights:
        weights = {"cpu": 0.45, "gpu": 0.45, "ram": 0.1}
     cpu, gpu, psu, mobo, ram, storage = ind
@@ -215,8 +256,8 @@ def fitness_function(ind, weights):
         return (-1000,)  # power inadequate penalty
 
     # Penalize if price exceeds budget, but allow partial credit (soft penalty)
-    if total_price > BUDGET:
-        penalty = 1000 * (total_price - BUDGET)  # penalty grows fast
+    if total_price > budget:
+        penalty = 1000 * (total_price - budget)  # penalty grows fast
     else:
         penalty = 0
 
@@ -291,11 +332,9 @@ toolbox.register("select", tools.selTournament, tournsize=3)
 def run_ga(data):
     toolbox.register("individual", partial(random_build, data=data))
     toolbox.register("mutate", partial(mutate, data=data))
-    toolbox.register("evaluate", partial(fitness_function, weights=data.weights))
+    toolbox.register("evaluate", partial(fitness_function, weights=data.weights, budget=data.budget))
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
-    global BUDGET
-    BUDGET = data.budget
     population = toolbox.population(n=POPULATION_SIZE)
     for ind in population:
         ind.fitness.values = toolbox.evaluate(ind)

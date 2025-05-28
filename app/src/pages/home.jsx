@@ -8,7 +8,7 @@ export const Home = () => {
       <StyleBody />
       <CardPageWrapper>
         <CardPage
-          cardsPerView={window.innerWidth < 640 ? 2 : 3}
+          cardsPerView={window.innerWidth < 640 ? 2 : 4}
           transitionSpeed="0.1s"
         />
       </CardPageWrapper>

@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+from django import apps
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, Max
 from django.forms import model_to_dict
@@ -345,7 +346,75 @@ def getAll():
 
 def getFiltered(request, type, filters, filter_prices):
     filter_dict = {k: v for k, v in filters.dict().items() if v is not None}
+    if "name" in filter_dict:
+        print("alou")
+        name = filter_dict["name"]
+        del filter_dict["name"]
+        filter_dict["name__icontains"] = name
 
+    if type == "search":
+        results = []
+
+        for model_name in ["Cpu", "Gpu", "Psu", "Ram", "Mobo", "Storage"]:
+            content_type = ContentType.objects.get(app_label="db", model=model_name.lower())
+            model_class = content_type.model_class()
+             # Get actual model fields (field names only)
+            valid_fields = {field.name for field in model_class._meta.get_fields()}
+
+            # Validate filter keys exist in model fields
+            invalid_filters = []
+            for key in filter_dict.keys():
+                # Support simple lookups (like 'field__gte'), check only 'field'
+                base_key = key.split("__")[0]
+                if base_key not in valid_fields:
+                    invalid_filters.append(key)
+
+            if invalid_filters:
+                continue
+
+            # Perform filtering
+            queryset = model_class.objects.filter(**filter_dict)
+            object_ids = queryset.values_list("uid", flat=True)
+
+            price_filter_kwargs = {
+                "content_type": content_type,
+                "object_id__in": object_ids,
+                **(
+                    {"price__range": filter_prices.price_range}
+                    if filter_prices.price_range
+                    else {}
+                ),
+                **({"store": filter_prices.store} if filter_prices.store else {}),
+                **({"sale": filter_prices.sale} if filter_prices.sale is not None else {}),
+            }
+
+            prices = Prices.objects.filter(**price_filter_kwargs)
+            price_map = defaultdict(list)
+
+            for price in prices:
+                price_map[price.object_id].append(
+                    {
+                        "store": price.store.name,
+                        "url": price.url_product,
+                        "price": price.price,
+                        "old_price": price.old_price,
+                        "sale": price.sale,
+                        "sale_percent": price.sale_percent,
+                        "sale_end": price.sale_end,
+                        "collected": price.colected_date,
+                    }
+                )
+
+            for item in queryset:
+                if filter_prices and item.uid not in price_map:
+                    continue
+                item_dict = model_to_dict(item)
+                item_dict["uid"] = item.uid
+                item_dict["prices"] = price_map.get(item.uid, [])  # pode ter vários preços
+                results.append(item_dict)
+
+        return {"message": "produtos retornados com sucesso", "data": results}
+    
     # Validate model existence and whitelist (you can customize this whitelist)
     allowed_models = {
         "db.cpu",

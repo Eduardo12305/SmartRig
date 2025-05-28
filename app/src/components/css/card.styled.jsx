@@ -2,89 +2,136 @@ import styled from "styled-components";
 
 // Card individual
 export const Card = styled.div`
-  flex: 0 0 25vw;
-  max-width: 25vw;
+  display: flex;
+  flex-direction: column;
   background-color: white;
-  height: 180px;
-  border: 2px solid hsl(0, 1.6%, 24.3%);
   border-radius: 5px;
   box-shadow: 5px 5px 5px hsla(0, 0%, 0%, 0.1);
-  padding: ${(prop) => prop.padding || "20px"};
-  margin: ${(prop) => prop.margin || "10px"};
-  text-align: center;
-  width: 100%;
+  text-align: left;
+  justify-content: space-between;
+  width: 250px;
+  height: 450px;
   box-sizing: border-box;
-  display: inline-block;
   cursor: pointer;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+
+  &:hover {
+    box-shadow: 10px 10px 10px hsla(0, 0%, 0%, 0.2);
+    transform: scale(1.01);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  }
+
 
   img {
-    max-width: 60%;
+    display: block;
+    padding-top: 5px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 200px;
+    height: 200px;
+    object-fit: fill;
     border-radius: 5px;
-    margin-bottom: 10px;
   }
 
   h2 {
     font-family: Arial, sans-serif;
+    display: flex;
+    aling-items: center;
+    gap: 6px;
+    padding-left: 10px;
+    padding-right: 10px;
     margin: 0;
-    color: ${(prop) => prop.colorh2 || "hsl(0, 0%, 20%)"};
-    font-size: 12px;
+    font-weight: bold;
+    color: ${(prop) => prop.colorh2 || "#FF8C00"};
+    font-size: 28px;
+    line-height: 1.2;
+
+    .discount {
+      font-size: 16px;
+      align-self: center;
+      display: inline-block; /* ensures padding and background wrap nicely */
+      vertical-align: baseline;
+      background: #ff8c00;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 24px;
+    }
+  }
+
+  vermais {
+    background-color: #ff8c00;
+    margin-bottom: 10px;
+    display: block;
+    color: white;
+    border: none;
+    aling-self: center;
+    text-align: center;
+    border-radius: 5px;
+    margin-right: 20px;
+    margin-left: 20px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+  }
+
+  vermais:hover {
+    background-color: white;
+    color: #ff8c00;
+    box-shadow: 0 0 0 1px #ff8c00 inset;
+    transition: background 0.3s ease;
+  }
+
+  old {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-family: Arial, sans-serif;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin: 0;
+    color: hsl(0, 0%, 50%);
+    font-size: 18px;
+    text-decoration: line-through;
+  }
+
+  .name{
+    min-height: 30px; /* or however tall your name content is */
+    display: flex;  
+  }
+
+  .sale-info {
+    min-height: 50px; /* or however tall your sale content is */
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    align-items: left;
+    gap: 8px;
   }
 
   p {
     font-family: Arial, sans-serif;
+    padding-left: 10px;
+    line-height: 1.2;
+    margin: 5px;
     color: hsl(0, 0%, 30%);
-    font-size: 10px;
+    font-size: 18px;
   }
 
-  @media (min-width: 320px) {
-    flex: 0 0 25vw;
-    max-width: 25vw;
-
-    h2 {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      color: ${(prop) => prop.colorh2 || "hsl(0, 0%, 20%)"};
-      font-size: 14px;
+  @media (max-width: 1024px) {
+    max-width: 200px;
+    max-height: 350px;
+    img {
+      aspect-ratio: 1 / 1;
+      width: auto;
+      height: auto;
+      width: 150px;
+      height: 150px;
+      object-fit: fill;
+      border-radius: 5px;
+      margin-bottom: 10px;
     }
-
-    p {
-      font-family: Arial, sans-serif;
-      color: hsl(0, 0%, 30%);
-      font-size: 12px;
-    }
-  }
-  @media (min-width: 425px) {
-    flex: 0 0 30vw;
-    max-width: 30vw;
-
-    h2 {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      color: ${(prop) => prop.colorh2 || "hsl(0, 0%, 20%)"};
-      font-size: 14px;
-    }
-
-    p {
-      font-family: Arial, sans-serif;
-      color: hsl(0, 0%, 30%);
-      font-size: 12px;
-    }
-  }
-  @media (min-width: 640px) {
-    flex: 0 0 25vw;
-    max-width: 25vw;
-  }
-  @media (min-width: 768px) {
-    flex: 0 0 27vw;
-    max-width: 27vw;
-  }
-  @media (min-width: 1024px) {
-    flex: 0 0 28vw;
-    max-width: 28vw;
-  }
-  @media (min-width: 1440px) {
-    flex: 0 0 29vw;
-    max-width: 29vw;
   }
 `;
 
@@ -95,12 +142,10 @@ export const CardContainer = styled.div`
   gap: 0.5rem;
   overflow-x: auto;
   padding: 0.5rem;
-  justify-content: flex-start;
   align-items: center;
+  justify-content: space-evenly;  
   width: 100%;
   box-sizing: border-box;
-  flex: 0 0 180px;
-  overflow-x: hidden;
 
 
   &::-webkit-scrollbar {
@@ -186,7 +231,7 @@ export const Carousel = styled.div`
   position: relative;
   width: 100%;
   overflow: hidden;
-  padding: 0 30px;
+  padding: 0 100px;
   box-sizing: border-box;
 `;
 

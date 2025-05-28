@@ -8,7 +8,7 @@ import {
   ErrorMessage,
   Carousel,
 } from "./css/card.styled";
-import { productscard } from "./apiService";
+import { productsCategory } from "./apiService";
 import { useNavigate, useParams } from "react-router-dom";
 
 export function CardPage({ cardsPerView = 3 }) {
@@ -18,16 +18,17 @@ export function CardPage({ cardsPerView = 3 }) {
   const { search } = useParams();
   const navigate = useNavigate();
 
-  const fetchProducts = async () => {
+  useEffect(() => {
+    const fetchProducts = async () => {
     setErrorMessage(""); // Limpa erro antes de nova tentativa
     try {
       let response;
 
       // Busca com ou sem filtro
       if (search && search.trim() !== "") {
-        response = await productscard({ name: search });
+        response = await productsCategory("search",{ name: search });
       } else {
-        response = await productscard();
+        response = await productsCategory("search");
       }
 
       const data = response.data?.data || [];
@@ -40,8 +41,6 @@ export function CardPage({ cardsPerView = 3 }) {
       setErrorMessage(error.message || "Erro ao carregar cards");
     }
   };
-
-  useEffect(() => {
     fetchProducts(); // Executa sempre que o parâmetro de busca mudar
   }, [search]);
 
@@ -90,15 +89,19 @@ export function CardPage({ cardsPerView = 3 }) {
                 colorh2={card.colorh2}
                 onClick={() => handleCardClick(card.id)}
               >
-                <h2>{card.name}</h2>
-                <p>{card.text}</p>
                 <img
                   src={card.image}
                   alt={card.name}
-                  width="50px"
-                  height="50px"
                 />
-                <p>{card.prices[0].price}</p>
+                <div className="name">
+                   <p>{card.name}</p>
+                </div>
+                <div className="sale-info">
+                {card.prices[0].sale ? (<old>R$ {card.prices[0].old_price}</old>) : null }
+                <h2>R$ {card.prices[0].price}   {card.prices[0].sale ? (<span className="discount">-{card.prices[0].sale_percent}%</span>) : null}</h2> 
+                </div>
+                
+                <vermais>Ver Mais</vermais>
               </Card>
             ))}
         </CardContainer>

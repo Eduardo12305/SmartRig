@@ -104,10 +104,10 @@ export const produc_price = async (id) => {
     }
 }
 
-export const productsCategory = async (category) => {
+export const productsCategory = async (category, params = {}) => {
     try {
-        const response = await axiosInstance.get(`/products/${category}/`)
-        return response.data;
+        const response = await axiosInstance.get(`/products/${category}/`, {params} )
+        return response;
     } catch (error) {
         console.error(`❌ Erro ao carregar produtos da categoria ${category}:`, error.response?.data || error.message);
         throw error.response ? error.response.data: new Error("Erro ao carregar produtos");
