@@ -3,11 +3,9 @@ import styled from "styled-components";
 // Estilos para o Header principal
 export const StyledHeader = styled.header`
   display: flex;
-  position: relative;
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.4em 0.5rem;
-  position: fixed;
   width: 100%;
   top: 0;
   left: 0;
@@ -36,6 +34,7 @@ export const FlexContainer = styled.div`
   width: 100%;
   flex-wrap: wrap;
   gap: 0.5rem;
+  padding: 2rem;
 `;
 
 // Estilos para a navegação (botões e itens)
@@ -127,7 +126,6 @@ export const LinkWithText = styled.button`
 
   &:hover {
     transform: scale(1.05);
-
   }
 `;
 
@@ -184,11 +182,8 @@ export const ModalContent = styled.div`
   transition: opacity 0.3s ease, transform 0.3s ease;
 `;
 
-
 export const SearchBar = styled.input`
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%);
+  margin-left: 100px;
   padding: 0.8rem 1.5rem; // Altura não esqueça de novo
   font-size: 1rem;
   width: 350px; // Largura não esqueça de novo
@@ -198,9 +193,10 @@ export const SearchBar = styled.input`
 `;
 
 export const SearchGroup = styled.div`
+  width: 100%;
+  height: 50px;
   display: flex;
-  flex: 1;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: 0.5rem;
   min-width: 180px;
@@ -214,18 +210,18 @@ export const TopRightGroup = styled.div`
 `;
 
 export const MenuLine = styled.div`
-  width: 100%;
   display: flex;
   justify-content: center;
 `;
 
 export const MenuButton = styled.button`
-  color: orange;
-  background-color: transparent;
+  color: rgb(33, 33, 33);
+  background-color: #ff8c00;
+
   transition: color 0.3s, background-color 0.3s ease;
   &:hover {
-    color: rgb(33, 33, 33);
-    background-color: #ff8c00;
+    color: orange;
+    background-color: transparent;
     border-color: transparent;
   }
 `;

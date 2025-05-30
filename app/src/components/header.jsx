@@ -32,15 +32,10 @@ import {
 
 export function Header() {
   const navigate = useNavigate();
-  const [activeModal, setActiveModal] = useState(null); // 'login' | 'register' | 'menu' | null
-  const [eventSearch, setEventSearch] = useState("");
+  const [activeModal, setActiveModal] = useState("menu"); // 'login' | 'register' | 'menu' | null
 
   const CategoryClick = (category) => {
     navigate(`/produtos/${category}/`);
-  };
-
-  const handleSearch = (search) => {
-    navigate(`/produtos/search/${search}`);
   };
 
   const openLoginModal = () => setActiveModal("login");
@@ -54,22 +49,17 @@ export function Header() {
     <>
       <StyledHeader>
         <FlexContainer>
+          <MenuLine>
+            <Nav>
+              <NavItem>
+                <MenuButton onClick={openMenuModal}>Menu</MenuButton>
+              </NavItem>
+            </Nav>
+          </MenuLine>
           <a href="/">
             <IconSoft src={logo} alt="Logo" />
           </a>
-          <SearchGroup>
-            <SearchBar
-              type="search"
-              placeholder="Pesquisar Produto ..."
-              value={eventSearch}
-              onChange={(e) => setEventSearch(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && eventSearch.trim() !== "") {
-                  handleSearch(eventSearch);
-                }
-              }}
-            />
-          </SearchGroup>
+
           <TopRightGroup>
             <NavItemButton buttoncolor="#FF8C00" onClick={openLoginModal}>
               Login
@@ -77,14 +67,6 @@ export function Header() {
             <NavItemButton onClick={openRegisterModal}>Registrar</NavItemButton>
           </TopRightGroup>
         </FlexContainer>
-
-        <MenuLine>
-          <Nav>
-            <NavItem>
-              <MenuButton onClick={openMenuModal}>Menu</MenuButton>
-            </NavItem>
-          </Nav>
-        </MenuLine>
 
         {/* Renderização condicional dos modais */}
         {activeModal === "login" && (
