@@ -161,29 +161,27 @@ export const ModalContent = styled.div`
   left: 0;
   padding: 1.5rem;
   width: 100%;
-  /* Ajuste para acomodar mais itens lado a lado */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   display: flex;
-  flex-direction: column; /* Inicialmente empilhados */
+  flex-direction: column;
   justify-content: center;
   align-items: space-evenly;
-  z-index: 1; /* Garante que o modal fique acima de outros elementos */
+  z-index: 1;
   text-align: center;
-  flex-wrap: wrap; /* Permite que quebrem linha em telas pequenas */
+  flex-wrap: wrap;
 
   @media (min-width: 640px) {
-    flex-direction: row; /* Alinha os itens em linha a partir de 640px */
-    justify-content: space-around; /* Distribui os itens igualmente */
+    flex-direction: row;
+    justify-content: space-around;
     align-items: center;
   }
 
-  opacity: ${(props) => (props.active ? 1 : 0)};
+  opacity: ${(props) => (props.$active ? 1 : 0)};
   transform: ${(props) =>
-    props.active ? "translateY(145)" : "translateY(-145px)"};
-  pointer-events: ${(props) => (props.active ? "auto" : "none")};
+    props.$active ? "translateY(0)" : "translateY(-145px)"};
+  pointer-events: ${(props) => (props.$active ? "auto" : "none")};
   transition: opacity 0.3s ease, transform 0.3s ease;
 `;
-
 
 export const SearchBar = styled.input`
   position: absolute;
@@ -223,9 +221,12 @@ export const MenuButton = styled.button`
   color: orange;
   background-color: transparent;
   transition: color 0.3s, background-color 0.3s ease;
+  cursor: pointer;
+  
   &:hover {
     color: rgb(33, 33, 33);
     background-color: #ff8c00;
     border-color: transparent;
   }
 `;
+;

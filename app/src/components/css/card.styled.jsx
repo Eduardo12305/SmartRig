@@ -1,6 +1,28 @@
 import styled from "styled-components";
 
 // Card individual
+export const Vermais = styled.button`
+    background-color: #ff8c00;
+    margin-bottom: 10px;
+    display: block;
+    color: white;
+    border: none;
+    aling-self: center;
+    text-align: center;
+    border-radius: 5px;
+    margin-right: 20px;
+    margin-left: 20px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+
+    &:houver {background-color: white;
+    color: #ff8c00;
+    box-shadow: 0 0 0 1px #ff8c00 inset;
+    transition: background 0.3s ease;}
+    `
 export const Card = styled.div`
   display: flex;
   flex-direction: column;
@@ -58,32 +80,15 @@ export const Card = styled.div`
     }
   }
 
-  vermais {
-    background-color: #ff8c00;
-    margin-bottom: 10px;
-    display: block;
-    color: white;
-    border: none;
-    aling-self: center;
-    text-align: center;
-    border-radius: 5px;
-    margin-right: 20px;
-    margin-left: 20px;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    transition: background 0.3s ease;
-  }
 
-  vermais:hover {
+  .vermais:hover {
     background-color: white;
     color: #ff8c00;
     box-shadow: 0 0 0 1px #ff8c00 inset;
     transition: background 0.3s ease;
   }
 
-  old {
+  .old {
     display: flex;
     flex-direction: column;
     align-items: flex-start;

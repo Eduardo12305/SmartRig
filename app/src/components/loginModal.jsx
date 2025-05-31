@@ -112,7 +112,7 @@ export const LoginModal = ({ onClose, onSwitchToRegister, onLoginSuccess }) => {
               cursor: isLoading ? "not-allowed" : "pointer",
             }}
           >
-            {isLoading ? "🔄 Entrando..." : "🔐 Entrar"}
+            {isLoading ? " Entrando..." : " Entrar"}
           </button>
 
           <div style={{ marginTop: "1rem", textAlign: "center" }}>

@@ -23,7 +23,6 @@ import {
   Name,
   NavItemButton,
   ModalContent,
-  CloseButton,
   NavList,
   NavItemMenu,
   SearchGroup,
@@ -32,6 +31,7 @@ import {
   MenuLine,
   MenuButton,
 } from "../components/css/header.styled";
+import { CloseButton } from "./css/modal.styled";
 
 export function Header() {
   const navigate = useNavigate();
@@ -78,7 +78,12 @@ export function Header() {
 
   const openLoginModal = () => setActiveModal("login");
   const openRegisterModal = () => setActiveModal("register");
-  const openMenuModal = () => setActiveModal((prev) => (prev === "menu" ? null : "menu"));
+
+  const openMenuModal = () => {
+    setActiveModal('menu');
+  };
+
+  const closeMenuModal = () => setActiveModal(null);
   const openUserMenuModal = () => setActiveModal("userMenu");
   const closeModal = () => setActiveModal(null);
 
@@ -164,16 +169,16 @@ export function Header() {
         <TopRightGroup>
           {!isLoggedIn ? (
             <>
-              <NavItemButton buttoncolor="#FF8C00">
-                <button onClick={openLoginModal}>Login</button>
+              <NavItemButton $buttoncolor="#FF8C00" onClick={openLoginModal}>
+                Login
               </NavItemButton>
-              <NavItemButton>
-                <button onClick={openRegisterModal}>Registrar</button>
+              <NavItemButton onClick={openRegisterModal}>
+                Registrar
               </NavItemButton>
             </>
           ) : (
-            <NavItemButton buttoncolor="#28a745">
-              <button onClick={openUserMenuModal}>Olá, {getDisplayName()}</button>
+            <NavItemButton $buttoncolor="#28a745" onClick={openUserMenuModal}>
+              Olá, {getDisplayName()}
             </NavItemButton>
           )}
         </TopRightGroup>
@@ -188,6 +193,8 @@ export function Header() {
       </MenuLine>
 
       {/* Modais */}
+
+     
       {activeModal === "login" && (
         <LoginModal
           onClose={closeModal}
@@ -204,8 +211,8 @@ export function Header() {
       )}
 
       {activeModal === "menu" && (
-        <ModalContent>
-          <CloseButton onClick={closeModal}>&times;</CloseButton>
+        <ModalContent $active={true}>
+          <CloseButton onClick={closeMenuModal}>&times;</CloseButton>
           <NavList>
             <NavItemMenu>
               <LinkWithText onClick={() => CategoryClick("cpu")}>
@@ -248,7 +255,7 @@ export function Header() {
       )}
 
       {activeModal === "userMenu" && (
-        <ModalContent>
+        <ModalContent $active={true}>
           <CloseButton onClick={closeModal}>&times;</CloseButton>
           <NavList>
             <NavItemMenu>
