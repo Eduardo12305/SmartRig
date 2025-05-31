@@ -7,6 +7,7 @@ import {
   CardPageWrapper,
   ErrorMessage,
   Carousel,
+  Vermais,
 } from "./css/card.styled";
 import { productsCategory } from "./apiService";
 import { useNavigate, useParams } from "react-router-dom";
@@ -97,11 +98,11 @@ export function CardPage({ cardsPerView = 3 }) {
                    <p>{card.name}</p>
                 </div>
                 <div className="sale-info">
-                {card.prices[0].sale ? (<old>R$ {card.prices[0].old_price}</old>) : null }
+                {card.prices[0].sale ? (<div className="old">R$ {card.prices[0].old_price}</div>) : null}
                 <h2>R$ {card.prices[0].price}   {card.prices[0].sale ? (<span className="discount">-{card.prices[0].sale_percent}%</span>) : null}</h2> 
                 </div>
                 
-                <vermais>Ver Mais</vermais>
+                <Vermais>Ver Mais</Vermais>
               </Card>
             ))}
         </CardContainer>
