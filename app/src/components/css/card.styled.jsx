@@ -43,7 +43,6 @@ export const Card = styled.div`
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   }
 
-
   img {
     display: block;
     padding-top: 5px;
@@ -101,9 +100,9 @@ export const Card = styled.div`
     text-decoration: line-through;
   }
 
-  .name{
+  .name {
     min-height: 30px; /* or however tall your name content is */
-    display: flex;  
+    display: flex;
   }
 
   .sale-info {
@@ -218,7 +217,7 @@ export const NexteCardButton = styled.button`
 // Wrapper da página de cards
 export const CardPageWrapper = styled.div`
   padding: 1rem 0.5rem;
-  margin-top: 6rem;
+  margin-top: 1rem;
   min-height: calc(100vh - 6rem - 50px);
   display: flex;
   flex-direction: column;

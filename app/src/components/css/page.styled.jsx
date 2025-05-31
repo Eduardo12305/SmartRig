@@ -16,9 +16,7 @@ export const StyleBody = createGlobalStyle`
 
   body {
     background-color: ${(props) =>
-      props.color
-        ? props.color
-        : "rgb(207, 207, 207)"}; /* Cor de fundo personalizada */
+      props.color ? props.color : "#f8f9fa"}; /* Cor de fundo personalizada */
     min-height: 100vh; /* Garante que o body ocupe pelo menos toda a altura da tela */
     display: flex;
     flex-direction: column;
