@@ -7,6 +7,7 @@ import { Products } from "../pages/produtos";
 import { CategoryPage } from "../pages/category";
 import { CardPage } from "../components/card";
 import { Layout } from "../components/layout";
+import { NewPC } from "../pages/new_pc";
 
 export function AppRoutes () {
     return (
@@ -34,6 +35,10 @@ export function AppRoutes () {
 
                 <Route>
                     <Route path="produtos/search/:search"  element={<CardPage/> } />
+                </Route>
+
+                <Route>
+                    <Route path="/produtos/monte-seu-pc" element={<NewPC/>} /> // montar pc //
                 </Route>
 
                 {/* Pagina de erro */}

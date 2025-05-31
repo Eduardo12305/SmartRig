@@ -1,245 +1,143 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { productsCategory } from "./apiService";
+import {
+  PageWrapper,
+  CategoryHeader,
+  CategoryTitle,
+  ProductCount,
+  GridContainer,
+  ProductCard,
+  ProductImage,
+  ProductName,
+  ProductPrice,
+  OldPrice,
+  DiscountLabel,
+  SeeMore,
+  ErrorWrapper,
+  LoadingSpinner,
+} from "./css/categorycard.styled";
 
-export const CategoryCard = () => {
+export const CategoryCard = ({ cardsPerRow = 4 }) => {
   const { category } = useParams();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Mapeamento de categorias para nomes amigáveis
   const categoryNames = {
     cpu: "Processadores",
-    gpu: "Placas de Vídeo", 
+    gpu: "Placas de Vídeo",
     mobo: "Placas Mãe",
     ram: "Memórias RAM",
     psu: "Fontes de Alimentação",
-    storage: "Armazenamento"
+    storage: "Armazenamento",
   };
 
   useEffect(() => {
+    let ignore = false;
+
     const fetchData = async () => {
       setLoading(true);
       setErrorMessage("");
-      
+
       try {
-        console.log(`🔍 Buscando produtos da categoria: ${category}`);
         const response = await productsCategory(category);
-        const data = response?.data || [];
-        
-        console.log(`✅ ${data.length} produtos encontrados`);
-        setProducts(data);
+        const data = response?.data?.data || [];
+
+        if (!ignore) {
+          setProducts(data.map((p) => ({ ...p, id: p.uid })));
+        }
       } catch (error) {
-        console.error("❌ Erro ao carregar produtos:", error);
-        setErrorMessage(error.message || "Erro ao carregar produtos da categoria");
+        if (!ignore) {
+          setErrorMessage(error.message || "Erro ao carregar produtos da categoria");
+        }
       } finally {
-        setLoading(false);
+        if (!ignore) {
+          setLoading(false);
+        }
       }
     };
 
     if (category) {
       fetchData();
     }
+
+    return () => {
+      ignore = true;
+    };
   }, [category]);
 
-  // Função para formatar preço
   const formatPrice = (price) => {
-    if (!price) return "Preço não disponível";
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
+    if (!price) return "R$ 0,00";
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
     }).format(price);
   };
 
-  // Renderização de erro
+  const handleCardClick = (id) => {
+    navigate(`/produto/${id}`);
+  };
+
   if (errorMessage) {
     return (
-      <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <h2>Ops! Algo deu errado</h2>
-        <p style={{ color: 'red' }}>{errorMessage}</p>
-        <button onClick={() => window.location.reload()}>
-          Tentar Novamente
-        </button>
-      </div>
+      <ErrorWrapper>
+        <h2>Erro ao carregar produtos</h2>
+        <p>{errorMessage}</p>
+        <button onClick={() => window.location.reload()}>Tentar Novamente</button>
+      </ErrorWrapper>
     );
   }
 
-  // Renderização de loading
   if (loading) {
     return (
-      <div style={{ padding: '2rem', textAlign: 'center' }}>
+      <ErrorWrapper>
         <h2>Categoria: {categoryNames[category] || category?.toUpperCase()}</h2>
         <p>Carregando produtos...</p>
-        <div style={{ 
-          border: '4px solid #f3f3f3',
-          borderTop: '4px solid #3498db',
-          borderRadius: '50%',
-          width: '40px',
-          height: '40px',
-          animation: 'spin 2s linear infinite',
-          margin: '0 auto'
-        }}></div>
-      </div>
+        <LoadingSpinner />
+      </ErrorWrapper>
     );
   }
 
-  return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-      {/* Cabeçalho da categoria */}
-      <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-        <h1>{categoryNames[category] || category?.toUpperCase()}</h1>
-        <p style={{ color: '#666' }}>
-          {products.length} produto{products.length !== 1 ? 's' : ''} encontrado{products.length !== 1 ? 's' : ''}
-        </p>
-      </div>
+return (
+    <PageWrapper>
+      <CategoryHeader>
+        <CategoryTitle>{categoryNames[category] || category?.toUpperCase()}</CategoryTitle>
+        <ProductCount>
+          {products.length} produto{products.length !== 1 ? "s" : ""} encontrado{products.length !== 1 ? "s" : ""}
+        </ProductCount>
+      </CategoryHeader>
 
-      {/* Lista de produtos */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
-        gap: '1.5rem' 
-      }}>
+      <GridContainer $cardsPerRow={cardsPerRow}>
         {products.length > 0 ? (
           products.map((product) => (
-            <div 
-              key={product.id} 
-              style={{
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                padding: '1.5rem',
-                backgroundColor: '#fff',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                cursor: 'pointer'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-              }}
-            >
-              {/* Imagem do produto (se disponível) */}
-              {product.image && (
-                <img 
-                  src={product.image} 
-                  alt={product.name}
-                  style={{
-                    width: '100%',
-                    height: '200px',
-                    objectFit: 'cover',
-                    borderRadius: '4px',
-                    marginBottom: '1rem'
-                  }}
-                />
+            <ProductCard key={product.id} onClick={() => handleCardClick(product.id)}>
+              {product.image && <ProductImage src={product.image} alt={product.name} />}
+              <ProductName>{product.name}</ProductName>
+
+              {product.prices && product.prices[0] && (
+                <ProductPrice>
+                  {product.prices[0].sale && (
+                    <OldPrice>{formatPrice(product.prices[0].old_price)}</OldPrice>
+                  )}
+                  {formatPrice(product.prices[0].price)}
+                  {product.prices[0].sale && (
+                    <DiscountLabel>-{product.prices[0].sale_percent}%</DiscountLabel>
+                  )}
+                </ProductPrice>
               )}
 
-              {/* Nome do produto */}
-              <h3 style={{ 
-                margin: '0 0 0.5rem 0', 
-                color: '#333',
-                fontSize: '1.2rem'
-              }}>
-                {product.name || product.title}
-              </h3>
-
-              {/* Descrição */}
-              {product.description && (
-                <p style={{ 
-                  color: '#666', 
-                  marginBottom: '1rem',
-                  lineHeight: '1.4',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden'
-                }}>
-                  {product.description}
-                </p>
-              )}
-
-              {/* Especificações técnicas (exemplo para diferentes categorias) */}
-              {category === 'cpu' && product.specs && (
-                <div style={{ marginBottom: '1rem', fontSize: '0.9rem' }}>
-                  <p><strong>Cores:</strong> {product.specs.cores || 'N/A'}</p>
-                  <p><strong>Frequência:</strong> {product.specs.frequency || 'N/A'}</p>
-                </div>
-              )}
-
-              {category === 'gpu' && product.specs && (
-                <div style={{ marginBottom: '1rem', fontSize: '0.9rem' }}>
-                  <p><strong>VRAM:</strong> {product.specs.vram || 'N/A'}</p>
-                  <p><strong>Arquitetura:</strong> {product.specs.architecture || 'N/A'}</p>
-                </div>
-              )}
-
-              {category === 'ram' && product.specs && (
-                <div style={{ marginBottom: '1rem', fontSize: '0.9rem' }}>
-                  <p><strong>Capacidade:</strong> {product.specs.capacity || 'N/A'}</p>
-                  <p><strong>Velocidade:</strong> {product.specs.speed || 'N/A'}</p>
-                </div>
-              )}
-
-              {/* Preço */}
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                marginTop: 'auto'
-              }}>
-                <span style={{ 
-                  fontSize: '1.3rem', 
-                  fontWeight: 'bold', 
-                  color: '#e74c3c' 
-                }}>
-                  {formatPrice(product.price)}
-                </span>
-                
-                <button style={{
-                  backgroundColor: '#3498db',
-                  color: 'white',
-                  border: 'none',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '0.9rem'
-                }}>
-                  Ver Detalhes
-                </button>
-              </div>
-
-              {/* Badge de disponibilidade */}
-              {product.inStock !== undefined && (
-                <div style={{
-                  position: 'absolute',
-                  top: '10px',
-                  right: '10px',
-                  backgroundColor: product.inStock ? '#27ae60' : '#e74c3c',
-                  color: 'white',
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '12px',
-                  fontSize: '0.8rem'
-                }}>
-                  {product.inStock ? 'Em Estoque' : 'Indisponível'}
-                </div>
-              )}
-            </div>
+              <SeeMore>Ver Mais →</SeeMore>
+            </ProductCard>
           ))
         ) : (
-          <div style={{ 
-            gridColumn: '1 / -1', 
-            textAlign: 'center', 
-            padding: '3rem',
-            color: '#666' 
-          }}>
+          <ErrorWrapper>
             <h3>Nenhum produto encontrado</h3>
             <p>Não há produtos disponíveis nesta categoria no momento.</p>
-          </div>
+          </ErrorWrapper>
         )}
-      </div>
-    </div>
+      </GridContainer>
+    </PageWrapper>
   );
 };

@@ -66,8 +66,13 @@ export function Header() {
 
   const CategoryClick = (category) => {
     navigate(`/produtos/${category}/`);
-    closeModal(); // Fechar modal de menu ao navegar
+    closeModal(); 
   };
+
+  const NewpcClick = () => {
+    navigate("/produtos/monte-seu-pc");
+    closeModal(); 
+  }
 
   const handleSearch = (search) => {
     if (search.trim() !== "") {
@@ -245,7 +250,7 @@ export function Header() {
               </LinkWithText>
             </NavItemMenu>
             <NavItemMenu>
-              <LinkWithText onClick={() => CategoryClick("fonte")}>
+              <LinkWithText onClick={() => NewpcClick()}>
                 <IconImage src={logoComputer} alt="Monte seu PC" />
                 <Name>Monte seu PC</Name>
               </LinkWithText>
