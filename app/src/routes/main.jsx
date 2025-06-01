@@ -7,43 +7,31 @@ import { Products } from "../pages/produtos";
 import { CategoryPage } from "../pages/category";
 import { CardPage } from "../components/card";
 import { Layout } from "../components/layout";
-import { NewPC } from "../pages/new_pc";
+import { NewPC } from "../pages/auht/new_pc";
+import PrivateRoute from "../components/auth/private-router";
 
-export function AppRoutes () {
+export function AppRoutes() {
     return (
         <Routes>
-            <Route element={<Layout/>}>
+            <Route element={<Layout />}>
+                {/* Rotas Públicas */}
                 <Route element={<PublicRoute />}>
-                    <Route path="/" element={<Home/>} />
+                    <Route path="/" element={<Home />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/produto/:id" element={<Products />} />
+                    <Route path="/prices/:id" element={<Products />} />
+                    <Route path="/produtos/:category" element={<CategoryPage />} />
+                    <Route path="/produtos/search/:search" element={<CardPage />} />
                 </Route>
 
-                <Route >
-                    <Route path="/register" element={<Register/>} />
+                {/* Rotas Privadas */}
+                <Route element={<PrivateRoute />}>
+                    <Route path="/produtos/monte-seu-pc" element={<NewPC />} />
                 </Route>
 
-                <Route>
-                    <Route path="/produto/:id" element={<Products />} /> //produto especifico //
-                </Route>
-
-                <Route>
-                    <Route path="/prices/:id" element={<Products />} /> //preço produto especifico //
-                </Route>
-
-                <Route>
-                    <Route path="/produtos/:category" element={<CategoryPage/>} /> // categoria de produtos//
-                </Route>
-
-                <Route>
-                    <Route path="produtos/search/:search"  element={<CardPage/> } />
-                </Route>
-
-                <Route>
-                    <Route path="/produtos/monte-seu-pc" element={<NewPC/>} /> // montar pc //
-                </Route>
-
-                {/* Pagina de erro */}
-                <Route path="/forbidden" element={Forbidden}/>
+                {/* Páginas de Erro */}
+                <Route path="/forbidden" element={<Forbidden />} />
             </Route>
         </Routes>
-    )
+    );
 }

@@ -13,22 +13,14 @@ export const registerUser = async (userData) => {
 }
 
 export const loginUser = async (userData) => {
-    console.log("🔐 Tentando fazer login com:", { email: userData.email, password: "***" });
     
     try {
         const response = await axiosInstance.post("/users/login", userData);
-        console.log("✅ Login realizado com sucesso");
-        console.log("📊 Status:", response.status);
-        console.log("📦 Dados recebidos:", response.data);
-        
-        // Retornar os dados da resposta para o componente
+
         return response.data;
         
     } catch (error) {
-        console.error("❌ Erro no login:", error.response?.data || error.message);
-        console.error("📊 Status do erro:", error.response?.status);
-        
-        // Melhor tratamento de erros específicos
+
         if (error.response) {
             const { status, data } = error.response;
             
@@ -59,10 +51,10 @@ export const loginUser = async (userData) => {
 export const logoutUser = async () => {
     try {
         const response = await axiosInstance.post("/users/logout");
-        console.log("✅ Logout realizado com sucesso");
+        console.log("Logout realizado com sucesso");
         return response.data;
     } catch (error) {
-        console.error("❌ Erro no logout:", error.response?.data || error.message);
+        console.error("Erro no logout:", error.response?.data || error.message);
         // Não precisa throw aqui, pois logout local ainda deve funcionar
         return null;
     }

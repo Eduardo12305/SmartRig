@@ -21,6 +21,17 @@ export const LoginModal = ({ onClose, onSwitchToRegister, onLoginSuccess }) => {
     setErrorMessage("");
     setIsLoading(true);
 
+    const resetFields = () => {
+      setEmail("");
+      setPassword("");
+      setErrorMessage("");
+    };
+
+    const handleClose = () => {
+      resetFields();
+      onClose();
+    };
+
     // Validação básica
     if (!email || !password) {
       setErrorMessage("E-mail e senha são obrigatórios");
@@ -73,7 +84,7 @@ export const LoginModal = ({ onClose, onSwitchToRegister, onLoginSuccess }) => {
 
   return (
     <Wrapper>
-      <Modal width="640px" padd="5rem">
+      <Modal width="640px" $padd="5rem">
         <CloseButton onClick={onClose}>×</CloseButton>
         <h2>Fazer Login</h2>
         <Form onSubmit={handleLogin}>
@@ -97,7 +108,6 @@ export const LoginModal = ({ onClose, onSwitchToRegister, onLoginSuccess }) => {
             placeholder="Digite sua senha"
             required
             disabled={isLoading}
-            autoComplete="current-password"
           />
 
           {errorMessage && (

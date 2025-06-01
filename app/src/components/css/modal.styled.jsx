@@ -16,13 +16,11 @@ export const Wrapper = styled.div`
 
 export const Modal = styled.div`
   position: relative;
-  width: 100%;
+  width: ${(props) => props.width || "400px"};;
   border-radius: 10px;
   max-width: ${(prop) => (prop.width ? prop.width : "400px")};
-  background-color: ${(prop) =>
-    prop.background ? prop.background : "#ffffff"};
-  padding: ${(prop) => (prop.padd ? prop.padd : "2rem")};
-  ${(prop) => (prop.radius ? prop.radius : "10px")};
+  background-color: ${(prop) => prop.background ? prop.background : "#ffffff"};
+  padding: ${(props) => props.padd || "2rem"};
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;

@@ -44,7 +44,7 @@ export const RegisterModal = ({ onClose, onSwitchToLogin }) => {
 
   return (
     <Wrapper>
-      <Modal width="500px" padd="5rem">
+      <Modal width="500px" $padd="5rem">
         <CloseButton onClick={onClose}>x</CloseButton>
         <h2>Register</h2>
         <Form onSubmit={handleRegister}>

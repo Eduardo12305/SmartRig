@@ -234,9 +234,9 @@ export const CardPageWrapper = styled.div`
 export const Carousel = styled.div`
   position: relative;
   width: 100%;
-  overflow: hidden;
-  padding: 0 100px;
-  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-height: 480px;
 `;
 
 // Mensagem de erro

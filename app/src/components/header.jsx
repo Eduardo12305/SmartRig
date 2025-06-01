@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
 import logo from "../assets/logoSmartRig.png";
 import logoprocess from "../assets/logoProcess.svg";
 import logoPalca from "../assets/logoVideoCard.svg";
@@ -8,10 +7,8 @@ import logoMotherBorad from "../assets/logoMotherboard.svg";
 import logoMemory from "../assets/logoMemory.svg";
 import logoPowerSupply from "../assets/logoPowerSupply.png";
 import logoComputer from "../assets/logoComputer.svg";
-
 import { LoginModal } from "../components/loginModal";
 import { RegisterModal } from "../components/registerModal";
-
 import {
   StyledHeader,
   FlexContainer,
@@ -32,37 +29,17 @@ import {
   MenuButton,
 } from "../components/css/header.styled";
 import { CloseButton } from "./css/modal.styled";
+import { useAuth } from "./auth/authContext";
+import { decodeToken } from "./auth/authToken";
 
 export function Header() {
   const navigate = useNavigate();
 
   const [activeModal, setActiveModal] = useState(null); // 'login' | 'register' | 'menu' | 'userMenu' | null
   const [eventSearch, setEventSearch] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState(null);
-
+  const {isLoggedIn, user, login, logout} = useAuth();
   // Verificar se o usuário está logado ao carregar o componente
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
 
-  const checkAuthStatus = () => {
-    const token = localStorage.getItem("authToken");
-    const user = localStorage.getItem("userData");
-
-    if (token && user) {
-      try {
-        const parsedUser = JSON.parse(user);
-        setIsLoggedIn(true);
-        setUserData(parsedUser);
-        console.log("✅ Usuário logado encontrado:", parsedUser);
-      } catch (error) {
-        console.error("❌ Erro ao parsear dados do usuário:", error);
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("userData");
-      }
-    }
-  };
 
   const CategoryClick = (category) => {
     navigate(`/produtos/${category}/`);
@@ -94,58 +71,45 @@ export function Header() {
 
   // Após login com sucesso
   const handleLoginSuccess = (response) => {
-    console.log("🎉 Login bem-sucedido, processando dados:", response);
+    let userData, token;
 
-    let user, token;
-
-    if (response.user && response.token) {
-      user = response.user;
+    if (response.access) {
+      token = response.access;
+      userData = decodeToken(token) || {};
+    } else if (response.user && response.token) {
+      userData = response.user;
       token = response.token;
-    } else if (response.access_token) {
-      token = response.access_token;
-      user = response.user || response;
     } else if (response.token) {
-      token = response.token;
-      user = { ...response };
-      delete user.token;
+      token =response.token;
+      userData = { ...response};
+      delete userData.token;
     } else {
-      user = response;
-      token = response.id?.toString() || Date.now().toString();
+      userData = response;
+      token = null;
     }
-
-    localStorage.setItem("authToken", token);
-    localStorage.setItem("userData", JSON.stringify(user));
-
-    setIsLoggedIn(true);
-    setUserData(user);
+    console.log("Login: userData", userData, "token", token);
+    login(userData, token);
     closeModal();
 
-    console.log("✅ Dados salvos com sucesso");
+ 
   };
 
   const handleLogout = () => {
-    console.log("🚪 Fazendo logout...");
-
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userData");
-
-    setIsLoggedIn(false);
-    setUserData(null);
+    logout();
     closeModal();
-
     navigate("/");
 
-    console.log("✅ Logout realizado com sucesso");
+   
   };
 
   const getDisplayName = () => {
-    if (!userData) return "Usuário";
+    if (!user) return "Usuário";
 
     return (
-      userData.name ||
-      userData.username ||
-      userData.first_name ||
-      userData.email?.split("@")[0] ||
+      user.name ||
+      user.username ||
+      user.first_name ||
+      user.email?.split("@")[0] ||
       "Usuário"
     );
   };
