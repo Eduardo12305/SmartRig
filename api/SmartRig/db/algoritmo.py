@@ -182,7 +182,7 @@ def random_build(data):
         cpu = random.choice(cpus) if cpus else random.choice(ALL_CPUS)
 
     if data.gpu:
-        gpu = next(x for x in ALL_GPUS if str(x.uid) == data.gpus)
+        gpu = next(x for x in ALL_GPUS if str(x.uid) == data.gpu)
     else:
         gpu = cpu.igpu if cpu.igpu else random.choice(ALL_GPUS)
 

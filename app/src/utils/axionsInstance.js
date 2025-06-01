@@ -18,7 +18,7 @@ export const axiosInstanceAuth = axios.create({
 
 // Interceptor para adicionar o token mais recente
 axiosInstanceAuth.interceptors.request.use((config) => {
-    const token = localStorage.getItem("authToken"); // ou "token", conforme seu login
+    const token = localStorage.getItem("authToken"); 
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
