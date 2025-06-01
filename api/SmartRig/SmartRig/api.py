@@ -95,7 +95,7 @@ def genProd(request, data: schema.genProd):
 
 
 @api.post("/products/genPrices")
-def genProd(request):
+def genPrices(request):
     return genAllPrices()
 
 
@@ -312,16 +312,23 @@ def genBuild(request, data: schema.genBuild):
 
 
 @api.post("/builds/save", auth=auth)
-def favorite(request, data: schema.build):
+def saveBuild(request, data: schema.build):
     user = request.user
     if user.is_anonymous or not user:
         raise HttpError(401, "Faça login")
     return views.saveBuild(data, user)
 
-@api.delete("/builds/delete/{object_id}", auth=auth)
-def favorite(request, object_id: str):
+@api.get("/builds", auth=auth)
+def getBuild(request):
     user = request.user
     if user.is_anonymous or not user:
         raise HttpError(401, "Faça login")
-    return views.saveBuild(object_id, user)
+    return views.getBuilds(user)
+
+@api.delete("/builds/delete/{object_id}", auth=auth)
+def deleteBuild(request, object_id: str):
+    user = request.user
+    if user.is_anonymous or not user:
+        raise HttpError(401, "Faça login")
+    return views.deleteBuild(object_id, user)
 
