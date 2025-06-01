@@ -288,6 +288,9 @@ def genBuild(request, data: schema.genBuild):
     {"cpu": str, "gpu": str, "mobo": str, "psu": str, "budget": float, "storage": int}
     """
     user = request.user
+    
+    print("DEBUG - Dados recebidos em /builds/gen:", data.dict())
+    
     if user.is_anonymous or not user:
         raise HttpError(401, "Só usuários registrados podem gerar builds!")
     return run_ga(data)
