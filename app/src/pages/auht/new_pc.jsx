@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { buildPC } from "../../components/apiService";
+import { useState, useEffect } from "react";
+import { buildPC, productsCategory } from "../../components/apiService";
 import { FormContainer, Label, Select, Input, Button, ResultTable, TableContainer } from "./new_pc.styled";
 
 export const NewPC = () => {
@@ -7,11 +7,34 @@ export const NewPC = () => {
     const [gpu, setGpu] = useState("");
     const [mobo, setMobo] = useState("");
     const [psu, setPsu] = useState("");
+    const [cpuList, setCpuList] = useState([]);
+    const [gpuList, setGpuList] = useState([]);
+    const [moboList, setMoboList] = useState([]);
+    const [psuList, setPsuList] = useState([]);
     const [storageType, setStorageType] = useState("SSD");
     const [storageSize, setStorageSize] = useState("");
     const [budget, setBudget] = useState("");
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const getItens = async () => {
+            try {
+                const cpus = await productsCategory("cpu");
+                setCpuList(Array.isArray(cpus.data?.data) ? cpus.data.data : []);
+                const gpus = await productsCategory("gpu");
+                setGpuList(Array.isArray(gpus.data?.data) ? gpus.data.data : []);
+                const mobos = await productsCategory("mobo");
+                setMoboList(Array.isArray(mobos.data?.data) ? mobos.data.data : []);
+                const psus = await productsCategory("psu");
+                setPsuList(Array.isArray(psus.data?.data) ? psus.data.data : []);
+            } catch (error) {
+                setCpuList([]); setGpuList([]); setMoboList([]); setPsuList([]);
+                console.error("Erro ao buscar itens:", error);
+            }
+        };
+        getItens();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -37,44 +60,51 @@ export const NewPC = () => {
 
     return (
         <FormContainer>
-            
             <form onSubmit={handleSubmit}>
                 <h1>Monte seu PC</h1>
                 <Label>
                     CPU (opcional):
-                    <Input
-                        type="text"
-                        value={cpu}
-                        onChange={e => setCpu(e.target.value)}
-                        placeholder="Ex: Intel i5-10400"
-                    />
+                    <Select value={cpu} onChange={e => setCpu(e.target.value)}>
+                        <option value="">Selecione uma CPU</option>
+                        {cpuList.map(item => (
+                            <option key={item.uid} value={item.uid}>
+                                {item.name}
+                            </option>
+                        ))}
+                    </Select>
                 </Label>
                 <Label>
                     GPU (opcional):
-                    <Input
-                        type="text"
-                        value={gpu}
-                        onChange={e => setGpu(e.target.value)}
-                        placeholder="Ex: GTX 1660"
-                    />
+                    <Select value={gpu} onChange={e => setGpu(e.target.value)}>
+                        <option value="">Selecione uma GPU</option>
+                        {gpuList.map(item => (
+                            <option key={item.uid} value={item.uid}>
+                                {item.name}
+                            </option>
+                        ))}
+                    </Select>
                 </Label>
                 <Label>
                     Placa-mãe (opcional):
-                    <Input
-                        type="text"
-                        value={mobo}
-                        onChange={e => setMobo(e.target.value)}
-                        placeholder="Ex: B450M"
-                    />
+                    <Select value={mobo} onChange={e => setMobo(e.target.value)}>
+                        <option value="">Selecione uma Placa-mãe</option>
+                        {moboList.map(item => (
+                            <option key={item.uid} value={item.uid}>
+                                {item.name}
+                            </option>
+                        ))}
+                    </Select>
                 </Label>
                 <Label>
                     Fonte (PSU) (opcional):
-                    <Input
-                        type="text"
-                        value={psu}
-                        onChange={e => setPsu(e.target.value)}
-                        placeholder="Ex: Corsair 500W"
-                    />
+                    <Select value={psu} onChange={e => setPsu(e.target.value)}>
+                        <option value="">Selecione uma Fonte</option>
+                        {psuList.map(item => (
+                            <option key={item.uid} value={item.uid}>
+                                {item.name}
+                            </option>
+                        ))}
+                    </Select>
                 </Label>
                 <Label>
                     Tipo de Armazenamento:
