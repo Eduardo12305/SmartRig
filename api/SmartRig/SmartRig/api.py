@@ -1,3 +1,4 @@
+from django.forms import model_to_dict
 from ninja import NinjaAPI, Query
 from ninja.errors import HttpError
 from ninja_jwt.authentication import JWTAuth
@@ -35,6 +36,13 @@ def updateUser(request, data: schema.update):
         raise HttpError(401, "Faça login")
     return views.updateUser(data, user)
 
+@api.get("/users/profile", auth=auth)
+def updateUser(request):
+    user = request.user
+    if user.is_anonymous or not user:
+        raise HttpError(401, "Faça login")
+    return model_to_dict(user)
+
 
 @api.post("/users/delete", auth=auth)
 def deleteUser(request, data: schema.updatePassword):
@@ -50,6 +58,13 @@ def favorite(request, object_id: str):
     if user.is_anonymous or not user:
         raise HttpError(401, "Faça login")
     return views.addFavoritos(object_id, user)
+
+@api.get("/users/favorite", auth=auth)
+def getFavorites(request):
+    user = request.user
+    if user.is_anonymous or not user:
+        raise HttpError(401, "Faça login")
+    return views.getFavoritos(user)
 
 
 @api.delete("/users/favorite/{object_id}", auth=auth)

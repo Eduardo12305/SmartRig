@@ -1,10 +1,12 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.contenttypes.models import ContentType
+from django.forms import model_to_dict
 from django.http import JsonResponse
 from ninja.errors import HttpError
 from ninja_jwt.tokens import RefreshToken
 
+from db.product import get as getProduct
 from db.models import Builds, Favorites, PartRegistry, Users
 
 
@@ -112,10 +114,27 @@ def addFavoritos(uid, user):
 
     try:
         Favorites.objects.create(**favArgs)
-    except:
-        return {"message": "Produto já está nos favoritos"}
+    except Exception as e:
+        raise HttpError(500, f"Erro ao adicionar aos favoritos: {str(e)}")
     return {"message": "Adicionado aos favoritos com successo"}
 
+def getFavoritos(user):
+    try:
+        favorites = Favorites.objects.filter(user=user)
+    except:
+        raise HttpError(404, "Nenhum favorito encontrado")
+
+    if not favorites:
+        return {"message": "Nenhum favorito encontrado"}
+
+    data = []
+    for favorite in favorites:
+        data.append(getProduct(favorite.object_id))
+
+    return {
+        "message": "Favoritos encontrados",
+        "data": data
+    }
 
 def deleteFavoritos(uid, user):
     try:
@@ -137,7 +156,7 @@ def saveBuild(data, user):
         "storage": data.storage,
     }
     try:
-        Builds.objects.create(user=user, build=data)
+        Builds.objects.create(user=user, build=build)
     except ValueError:
         raise HttpError(400, "Valor invalido")
     except Exception as e:
@@ -155,3 +174,21 @@ def deleteBuild(uid, user):
         }
     else:
         raise HttpError(400, "Informe o id da build")
+    
+def getBuilds(user):
+    try:
+        builds = Builds.objects.filter(user=user)
+    except:
+        raise HttpError(404, "Nenhum favorito encontrado")
+
+    if not builds:
+        return {"message": "Nenhum favorito encontrado"}
+
+    data = []
+    for build in builds:
+        data.append(getProduct(build.object_id))
+
+    return {
+        "message": "Builds encontradas",
+        "data": data
+    }
