@@ -24,7 +24,8 @@ export const NewPC = () => {
                 mobo: mobo || undefined,
                 psu: psu || undefined,
                 budget: Number(budget),
-                storage: Number(storageSize)
+                storage: Number(storageSize),
+                storageType: storageType
             };
             const res = await buildPC(data);
             setResult(res);
@@ -79,7 +80,8 @@ export const NewPC = () => {
                     Tipo de Armazenamento:
                     <Select value={storageType} onChange={e => setStorageType(e.target.value)}>
                         <option value="SSD">SSD</option>
-                        <option value="HD">HD</option>
+                        <option value="HDD">HDD</option>
+                        <option value="M.2">M.2</option>
                     </Select>
                 </Label>
                 <Label>

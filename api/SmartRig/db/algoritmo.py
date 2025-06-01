@@ -170,24 +170,24 @@ def mobo_supports_storage(mobo, storage):
 
 def random_build(data):
     mobo = (
-        next(x for x in ALL_MOBOS if x.pk == data.mobo)
+        next(x for x in ALL_MOBOS if str(x.uid) == data.mobo)
         if data.mobo
         else random.choice(ALL_MOBOS)
     )
 
     if data.cpu:
-        cpu = next(x for x in ALL_CPUS if x.pk == data.cpu)
+        cpu = next(x for x in ALL_CPUS if str(x.uid) == data.cpu)
     else:
         cpus = [cpu for cpu in ALL_CPUS if cpu.socket == mobo.socket]
         cpu = random.choice(cpus) if cpus else random.choice(ALL_CPUS)
 
     if data.gpu:
-        gpu = next(x for x in ALL_GPUS if x.pk == data.gpus)
+        gpu = next(x for x in ALL_GPUS if str(x.uid) == data.gpus)
     else:
         gpu = cpu.igpu if cpu.igpu else random.choice(ALL_GPUS)
 
     if data.psu:
-        psu = next(x for x in ALL_PSUS if x.pk == data.psu)
+        psu = next(x for x in ALL_PSUS if str(x.uid) == data.psu)
     else:
         reqWatts = estimateWatts(cpu.tdp, 0 if cpu.igpu == gpu else gpu.tdp)
         psus = [psu for psu in ALL_PSUS if psu.wattage >= reqWatts]
@@ -205,7 +205,7 @@ def random_build(data):
     storages = [
         x
         for x in ALL_STORAGES
-        if x.capacity > data.storage and mobo_supports_storage(mobo, x)
+        if x.type == data.storageType and x.capacity > data.storage and mobo_supports_storage(mobo, x)
     ]
     storage = random.choice(storages)
 
@@ -319,7 +319,7 @@ def mutate(ind, data):
         storages = [
             x
             for x in ALL_STORAGES
-            if x.capacity > data.storage and mobo_supports_storage(ind[3], x)
+            if x.type == data.storageType and x.capacity > data.storage and mobo_supports_storage(ind[3], x)
         ]
         ind[5] = random.choice(storages)
     return ind
@@ -370,21 +370,27 @@ def run_ga(data):
         return {"message": "Orçamento muito baixo :("}
     # Convert to dict and attach prices
     cpu_dict = model_to_dict(best[0])
+    cpu_dict["uid"] = best[0].uid
     cpu_dict["price"] = prices[0]
 
     gpu_dict = model_to_dict(best[1])
+    gpu_dict["uid"] = best[1].uid
     gpu_dict["price"] = prices[1]
 
     psu_dict = model_to_dict(best[2])
+    psu_dict["uid"] = best[2].uid
     psu_dict["price"] = prices[2]
 
     mobo_dict = model_to_dict(best[3])
+    mobo_dict["uid"] = best[3].uid
     mobo_dict["price"] = prices[3]
 
     ram_dict = model_to_dict(best[4])
+    ram_dict["uid"] = best[4].uid
     ram_dict["price"] = prices[4]
 
     storage_dict = model_to_dict(best[5])
+    storage_dict["uid"] = best[5].uid
     storage_dict["price"] = prices[5]
 
     total_price = 0

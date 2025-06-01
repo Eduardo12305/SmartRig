@@ -50,7 +50,13 @@ class genBuild(Schema):
     psu: Optional[str] = None
     budget: float
     storage: int
+    storageType: str
     weights: Optional[weightsSchema] = None
+
+    @staticmethod
+    def resolve_storage_type(obj):
+        if not obj.storageType in ["HDD", "SSD", "M.2"]:
+            return 400, {"message": "Tipo de armazenamento inválido."}
 
 
 class GenericFilterSchema(Schema):
