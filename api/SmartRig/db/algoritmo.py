@@ -162,9 +162,9 @@ def mobo_supports_storage(mobo, storage):
     if storage.interface == "NVMe" and mobo.m2_nvme > 0:
         return True
     if storage.interface == "SATA":
-        if storage.type == "M.2":
-            return mobo.m2_sata > 0
         return True
+    if storage.type == "M.2":
+        return mobo.m2_sata > 0
     return False
 
 
