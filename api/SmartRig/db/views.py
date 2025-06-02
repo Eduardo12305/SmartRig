@@ -157,10 +157,10 @@ def saveBuild(data, user):
     }
     try:
         Builds.objects.create(user=user, build=build)
-        return JsonResponse({
+        return {
             "message": "Build salva com sucesso",
             "data": model_to_dict(Builds.objects.get(user=user, build=build))
-        }, 201)
+        }
     except ValueError:
         raise HttpError(400, "Valor invalido")
     except Exception as e:
