@@ -155,3 +155,44 @@ export const testConnection = async () => {
         return false;
     }
 }
+
+export const favoriteBuild = async (result) => {
+    // Garante que todos os campos obrigatórios são string
+    const buildData = {
+        cpu: result.cpu?.uid?.toString() || result.cpu?.object_id?.toString() || "",
+        gpu: result.gpu?.uid?.toString() || result.gpu?.object_id?.toString() || "",
+        mobo: result.mobo?.uid?.toString() || result.mobo?.object_id?.toString() || "",
+        psu: result.psu?.uid?.toString() || result.psu?.object_id?.toString() || "",
+        ram: result.ram?.uid?.toString() || result.ram?.object_id?.toString() || "",
+        storage: result.storage?.uid?.toString() || result.storage?.object_id?.toString() || "",
+    };
+    try {
+        const response = await axiosInstanceAuth.post("/builds/save", buildData);
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao favoritar build:", error.response?.data || error.message);
+        throw error.response ? error.response.data : new Error("Erro ao favoritar build");
+    }
+};
+
+export const getBuildsUser = async () => {
+    try {
+        const response = await axiosInstanceAuth.get("/builds");
+        console.log("Builds do usuário obtidas com sucesso:", response.data);
+        
+        return response.data.data || [];
+    } catch (error) {
+        console.error("Erro ao buscar builds do usuário:", error.response?.data || error.message);
+        throw error.response ? error.response.data : new Error("Erro ao buscar builds do usuário");
+    }
+};
+
+export const getBuildDetail = async (uid) => {
+    try {
+        const response = await axiosInstanceAuth.get(`/builds/${uid}`);
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao buscar detalhes da build:", error.response?.data || error.message);
+        throw error.response ? error.response.data : new Error("Erro ao buscar detalhes da build");
+    }
+};

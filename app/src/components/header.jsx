@@ -94,6 +94,11 @@ export function Header() {
  
   };
 
+  const buildSave = () => {
+    navigate("/produtos/monte-seu-pc");
+    closeModal();
+  }
+
   const handleLogout = () => {
     logout();
     closeModal();
@@ -240,31 +245,11 @@ export function Header() {
             <NavItemMenu>
               <LinkWithText
                 onClick={() => {
-                  navigate("/pedidos");
-                  closeModal();
-                }}
-              >
-                <Name>📦 Meus Pedidos</Name>
-              </LinkWithText>
-            </NavItemMenu>
-            <NavItemMenu>
-              <LinkWithText
-                onClick={() => {
                   navigate("/favoritos");
                   closeModal();
                 }}
               >
-                <Name>❤️ Favoritos</Name>
-              </LinkWithText>
-            </NavItemMenu>
-            <NavItemMenu>
-              <LinkWithText
-                onClick={() => {
-                  navigate("/configuracoes");
-                  closeModal();
-                }}
-              >
-                <Name>⚙️ Configurações</Name>
+                <Name>Biulds Favoritas</Name>
               </LinkWithText>
             </NavItemMenu>
             <NavItemMenu>

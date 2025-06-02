@@ -183,12 +183,12 @@ def getAllBuilds(user):
 
     data = []
     for build in builds:
-        build = {}
-        for part in build.build:
-            part = getProduct(part)
-            build[part.__class__.__name__.lower()] = part
-        build["uid"] = build.uid
-        data.append(build)
+        build_dict = {}
+        for part in build.build.values():
+            part_obj = getProduct(part)
+            build_dict[part_obj.__class__.__name__.lower()] = part_obj
+        build_dict["uid"] = build.uid
+        data.append(build_dict)
 
     return {
         "message": "Builds encontradas",
