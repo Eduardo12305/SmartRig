@@ -157,6 +157,10 @@ def saveBuild(data, user):
     }
     try:
         Builds.objects.create(user=user, build=build)
+        return 201, {
+            "message": "Build salva com sucesso",
+            "data": model_to_dict(Builds.objects.get(user=user, build=build))
+        }
     except ValueError:
         raise HttpError(400, "Valor invalido")
     except Exception as e:
@@ -183,12 +187,12 @@ def getAllBuilds(user):
 
     data = []
     for build in builds:
-        build = {}
-        for part in build.build:
-            part = getProduct(part)
-            build[part.__class__.__name__.lower()] = part
-        build["uid"] = build.uid
-        data.append(build)
+        build_dict = {}
+        for part in build.build.values():
+            part_obj = getProduct(part)
+            build_dict[part_obj.__class__.__name__.lower()] = part_obj
+        build_dict["uid"] = build.uid
+        data.append(build_dict)
 
     return {
         "message": "Builds encontradas",
@@ -203,8 +207,14 @@ def getBuild(uid, user):
     
     if build.user != user:
         raise HttpError(403, "Você não tem permissão para acessar esta build")
+    
+    build_dict = {}
+    for part in build.build.values():
+        part_obj = getProduct(part)
+        build_dict[part_obj.__class__.__name__.lower()] = part_obj
+    build_dict["uid"] = build.uid
 
     return {
-        "message": "Builds encontradas",
-        "data": model_to_dict(build)
+        "message": "Build encontrada",
+        "data": build_dict
     }
