@@ -323,7 +323,14 @@ def getBuild(request):
     user = request.user
     if user.is_anonymous or not user:
         raise HttpError(401, "Faça login")
-    return views.getBuilds(user)
+    return views.getAllBuilds(user)
+
+@api.get("/builds/{uid}", auth=auth)
+def getBuild(request, uid: str):
+    user = request.user
+    if user.is_anonymous or not user:
+        raise HttpError(401, "Faça login")
+    return views.getBuild(uid, user)
 
 @api.delete("/builds/delete/{object_id}", auth=auth)
 def deleteBuild(request, object_id: str):

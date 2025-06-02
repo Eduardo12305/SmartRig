@@ -175,20 +175,36 @@ def deleteBuild(uid, user):
     else:
         raise HttpError(400, "Informe o id da build")
     
-def getBuilds(user):
+def getAllBuilds(user):
     try:
         builds = Builds.objects.filter(user=user)
     except:
         raise HttpError(404, "Nenhum favorito encontrado")
 
-    if not builds:
-        return {"message": "Nenhum favorito encontrado"}
-
     data = []
     for build in builds:
-        data.append(getProduct(build.object_id))
+        build = {}
+        for part in build.build:
+            part = getProduct(part)
+            build[part.__class__.__name__.lower()] = part
+        build["uid"] = build.uid
+        data.append(build)
 
     return {
         "message": "Builds encontradas",
         "data": data
+    }
+
+def getBuild(uid, user):
+    try:
+        build = Builds.objects.get(pk=uid)
+    except:
+        raise HttpError(404, "Nenhum favorito encontrado")
+    
+    if build.user != user:
+        raise HttpError(403, "Você não tem permissão para acessar esta build")
+
+    return {
+        "message": "Builds encontradas",
+        "data": model_to_dict(build)
     }
