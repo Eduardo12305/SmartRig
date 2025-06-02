@@ -1,6 +1,36 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getBuildDetail } from "../apiService";
+import {
+  Container,
+  Title,
+  LoadingMessage,
+  ErrorMessage,
+  NotFoundMessage,
+  ComponentGrid,
+  ComponentCard,
+  ComponentHeader,
+  ComponentType,
+  ComponentBody,
+  ComponentImage,
+  ComponentName,
+  SpecsGrid,
+  SpecItem,
+  SpecLabel,
+  SpecValue,
+  PricesSection,
+  PricesTitle,
+  PriceCard,
+  StoreName,
+  PriceInfo,
+  Price,
+  OldPrice,
+  SaleBadge,
+  CollectedDate,
+  BuildUid,
+  UidLabel,
+  UidValue
+} from "../css/buldTyledDetail";
 
 export function BuildDetail() {
     const { uid } = useParams();
@@ -23,55 +53,165 @@ export function BuildDetail() {
         fetchBuild();
     }, [uid]);
 
-    if (loading) return <div>Carregando detalhes...</div>;
-    if (error) return <div style={{ color: "red" }}>{error}</div>;
-    if (!build) return <div>Build não encontrada.</div>;
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(price);
+    };
 
-    const buildData = build.data || build;
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('pt-BR');
+    };
+
+    const getComponentSpecs = (component, type) => {
+        const specs = [];
+        
+        switch(type) {
+            case 'cpu':
+                specs.push(
+                    { label: 'Marca', value: component.brand },
+                    { label: 'Socket', value: component.socket },
+                    { label: 'Cores', value: component.cores },
+                    { label: 'Velocidade Base', value: `${component.speed} MHz` },
+                    { label: 'Turbo', value: `${component.turbo} MHz` },
+                    { label: 'TDP', value: `${component.tdp}W` }
+                );
+                break;
+            case 'gpu':
+                specs.push(
+                    { label: 'Marca', value: component.brand },
+                    { label: 'Chipset', value: component.chipset },
+                    { label: 'Memória', value: `${component.memory}GB` },
+                    { label: 'Velocidade Base', value: `${component.speed} MHz` },
+                    { label: 'Turbo', value: `${component.turbo} MHz` },
+                    { label: 'TDP', value: `${component.tdp}W` }
+                );
+                break;
+            case 'mobo':
+                specs.push(
+                    { label: 'Marca', value: component.brand },
+                    { label: 'Socket', value: component.socket },
+                    { label: 'Fator de Forma', value: component.form_factor },
+                    { label: 'Chipset', value: component.chipset },
+                    { label: 'RAM Máx', value: `${component.memory_max}GB` },
+                    { label: 'Tipo RAM', value: component.memory_type }
+                );
+                break;
+            case 'psu':
+                specs.push(
+                    { label: 'Marca', value: component.brand },
+                    { label: 'Tipo', value: component.type },
+                    { label: 'Potência', value: `${component.wattage}W` },
+                    { label: 'Eficiência', value: component.efficiency },
+                    { label: 'Modular', value: component.modular },
+                    { label: '', value: '' }
+                );
+                break;
+            case 'ram':
+                specs.push(
+                    { label: 'Marca', value: component.brand },
+                    { label: 'Tipo', value: component.memory_type },
+                    { label: 'Capacidade', value: `${component.memory_size}GB` },
+                    { label: 'Módulos', value: component.memory_modules },
+                    { label: 'Velocidade', value: `${component.memory_speed} MHz` },
+                    { label: '', value: '' }
+                );
+                break;
+            case 'storage':
+                specs.push(
+                    { label: 'Marca', value: component.brand },
+                    { label: 'Tipo', value: component.type },
+                    { label: 'Capacidade', value: `${component.capacity}GB` },
+                    { label: 'Fator Forma', value: component.form_factor },
+                    { label: 'Interface', value: component.interface },
+                    { label: '', value: '' }
+                );
+                break;
+        }
+        
+        return specs;
+    };
+
+    const componentNames = {
+        cpu: 'Processador',
+        gpu: 'Placa de Vídeo',
+        mobo: 'Placa Mãe',
+        psu: 'Fonte',
+        ram: 'Memória RAM',
+        storage: 'Armazenamento'
+    };
+
+    if (loading) return <LoadingMessage>Carregando detalhes...</LoadingMessage>;
+    if (error) return <ErrorMessage>{error}</ErrorMessage>;
+    if (!build) return <NotFoundMessage>Build não encontrada.</NotFoundMessage>;
+
+    const { data } = build;
 
     return (
-        <div style={{ padding: "2rem", maxWidth: 700, margin: "2rem auto", background: "#fff", borderRadius: 10, boxShadow: "0 2px 12px rgba(0,0,0,0.08)" }}>
-            <h2 style={{ textAlign: "center", marginBottom: "1.5rem", color: "#2d3748" }}>Detalhes da Build</h2>
-            <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "1.5rem" }}>
-                <thead>
-                    <tr>
-                        <th style={{ background: "#f7fafc", color: "#333", padding: 10, borderBottom: "2px solid #e2e8f0", textAlign: "left" }}>Componente</th>
-                        <th style={{ background: "#f7fafc", color: "#333", padding: 10, borderBottom: "2px solid #e2e8f0", textAlign: "left" }}>Nome</th>
-                        <th style={{ background: "#f7fafc", color: "#333", padding: 10, borderBottom: "2px solid #e2e8f0", textAlign: "left" }}>Preço</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {Object.entries(buildData).map(([key, value]) =>
-                        key !== "uid" && value && typeof value === "object" && value.name ? (
-                            <tr key={key}>
-                                <td style={{ padding: 10, borderBottom: "1px solid #e2e8f0", fontWeight: 500 }}>{key.toUpperCase()}</td>
-                                <td style={{ padding: 10, borderBottom: "1px solid #e2e8f0" }}>
-                                    {value.object_id || value.id ? (
-                                        <a
-                                            href={`/produto/${value.object_id || value.id}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            style={{ color: "#3182ce", textDecoration: "underline" }}
-                                        >
-                                            {value.name}
-                                        </a>
-                                    ) : (
-                                        value.name
-                                    )}
-                                </td>
-                                <td style={{ padding: 10, borderBottom: "1px solid #e2e8f0" }}>
-                                    {value.price && typeof value.price.price === "number"
-                                        ? `R$ ${value.price.price.toFixed(2)}`
-                                        : "-"}
-                                </td>
-                            </tr>
-                        ) : null
-                    )}
-                </tbody>
-            </table>
-            <div style={{ textAlign: "center", color: "#718096" }}>
-                UID da Build: <b>{buildData.uid || uid}</b>
-            </div>
-        </div>
+        <Container>
+            <Title>Detalhes da Build</Title>
+            
+            <ComponentGrid>
+                {Object.entries(data).filter(([key]) => key !== 'uid').map(([componentType, component]) => (
+                    <ComponentCard key={componentType}>
+                        <ComponentHeader>
+                            <ComponentType>{componentNames[componentType]}</ComponentType>
+                        </ComponentHeader>
+                        
+                        <ComponentBody>
+                            <ComponentImage 
+                                src={component.data.image} 
+                                alt={component.data.name}
+                                onError={(e) => {
+                                    e.target.src = 'https://via.placeholder.com/200x150?text=Sem+Imagem';
+                                }}
+                            />
+                            
+                            <ComponentName>{component.data.name}</ComponentName>
+                            
+                            <SpecsGrid>
+                                {getComponentSpecs(component.data, componentType).map((spec, index) => (
+                                    spec.label && spec.value ? (
+                                        <SpecItem key={index}>
+                                            <SpecLabel>{spec.label}</SpecLabel>
+                                            <SpecValue>{spec.value}</SpecValue>
+                                        </SpecItem>
+                                    ) : null
+                                ))}
+                            </SpecsGrid>
+                            
+                            <PricesSection>
+                                <PricesTitle>Preços Encontrados</PricesTitle>
+                                {component.data.prices.map((price) => (
+                                    <PriceCard key={price.id} sale={price.sale}>
+                                        <StoreName>{price.store.name}</StoreName>
+                                        <PriceInfo>
+                                            <Price sale={price.sale}>
+                                                {formatPrice(price.price)}
+                                            </Price>
+                                            {price.sale && price.old_price && (
+                                                <>
+                                                    <OldPrice>{formatPrice(price.old_price)}</OldPrice>
+                                                    <SaleBadge>-{price.sale_percent}%</SaleBadge>
+                                                </>
+                                            )}
+                                        </PriceInfo>
+                                        <CollectedDate>
+                                            Coletado em: {formatDate(price.colected_date)}
+                                        </CollectedDate>
+                                    </PriceCard>
+                                ))}
+                            </PricesSection>
+                        </ComponentBody>
+                    </ComponentCard>
+                ))}
+            </ComponentGrid>
+            
+            <BuildUid>
+                <UidLabel>ID da Build:</UidLabel>
+                <UidValue>{data.uid}</UidValue>
+            </BuildUid>
+        </Container>
     );
 }
