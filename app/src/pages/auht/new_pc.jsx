@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { buildPC, productsCategory } from "../../components/apiService";
+import { buildPC, productsCategory, favoriteBuild } from "../../components/apiService";
 import { FormContainer, Label, Select, Input, Button, ResultTable, TableContainer } from "./new_pc.styled";
 
 export const NewPC = () => {
@@ -56,6 +56,19 @@ export const NewPC = () => {
             setResult({ error: err.detail ? JSON.stringify(err.detail) : err.message || "Erro ao gerar build" });
         }
         setLoading(false);
+    }
+    
+    const saveBuild = async () => {
+        if (!result) {
+            alert("Gere uma build antes de salvar!");
+            return;
+        }
+        try {
+            await favoriteBuild(result); // Passe o objeto result diretamente
+            alert("Build salva com sucesso!");
+        } catch (error) {
+            alert("Erro ao salvar build: " + (error.message || "Tente novamente"));
+        }
     };
 
     return (
@@ -140,6 +153,9 @@ export const NewPC = () => {
                     {loading ? "Buscando..." : "Gerar Build"}
                 </Button>
             </form>
+            <Button type="button" onClick={saveBuild} disabled={!result || !!result?.error}>
+                Salvar Build
+            </Button>
             <TableContainer>
                 <h2>Resultado da Build</h2>
                 {result ? (

@@ -9,6 +9,9 @@ import { CardPage } from "../components/card";
 import { Layout } from "../components/layout";
 import { NewPC } from "../pages/auht/new_pc";
 import PrivateRoute from "../components/auth/private-router";
+import { BuildDetail } from "../components/auth/buildDetail";
+import { BuildsUsers } from "../components/auth/biuldsUsers";
+
 
 export function AppRoutes() {
     return (
@@ -27,6 +30,8 @@ export function AppRoutes() {
                 {/* Rotas Privadas */}
                 <Route element={<PrivateRoute />}>
                     <Route path="/produtos/monte-seu-pc" element={<NewPC />} />
+                    <Route path="/favoritos" element={<BuildsUsers />} />
+                    <Route path="/build/:uid" element={<BuildDetail />} />
                 </Route>
 
                 {/* Páginas de Erro */}
