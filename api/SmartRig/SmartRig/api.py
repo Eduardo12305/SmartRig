@@ -304,8 +304,6 @@ def genBuild(request, data: schema.genBuild):
     """
     user = request.user
     
-    print("DEBUG - Dados recebidos em /builds/gen:", data.dict())
-    
     if user.is_anonymous or not user:
         raise HttpError(401, "Só usuários registrados podem gerar builds!")
     return run_ga(data)
@@ -313,9 +311,11 @@ def genBuild(request, data: schema.genBuild):
 
 @api.post("/builds/save", auth=auth)
 def saveBuild(request, data: schema.build):
+    print("DEBUG - Dados recebidos em /builds/save:", data.dict())
     user = request.user
     if user.is_anonymous or not user:
         raise HttpError(401, "Faça login")
+    
     return views.saveBuild(data, user)
 
 @api.get("/builds", auth=auth)

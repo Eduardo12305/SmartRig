@@ -157,15 +157,14 @@ def saveBuild(data, user):
     }
     try:
         Builds.objects.create(user=user, build=build)
+        return {
+            "message": "Build salva com sucesso",
+            "data": model_to_dict(Builds.objects.get(user=user, build=build))
+        }
     except ValueError:
         raise HttpError(400, "Valor invalido")
     except Exception as e:
         raise HttpError(500, "Erro ao tentar salvar a build")
-    
-    return JsonResponse({
-            "message": "Build salva com sucesso",
-            "data": model_to_dict(Builds.objects.get(user=user, build=build))
-        }, 201)
 
 def deleteBuild(uid, user):
     if uid:
@@ -189,15 +188,10 @@ def getAllBuilds(user):
     data = []
     for build in builds:
         build_dict = {}
-        build_dict = {
-            "cpu": getProduct(build.build["cpu"]),
-            "gpu": getProduct(build.build["gpu"]),
-            "mobo": getProduct(build.build["mobo"]),
-            "psu": getProduct(build.build["psu"]),
-            "ram": getProduct(build.build["ram"]),
-            "storage": getProduct(build.build["storage"]),
-            "uid": build.uid
-        }
+        for part in build.build.values():
+            part_obj = getProduct(part)
+            build_dict[part_obj.__class__.__name__.lower()] = part_obj
+        build_dict["uid"] = build.uid
         data.append(build_dict)
 
     return {
@@ -214,16 +208,12 @@ def getBuild(uid, user):
     if build.user != user:
         raise HttpError(403, "Você não tem permissão para acessar esta build")
     
-    build_dict = {
-    "cpu": getProduct(build.build["cpu"]),
-    "gpu": getProduct(build.build["gpu"]),
-    "mobo": getProduct(build.build["mobo"]),
-    "psu": getProduct(build.build["psu"]),
-    "ram": getProduct(build.build["ram"]),
-    "storage": getProduct(build.build["storage"]),
-    "uid": build.uid
-    }
-    
+    build_dict = {}
+    for part in build.build.values():
+        part_obj = getProduct(part)
+        build_dict[part_obj.__class__.__name__.lower()] = part_obj
+    build_dict["uid"] = build.uid
+
     return {
         "message": "Build encontrada",
         "data": build_dict

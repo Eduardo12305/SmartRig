@@ -168,6 +168,8 @@ export const favoriteBuild = async (result) => {
     };
     try {
         const response = await axiosInstanceAuth.post("/builds/save", buildData);
+        console.log("Build favoritada vindo da API", response.data);
+        
         return response.data;
     } catch (error) {
         console.error("Erro ao favoritar build:", error.response?.data || error.message);
