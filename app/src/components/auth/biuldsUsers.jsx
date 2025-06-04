@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getBuildsUser } from "../apiService";
-import { Button } from "../../pages/auht/new_pc.styled";
+import { Button } from "../../pages/auht/new_pc.styled.jsx";
 
 export function BuildsUsers() {
     const [builds, setBuilds] = useState([]);

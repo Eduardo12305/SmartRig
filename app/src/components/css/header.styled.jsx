@@ -3,6 +3,7 @@ import styled from "styled-components";
 // Estilos para o Header principal
 export const StyledHeader = styled.header`
   display: flex;
+  position: sticky;
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.4em 0.5rem;
@@ -10,21 +11,13 @@ export const StyledHeader = styled.header`
   top: 0;
   left: 0;
   z-index: 9999; /* garantir que fique acima do menu modal */
-  background-color: rgb(33, 33, 33);
+  background: rgb(33, 33, 33);
   font-family: "Poppins", sans-serif;
   box-sizing: border-box;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
 `;
 
-// Estilo para o conteúdo principal
-export const MainContent = styled.main`
-  margin-top: 80px; /* Altura estimada do header */
-  width: 100%;
-  box-sizing: border-box;
 
-  @media (max-width: 640px) {
-    margin-top: 100px; /* Ajuste para telas menores, caso o header seja mais alto */
-  }
-`;
 
 // FlexContainer para agrupar logo e barra de pesquisa
 export const FlexContainer = styled.div`
@@ -34,7 +27,6 @@ export const FlexContainer = styled.div`
   width: 100%;
   flex-wrap: wrap;
   gap: 0.5rem;
-  padding: 2rem;
 `;
 
 // Estilos para a navegação (botões e itens)
@@ -126,6 +118,7 @@ export const LinkWithText = styled.button`
 
   &:hover {
     transform: scale(1.05);
+
   }
 `;
 
@@ -154,35 +147,40 @@ export const Name = styled.p`
 
 export const ModalContent = styled.div`
   position: fixed;
-  top: 145px;
+  top: 124px;
   background-color: orange;
   left: 0;
   padding: 1.5rem;
-  width: 100%;
+  right: 0;
+  max-width: 100vw;
+  /* Ajuste para acomodar mais itens lado a lado */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Inicialmente empilhados */
   justify-content: center;
   align-items: space-evenly;
-  z-index: 1;
+  z-index: 1000; /* Garante que o modal fique acima de outros elementos */
   text-align: center;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* Permite que quebrem linha em telas pequenas */
 
   @media (min-width: 640px) {
-    flex-direction: row;
-    justify-content: space-around;
+    flex-direction: row; /* Alinha os itens em linha a partir de 640px */
+    justify-content: space-around; /* Distribui os itens igualmente */
     align-items: center;
   }
 
   opacity: ${(props) => (props.$active ? 1 : 0)};
   transform: ${(props) =>
-    props.$active ? "translateY(0)" : "translateY(-145px)"};
+    props.$active ? "translateY(145)" : "translateY(-145px)"};
   pointer-events: ${(props) => (props.$active ? "auto" : "none")};
   transition: opacity 0.3s ease, transform 0.3s ease;
 `;
 
+
 export const SearchBar = styled.input`
-  margin-left: 100px;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
   padding: 0.8rem 1.5rem; // Altura não esqueça de novo
   font-size: 1rem;
   width: 350px; // Largura não esqueça de novo
@@ -192,10 +190,9 @@ export const SearchBar = styled.input`
 `;
 
 export const SearchGroup = styled.div`
-  width: 100%;
-  height: 50px;
   display: flex;
-  justify-content: flex-start;
+  flex: 1;
+  justify-content: center;
   align-items: center;
   gap: 0.5rem;
   min-width: 180px;
@@ -209,21 +206,18 @@ export const TopRightGroup = styled.div`
 `;
 
 export const MenuLine = styled.div`
+  width: 100%;
   display: flex;
   justify-content: center;
 `;
 
 export const MenuButton = styled.button`
-  color: rgb(33, 33, 33);
-  background-color: #ff8c00;
-
+  color: orange;
+  background-color: transparent;
   transition: color 0.3s, background-color 0.3s ease;
-  cursor: pointer;
-  
   &:hover {
-    color: orange;
-    background-color: transparent;
+    color: rgb(33, 33, 33);
+    background-color: #ff8c00;
     border-color: transparent;
   }
 `;
-;

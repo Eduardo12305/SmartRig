@@ -28,46 +28,31 @@ import {
   MenuLine,
   MenuButton,
 } from "../components/css/header.styled";
-import { CloseButton } from "./css/modal.styled";
 import { useAuth } from "./auth/authContext";
 import { decodeToken } from "./auth/authToken";
+//import { SearchHeader } from "./search";
 
 export function Header() {
   const navigate = useNavigate();
-
-  const [activeModal, setActiveModal] = useState(null); // 'login' | 'register' | 'menu' | 'userMenu' | null
+  const [activeModal, setActiveModal] = useState(null); // 'login' | 'register' | 'menu' | null
   const [eventSearch, setEventSearch] = useState("");
-  const {isLoggedIn, user, login, logout} = useAuth();
+  const { isLoggedIn, user, login, logout } = useAuth();
   // Verificar se o usuário está logado ao carregar o componente
-
+  const openUserMenuModal = () => {
+    setActiveModal((prev) => (prev === "userMenu" ? null : "userMenu"));
+  };
+  const NewpcClick = () => {
+    navigate("/produtos/monte-seu-pc");
+    closeModal();
+  };
 
   const CategoryClick = (category) => {
     navigate(`/produtos/${category}/`);
-    closeModal(); 
   };
-
-  const NewpcClick = () => {
-    navigate("/produtos/monte-seu-pc");
-    closeModal(); 
-  }
 
   const handleSearch = (search) => {
-    if (search.trim() !== "") {
-      navigate(`/produtos/search/${search}`);
-      setEventSearch(""); // Limpar campo após pesquisar
-    }
+    navigate(`/produtos/search/${search}`);
   };
-
-  const openLoginModal = () => setActiveModal("login");
-  const openRegisterModal = () => setActiveModal("register");
-
-  const openMenuModal = () => {
-    setActiveModal('menu');
-  };
-
-  const closeMenuModal = () => setActiveModal(null);
-  const openUserMenuModal = () => setActiveModal("userMenu");
-  const closeModal = () => setActiveModal(null);
 
   // Após login com sucesso
   const handleLoginSuccess = (response) => {
@@ -80,8 +65,8 @@ export function Header() {
       userData = response.user;
       token = response.token;
     } else if (response.token) {
-      token =response.token;
-      userData = { ...response};
+      token = response.token;
+      userData = { ...response };
       delete userData.token;
     } else {
       userData = response;
@@ -90,26 +75,21 @@ export function Header() {
     console.log("Login: userData", userData, "token", token);
     login(userData, token);
     closeModal();
-
- 
   };
 
   const buildSave = () => {
     navigate("/produtos/monte-seu-pc");
     closeModal();
-  }
+  };
 
   const handleLogout = () => {
     logout();
     closeModal();
     navigate("/");
-
-   
   };
 
   const getDisplayName = () => {
     if (!user) return "Usuário";
-
     return (
       user.name ||
       user.username ||
@@ -119,13 +99,20 @@ export function Header() {
     );
   };
 
+  const openLoginModal = () => setActiveModal("login");
+  const openRegisterModal = () => setActiveModal("register");
+  const openMenuModal = () => {
+    setActiveModal((prev) => (prev === "menu" ? null : "menu"));
+  };
+  const closeModal = () => setActiveModal(null);
+
   return (
+    <>
     <StyledHeader>
       <FlexContainer>
         <a href="/">
           <IconSoft src={logo} alt="Logo" />
         </a>
-
         <SearchGroup>
           <SearchBar
             type="search"
@@ -133,17 +120,16 @@ export function Header() {
             value={eventSearch}
             onChange={(e) => setEventSearch(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
+              if (e.key === "Enter" && eventSearch.trim() !== "") {
                 handleSearch(eventSearch);
               }
             }}
           />
         </SearchGroup>
-
         <TopRightGroup>
           {!isLoggedIn ? (
             <>
-              <NavItemButton $buttoncolor="#FF8C00" onClick={openLoginModal}>
+              <NavItemButton buttoncolor="#FF8C00" onClick={openLoginModal}>
                 Login
               </NavItemButton>
               <NavItemButton onClick={openRegisterModal}>
@@ -166,9 +152,7 @@ export function Header() {
         </Nav>
       </MenuLine>
 
-      {/* Modais */}
-
-     
+      {/* Renderização condicional dos modais */}
       {activeModal === "login" && (
         <LoginModal
           onClose={closeModal}
@@ -183,83 +167,77 @@ export function Header() {
           onSwitchToLogin={() => setActiveModal("login")}
         />
       )}
+      </StyledHeader>
+      <ModalContent $active={activeModal === "userMenu"}>
+        <NavList>
+          <NavItemMenu>
+            <LinkWithText
+              onClick={() => {
+                navigate("/perfil");
+                closeModal();
+              }}
+            >
+              <Name>👤 Meu Perfil</Name>
+            </LinkWithText>
+          </NavItemMenu>
+          <NavItemMenu>
+            <LinkWithText
+              onClick={() => {
+                navigate("/favoritos");
+                closeModal();
+              }}
+            >
+              <Name>⭐ Builds Favoritas</Name>
+            </LinkWithText>
+          </NavItemMenu>
+          <NavItemMenu>
+            <LinkWithText onClick={handleLogout}>
+              <Name>🚪 Sair</Name>
+            </LinkWithText>
+          </NavItemMenu>
+        </NavList>
+      </ModalContent>
 
-      {activeModal === "menu" && (
-        <ModalContent $active={true}>
-          <CloseButton onClick={closeMenuModal}>&times;</CloseButton>
-          <NavList>
-            <NavItemMenu>
-              <LinkWithText onClick={() => CategoryClick("cpu")}>
-                <IconImage src={logoprocess} alt="Processador" />
-                <Name>Processador</Name>
-              </LinkWithText>
-            </NavItemMenu>
-            <NavItemMenu>
-              <LinkWithText onClick={() => CategoryClick("gpu")}>
-                <IconImage src={logoPalca} alt="Placa de Vídeo" />
-                <Name>Placa de Vídeo</Name>
-              </LinkWithText>
-            </NavItemMenu>
-            <NavItemMenu>
-              <LinkWithText onClick={() => CategoryClick("mobo")}>
-                <IconImage src={logoMotherBorad} alt="Placa Mãe" />
-                <Name>Placa Mãe</Name>
-              </LinkWithText>
-            </NavItemMenu>
-            <NavItemMenu>
-              <LinkWithText onClick={() => CategoryClick("ram")}>
-                <IconImage src={logoMemory} alt="Memórias" />
-                <Name>Memórias</Name>
-              </LinkWithText>
-            </NavItemMenu>
-            <NavItemMenu>
-              <LinkWithText onClick={() => CategoryClick("psu")}>
-                <IconImage src={logoPowerSupply} alt="Fonte" />
-                <Name>Fontes</Name>
-              </LinkWithText>
-            </NavItemMenu>
-            <NavItemMenu>
-              <LinkWithText onClick={() => NewpcClick()}>
-                <IconImage src={logoComputer} alt="Monte seu PC" />
-                <Name>Monte seu PC</Name>
-              </LinkWithText>
-            </NavItemMenu>
-          </NavList>
-        </ModalContent>
-      )}
-
-      {activeModal === "userMenu" && (
-        <ModalContent $active={true}>
-          <CloseButton onClick={closeModal}>&times;</CloseButton>
-          <NavList>
-            <NavItemMenu>
-              <LinkWithText
-                onClick={() => {
-                  navigate("/perfil");
-                  closeModal();
-                }}
-              >
-                <Name>👤 Meu Perfil</Name>
-              </LinkWithText>
-            </NavItemMenu>
-            <NavItemMenu>
-              <LinkWithText
-                onClick={() => {
-                  navigate("/favoritos");
-                  closeModal();
-                }}
-              >
-                <Name>Biulds Favoritas</Name>
-              </LinkWithText>
-            </NavItemMenu>
-            <NavItemMenu>
-              <LinkWithText onClick={handleLogout}>
-                <Name>🚪 Sair</Name>
-              </LinkWithText>
-            </NavItemMenu>
-          </NavList>
-        </ModalContent>
-      )}
-    </StyledHeader>
+      <ModalContent $active={activeModal === "menu"}>
+        <NavList>
+          <NavItemMenu>
+            <LinkWithText onClick={() => CategoryClick("cpu")}>
+              <IconImage src={logoprocess} alt="Processador" />
+              <Name>Processador</Name>
+            </LinkWithText>
+          </NavItemMenu>
+          <NavItemMenu>
+            <LinkWithText onClick={() => CategoryClick("gpu")}>
+              <IconImage src={logoPalca} alt="Placa de Vídeo" />
+              <Name>Placa de Vídeo</Name>
+            </LinkWithText>
+          </NavItemMenu>
+          <NavItemMenu>
+            <LinkWithText onClick={() => CategoryClick("mobo")}>
+              <IconImage src={logoMotherBorad} alt="Placa Mãe" />
+              <Name>Placa Mãe</Name>
+            </LinkWithText>
+          </NavItemMenu>
+          <NavItemMenu>
+            <LinkWithText onClick={() => CategoryClick("ram")}>
+              <IconImage src={logoMemory} alt="Memórias" />
+              <Name>Memórias</Name>
+            </LinkWithText>
+          </NavItemMenu>
+          <NavItemMenu>
+            <LinkWithText onClick={() => CategoryClick("psu")}>
+              <IconImage src={logoPowerSupply} alt="Fonte" />
+              <Name>Fontes</Name>
+            </LinkWithText>
+          </NavItemMenu>
+          <NavItemMenu>
+            <LinkWithText onClick={() => NewpcClick()}>
+              <IconImage src={logoComputer} alt="Monte seu PC" />
+              <Name>Monte seu PC</Name>
+            </LinkWithText>
+          </NavItemMenu>
+        </NavList>
+      </ModalContent>
+      </>
   );
 }

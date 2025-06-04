@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { buildPC, productsCategory, favoriteBuild } from "../../components/apiService";
-import { FormContainer, Label, Select, Input, Button, ResultTable, TableContainer } from "./new_pc.styled";
+import { FormContainer, Label, Select, Input, Button, ResultTable, TableContainer } from "./new_pc.styled.jsx";
 
 export const NewPC = () => {
     const [cpu, setCpu] = useState("");

@@ -334,7 +334,7 @@ def genStorage():
 
     storage = Storage(
         **{
-            "name": f"{fake.company()} {fake.word()}",
+            "name": f"{fake.company()} {capacity}GB {type} {interface} {form_factor}",
             "image": "https://prd.place/200",
             "brand": fake.company(),
             "type": type,
