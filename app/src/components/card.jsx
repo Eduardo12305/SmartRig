@@ -12,7 +12,7 @@ import {
 import { productsCategory } from "./apiService";
 import { useNavigate, useParams } from "react-router-dom";
 
-export function CardPage({ cardsPerView = 3 }) {
+export function CardPage({ cardsPerView = 5 }) {
   const [startIndex, setStartIndex] = useState(0);
   const [cardsData, setCards] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");

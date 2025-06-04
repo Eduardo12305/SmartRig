@@ -203,17 +203,19 @@ def getBuild(uid, user):
     try:
         build = Builds.objects.get(pk=uid)
     except:
-        raise HttpError(404, "Nenhum favorito encontrado")
+        raise HttpError(404, "Nenhuma build encontrado")
     
     if build.user != user:
         raise HttpError(403, "Você não tem permissão para acessar esta build")
     
     build_dict = {}
-    for part in build.build.values():
-        part_obj = getProduct(part)
-        build_dict[part_obj.__class__.__name__.lower()] = part_obj
-    build_dict["uid"] = build.uid
-
+    for key, uid in build.build.items():
+        print(uid)
+        part_obj = getProduct(uid)["data"]
+        build_dict[key] = part_obj
+    
+    build_dict["uid"] = str(build.uid)
+    print (build_dict)
     return {
         "message": "Build encontrada",
         "data": build_dict

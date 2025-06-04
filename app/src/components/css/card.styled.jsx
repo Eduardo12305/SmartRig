@@ -18,7 +18,7 @@ export const Vermais = styled.button`
     font-weight: bold;
     transition: background 0.3s ease;
 
-    &:houver {background-color: white;
+    &:hover {background-color: white;
     color: #ff8c00;
     box-shadow: 0 0 0 1px #ff8c00 inset;
     transition: background 0.3s ease;}

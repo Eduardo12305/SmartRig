@@ -15,7 +15,7 @@ export const Home = () => {
     <>
         <StyledHomeWrapper>
           <StyledHomeTitleWrapper>
-            <StyledHomeTitle>Produtos em Destaque</StyledHomeTitle>
+            <StyledHomeTitle>Ofertas</StyledHomeTitle>
           </StyledHomeTitleWrapper>
           
           <CardPageWrapper>
