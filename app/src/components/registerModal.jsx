@@ -36,7 +36,7 @@ export const RegisterModal = ({ onClose, onSwitchToLogin }) => {
 
     try {
       await registerUser({ name, email, password, confPassword });
-      <LoginModal />;
+      onSwitchToLogin();
     } catch (error) {
       setErrorMessage(error.message || "Erro ao cadastrar");
     }
