@@ -165,6 +165,7 @@ export const favoriteBuild = async (result) => {
         psu: result.psu?.uid?.toString() || result.psu?.object_id?.toString() || "",
         ram: result.ram?.uid?.toString() || result.ram?.object_id?.toString() || "",
         storage: result.storage?.uid?.toString() || result.storage?.object_id?.toString() || "",
+        name: result.name || null
     };
     try {
         const response = await axiosInstanceAuth.post("/builds/save", buildData);

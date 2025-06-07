@@ -154,10 +154,9 @@ def saveBuild(data, user):
         "mobo": data.mobo,
         "ram": data.ram,
         "storage": data.storage,
-        "name": data.name
     }
     try:
-        Builds.objects.create(user=user, build=build)
+        Builds.objects.create(user=user, build=build, name=data.name)
         return {
             "message": "Build salva com sucesso",
             "data": model_to_dict(Builds.objects.get(user=user, build=build))
@@ -194,8 +193,7 @@ def getAllBuilds(user):
             part_obj = getProduct(part)
             build_dict[part_obj.__class__.__name__.lower()] = part_obj
         build_dict["uid"] = build.uid
-        build_dict["name"] = build.name if build.name else None
-        print(data, 'DEBUG - Data de builds')
+        build_dict["name"] = build.name
         build_dict["date"] = build.created
         data.append(build_dict)
     return {
@@ -219,7 +217,7 @@ def getBuild(uid, user):
         build_dict[key] = part_obj
     
     build_dict["uid"] = str(build.uid)
-    build_dict["name"] = build.name if build.name else None
+    build_dict["name"] = build.name
     build_dict["date"] = build.created
     print (build_dict)
     return {
