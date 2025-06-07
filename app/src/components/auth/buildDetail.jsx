@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
+import { getBuildDetail } from "../apiService";
+import { useParams } from "react-router-dom";
 
 // Animations
 const spin = keyframes`
@@ -397,7 +399,7 @@ const ErrorMessage = styled.p`
 `;
 
 const RetryButton = styled.button`
-  background: linear-gradient(135deg,rgb(255, 123, 0) 0%,rgb(255, 187, 0) 100%));
+  background: linear-gradient(135deg,rgb(255, 123, 0) 0%,rgb(255, 187, 0) 100%);
   color: white;
   border: none;
   padding: 0.75rem 2rem;
@@ -408,30 +410,36 @@ const RetryButton = styled.button`
   
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 8px 16px rgba(255, 123, 0, 0.3);
   }
 `;
 
 export function BuildDetail() {
+    const { uid } = useParams();
     const [build, setBuild] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     useEffect(() => {
-        setTimeout(() => {
-            const mockData = {
-                'cpu': {'name': 'AMD Ryzen 5 6100X', 'brand': 'AMD', 'socket': 'AM4', 'tdp': 91, 'cores': 16, 'speed': 2175, 'turbo': 5035, 'prices': [{'price': 3225.35, 'sale': false, 'store': {'name': 'Rodriguez PLC'}}, {'price': 3088.1, 'sale': true, 'old_price': 3874.17, 'sale_percent': 20, 'store': {'name': 'Ruiz Ltd'}}]},
-                'gpu': {'name': 'NVIDIA RTX 3060', 'brand': 'NVIDIA', 'chipset': 'RTX 3060', 'tdp': 170, 'memory': 12, 'speed': 1320, 'turbo': 1777, 'prices': [{'price': 1925.9, 'sale': true, 'old_price': 2185.44, 'sale_percent': 11, 'store': {'name': 'Rios, Gallegos and Roberts'}}]},
-                'psu': {'name': 'Seasonic Possible 550W 80+ Bronze', 'brand': 'Seasonic', 'type': 'ATX', 'wattage': 550, 'efficiency': '80+ Bronze', 'modular': 'None', 'prices': [{'price': 996.66, 'sale': true, 'old_price': 1183.54, 'sale_percent': 15, 'store': {'name': 'Rios, Gallegos and Roberts'}}]},
-                'ram': {'name': 'G.Skill Political 2x32GB DDR4', 'brand': 'G.Skill', 'memory_type': 'DDR4', 'memory_size': 32, 'memory_modules': 2, 'memory_speed': 3391, 'prices': [{'price': 1216.96, 'sale': false, 'store': {'name': 'Arnold Group'}}]},
-                'mobo': {'name': 'Gigabyte X570 Area AM4', 'brand': 'Gigabyte', 'socket': 'AM4', 'form_factor': 'Mini ITX', 'memory_max': 64, 'memory_type': 'DDR4', 'memory_slots': 2, 'chipset': 'X570', 'm2_nvme': 1, 'm2_sata': 1, 'prices': [{'price': 777.62, 'sale': false, 'store': {'name': 'Lawrence Inc'}}]},
-                'storage': {'name': 'Odonnell Ltd 256GB SSD SATA 2.5', 'brand': 'Pearson-Hartman', 'type': 'SSD', 'capacity': 256, 'form_factor': '2.5', 'interface': 'SATA', 'prices': [{'price': 178.49, 'sale': false, 'store': {'name': 'Ruiz Ltd'}}]},
-                'uid': 'b98617e2-e3cf-494b-88f7-728ce03b6e6f'
-            };
-            setBuild(mockData);
-            setLoading(false);
-        }, 1500);
-    }, []);
+        async function fetchBuild() {
+            setLoading(true);
+            setError(""); 
+            try {
+                const response = await getBuildDetail(uid);
+                setBuild(response.data);
+                console.log("Detalhes da build:", response.data);
+            } catch (error) {
+                console.error("Erro ao carregar build:", error);
+                setError("Não foi possível carregar os detalhes da build.");
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        if (uid) {
+            fetchBuild();
+        }
+    }, [uid]);
 
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('pt-BR', {
@@ -447,7 +455,9 @@ export function BuildDetail() {
         );
     };
 
-    const ComponentCardComponent = ({ title, component, icon }) => {
+    const ComponentCardComponent = ({ title, field, icon }) => {
+        const component = build?.[field];
+        if (!component) return null;
         const bestPrice = getBestPrice(component.prices);
         const totalPrices = component.prices?.length || 0;
         const onSaleCount = component.prices?.filter(p => p.sale).length || 0;
@@ -649,48 +659,12 @@ export function BuildDetail() {
                 </Header>
 
                 <ComponentsGrid>
-                    {build.cpu && (
-                        <ComponentCardComponent 
-                            title="Processador" 
-                            component={build.cpu} 
-                            icon="🔧"
-                        />
-                    )}
-                    {build.gpu && (
-                        <ComponentCardComponent 
-                            title="Placa de Vídeo" 
-                            component={build.gpu} 
-                            icon="🎮"
-                        />
-                    )}
-                    {build.ram && (
-                        <ComponentCardComponent 
-                            title="Memória RAM" 
-                            component={build.ram} 
-                            icon="💾"
-                        />
-                    )}
-                    {build.mobo && (
-                        <ComponentCardComponent 
-                            title="Placa-Mãe" 
-                            component={build.mobo} 
-                            icon="🔲"
-                        />
-                    )}
-                    {build.psu && (
-                        <ComponentCardComponent 
-                            title="Fonte de Alimentação" 
-                            component={build.psu} 
-                            icon="⚡"
-                        />
-                    )}
-                    {build.storage && (
-                        <ComponentCardComponent 
-                            title="Armazenamento" 
-                            component={build.storage} 
-                            icon="💿"
-                        />
-                    )}
+                    <ComponentCardComponent title="Processador" field="cpu" icon="🔧" />
+                    <ComponentCardComponent title="Placa de Vídeo" field="gpu" icon="🎮" />
+                    <ComponentCardComponent title="Memória RAM" field="ram" icon="💾" />
+                    <ComponentCardComponent title="Placa-Mãe" field="mobo" icon="🔲" />
+                    <ComponentCardComponent title="Fonte de Alimentação" field="psu" icon="⚡" />
+                    <ComponentCardComponent title="Armazenamento" field="storage" icon="💿" />
                 </ComponentsGrid>
             </ContentWrapper>
         </Container>
