@@ -6,7 +6,10 @@ export const RodapeContainer = styled.footer`
   width: 100%;
   font-size: 16px;
   font-family: 'Helvetica', sans-serif;
-  padding: 20px 5% 40px 5%; /* Padding para dar mais espaçamento, ajustável conforme necessário */
+  padding: 20px 5% 40px 5%;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
 
   a {
     text-decoration: none;

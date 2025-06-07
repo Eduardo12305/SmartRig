@@ -42,7 +42,7 @@ export function CardPage({ cardsPerView = 5 }) {
       setErrorMessage(error.message || "Erro ao carregar cards");
     }
   };
-    fetchProducts(); // Executa sempre que o parâmetro de busca mudar
+    fetchProducts(); 
   }, [search]);
 
   const handleCardClick = (id) => {
