@@ -35,6 +35,7 @@ class build(Schema):
     psu: str
     ram: str
     storage: str
+    name: Optional[str] = None
 
 
 class weightsSchema(Schema):

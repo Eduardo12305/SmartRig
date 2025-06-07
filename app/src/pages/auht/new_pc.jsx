@@ -16,6 +16,7 @@ export const NewPC = () => {
     const [budget, setBudget] = useState("");
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [buildName, setBuildName] = useState(""); // novo estado para o nome
 
     useEffect(() => {
         const getItens = async () => {
@@ -48,7 +49,8 @@ export const NewPC = () => {
                 psu: psu || undefined,
                 budget: Number(budget),
                 storage: Number(storageSize),
-                storageType: storageType
+                storageType: storageType,
+                name: buildName // usa o nome salvo
             };
             const res = await buildPC(data);
             setResult(res);
@@ -60,11 +62,22 @@ export const NewPC = () => {
     
     const saveBuild = async () => {
         if (!result) {
-            alert("Gere uma build antes de salvar!");
+            alert("Gere uma build antes de salvar!");            
             return;
         }
+        let name = buildName;
+        if (!name) {
+            name = window.prompt("Digite um nome para sua build:");
+            if (!name) {
+                alert("Nome da build é obrigatório!");
+                return;
+            }
+            setBuildName(name);
+        }
         try {
-            await favoriteBuild(result); // Passe o objeto result diretamente
+            // Inclui o nome na build antes de salvar
+            const buildToSave = { ...result, name };
+            await favoriteBuild(buildToSave);
             alert("Build salva com sucesso!");
         } catch (error) {
             alert("Erro ao salvar build: " + (error.message || "Tente novamente"));

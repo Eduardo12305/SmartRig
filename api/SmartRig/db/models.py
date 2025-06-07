@@ -183,7 +183,7 @@ class Storage(models.Model):
 
 class Builds(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, blank=True, null=True)
     created = models.DateField(auto_now_add=True)
     user = models.ForeignKey(Users, on_delete=models.CASCADE)
     build = models.JSONField()
