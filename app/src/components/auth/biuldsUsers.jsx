@@ -144,6 +144,13 @@ export function BuildsUsers() {
         color: "#1e293b",
         margin: "0"
     };
+    
+    const buildDateStyle = {
+        fontSize: "1.1rem",
+        fontWeight: "600",
+        color: "#1e293b",
+        margin: "0"
+    };
 
     const buildIdStyle = {
         fontSize: "0.9rem",
@@ -246,6 +253,10 @@ export function BuildsUsers() {
                                         ID: {build.uid.slice(0, 12)}...
                                     </div>
                                 </div>
+                            </div>
+
+                            <div style={buildDateStyle}>
+                             Criado em: {build.date} 
                             </div>
                             
                             <div style={buttonContainerStyle}>

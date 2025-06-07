@@ -192,6 +192,8 @@ def getAllBuilds(user):
             part_obj = getProduct(part)
             build_dict[part_obj.__class__.__name__.lower()] = part_obj
         build_dict["uid"] = build.uid
+        build_dict["name"] = build.name
+        build_dict["date"] = build.created
         data.append(build_dict)
 
     return {
@@ -215,6 +217,8 @@ def getBuild(uid, user):
         build_dict[key] = part_obj
     
     build_dict["uid"] = str(build.uid)
+    build_dict["name"] = build.name
+    build_dict["date"] = build.created
     print (build_dict)
     return {
         "message": "Build encontrada",

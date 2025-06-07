@@ -7,22 +7,17 @@ import {
 } from "../components/css/home.styled";
 
 export const Home = () => {
-  // Função de busca com validação e encoding seguro
-
-  // Handler para mudança no input com debounce implícit
-
   return (
-    <>
-        <StyledHomeWrapper>
-          <StyledHomeTitleWrapper>
-            <StyledHomeTitle>Ofertas</StyledHomeTitle>
-          </StyledHomeTitleWrapper>
-          
-          <CardPageWrapper>
-            <CardPage />
-          </CardPageWrapper>
-        </StyledHomeWrapper>
-    </>
-   
+    <StyledHomeWrapper>
+      <StyledHomeTitleWrapper>
+        <StyledHomeTitle>
+          Nossos Produtos
+        </StyledHomeTitle>
+      </StyledHomeTitleWrapper>
+      
+      <CardPageWrapper>
+        <CardPage />
+      </CardPageWrapper>
+    </StyledHomeWrapper>
   );
 };
