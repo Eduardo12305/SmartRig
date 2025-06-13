@@ -2,10 +2,10 @@ import random
 from functools import partial
 
 from deap import base, creator, tools
-from django.db.models import ExpressionWrapper, F, FloatField, IntegerField, Max
+from django.db.models import ExpressionWrapper, F, FloatField, IntegerField, Max, Q
 from django.forms import model_to_dict
 from django.utils import timezone
-
+from ninja.errors import HttpError
 from db.models import Cpu, Gpu, Mobo, Prices, Psu, Ram, Storage
 
 # Constants
@@ -108,14 +108,7 @@ def getBestPrice(part):
     valid_prices = Prices.objects.filter(
         object_id=part.uid
     ).filter(
-        # either not on sale
-        sale=False
-    ).union(
-        Prices.objects.filter(
-            object_id=part.uid,
-            sale=True,
-            sale_end__gt=now
-        )
+    (Q(sale=False)) | (Q(sale=True) & Q(sale_end__gt=now))
     ).order_by("price")
     
     price_obj = valid_prices.first()
@@ -237,9 +230,9 @@ def fitness_function(ind, weights,budget):
     ram_perf = (ram.memory_size * (ram.memory_speed / 1000)) / MAXRAM
 
     total_perf = (
-        cpu_perf * weights["cpu"]
-        + gpu_perf * weights["gpu"]
-        + ram_perf * weights["ram"]
+        cpu_perf * weights.cpu
+        + gpu_perf * weights.gpu
+        + ram_perf * weights.ram
     )
 
     # Calculate total price
@@ -367,7 +360,7 @@ def run_ga(data):
             prices.append(getPriceObj(item))  # Adiciona preço ao objeto
 
     if best.fitness.values[0] < 0:
-        return {"message": "Orçamento muito baixo :("}
+        raise HttpError(400, "Orçamento muito baixo :(")
     # Convert to dict and attach prices
     cpu_dict = model_to_dict(best[0])
     cpu_dict["uid"] = best[0].uid

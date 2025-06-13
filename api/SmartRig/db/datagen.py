@@ -355,74 +355,109 @@ def genStorage():
 
 
 def estimate_base_price(part):
-    """Estimate price based on part power with Brazilian market in mind."""
     model = part.__class__.__name__
-
+    
     if model == "Cpu":
         base_ghz = part.speed / 1000
         turbo_ghz = part.turbo / 1000
+        
+        # Ajuste mais realista para CPUs brasileiras
+        # CPUs entry-level (4 cores): R$400-800
+        # CPUs mid-range (6-8 cores): R$800-1500
+        # CPUs high-end (12+ cores): R$1500-3000+
+        core_multiplier = 60 if part.cores <= 4 else (80 if part.cores <= 8 else 120)
+        
         return (
-            part.cores * 100 + base_ghz * 210 + turbo_ghz * 200
-        )  # adjusted for BR prices
-
+            part.cores * core_multiplier + 
+            base_ghz * 150 + 
+            turbo_ghz * 100
+        )
+    
     elif model == "Gpu":
         core_ghz = part.speed / 1000
+        
+        # Ajuste para GPUs brasileiras
+        # Entry-level: R$500-1000
+        # Mid-range: R$1000-2500
+        # High-end: R$2500-5000+
+        memory_multiplier = 60 if part.memory <= 4 else (80 if part.memory <= 8 else 120)
+        
         return (
-            part.memory * 100 + core_ghz * 250 + part.tdp * 3
-        )  # adjusted for BR prices
-
+            part.memory * memory_multiplier + 
+            core_ghz * 180 + 
+            part.tdp * 2
+        )
+    
     elif model == "Ram":
-        return (part.memory_size / 8) * 200 + (
-            part.memory_speed / 1000
-        ) * 80  # adjusted
-
+        # Ajuste para memória RAM
+        # 8GB DDR4: ~R$180-300
+        # 16GB DDR4: ~R$300-500
+        # 32GB DDR4: ~R$600-1000
+        base_price_per_gb = 25 if part.memory_size <= 16 else 20
+        speed_bonus = max(0, (part.memory_speed - 2400) / 1000) * 30
+        
+        return (part.memory_size * base_price_per_gb) + speed_bonus
+    
     elif model == "Storage":
         if part.type == "HDD":
-            return part.capacity * 0.4  # ~R$400 for 1TB HDD
+            # HDD: ~R$250-350 para 1TB
+            return part.capacity * 0.25
         else:
-            return part.capacity * 0.8  # ~R$800 for 1TB SSD
-
+            # SSD: ~R$400-600 para 1TB
+            return part.capacity * 0.45
+    
     elif model == "Psu":
-        return 250 + part.wattage * 1.2  # 600W ~R$970
-
+        # PSU: 500W ~R$300-400, 650W ~R$400-600, 850W ~R$600-900
+        base_psu = 200
+        wattage_multiplier = 0.6 if part.wattage <= 600 else 0.8
+        
+        return base_psu + (part.wattage * wattage_multiplier)
+    
     elif model == "Mobo":
-        return 600 + part.memory_max * 0.6 + part.memory_slots * 80
-
+        # Motherboards: Entry R$400-600, Mid R$600-1200, High R$1200+
+        base_mobo = 400
+        memory_bonus = (part.memory_max / 1000) * 50  # Por GB máximo suportado
+        slot_bonus = part.memory_slots * 25
+        
+        return base_mobo + memory_bonus + slot_bonus
+    
     else:
-        return 200  # default fallback
+        return 150  # default fallback reduzido
 
 
 def genPrice(part):
-    """Generate and save a realistic Prices entry for a given part."""
     store = random.choice(list(Stores.objects.all()))
     content_type = ContentType.objects.get_for_model(part)
-
+    
     # Base estimated price for the part
     base_price = estimate_base_price(part)
-
-    # Introduce store pricing bias (simulate expensive/cheap stores)
-    store_price_bias = random.uniform(-0.1, 0.1)  # ±10%
-    price_variation = random.uniform(-0.05, 0.15)  # ±5% to +15%
+    
+    # Variação de preço mais realista para lojas brasileiras
+    # Algumas lojas são conhecidas por serem mais caras/baratas
+    store_price_bias = random.uniform(-0.15, 0.25)  # -15% a +25%
+    price_variation = random.uniform(-0.08, 0.12)   # -8% a +12%
+    
     final_price = base_price * (1 + store_price_bias + price_variation)
-    final_price = round(max(final_price, 10), 2)  # Ensure minimum price
-
+    final_price = round(max(final_price, 50), 2)  # Preço mínimo mais realista
+    
     # Determine if the product is on sale
-    is_on_sale = random.choices([True, False], weights=[0.3, 0.7])[0]
-
+    is_on_sale = random.choices([True, False], weights=[0.25, 0.75])[0]
+    
     old_price = None
     sale_percent = None
     sale_end = None
-
+    
     if is_on_sale:
-        sale_increase = random.uniform(0.10, 0.40)  # 10–40% discount
+        # Descontos mais típicos do mercado brasileiro
+        sale_increase = random.uniform(0.08, 0.30)  # 8–30% discount
         old_price = round(final_price * (1 + sale_increase), 2)
         sale_percent = int(((old_price - final_price) / old_price) * 100)
-        sale_end = timezone.now() + timedelta(days=random.randint(1, 10))
-
+        sale_end = timezone.now() + timedelta(days=random.randint(3, 15))
+    
     # Generate a realistic product URL
     name_slug = str(part.name).replace(" ", "-").lower()
-    url = f"https://{store.name.lower().replace(' ', '')}.com/produtos/{name_slug}?ref={random.randint(1000,9999)}"
-
+    url = f"https://{store.name.lower().replace(' ', '')}.com.br/produtos/{name_slug}?ref={random.randint(1000,9999)}"
+    
     Prices.objects.create(
         store=store,
         url_product=url,
