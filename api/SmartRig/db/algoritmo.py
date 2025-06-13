@@ -11,6 +11,85 @@ from db.models import Cpu, Gpu, Mobo, Prices, Psu, Ram, Storage
 # Constants
 POPULATION_SIZE = 150
 GENERATIONS = 50
+
+def get_chipset_multiplier(chipset):
+    """
+    Multiplica performance baseado no chipset da GPU
+    Valores aproximados baseados em arquiteturas reais
+    """
+    chipset_lower = chipset.lower()
+    
+    # NVIDIA
+    if 'rtx 40' in chipset_lower or 'ada' in chipset_lower:
+        return 1.3  # Arquitetura mais eficiente
+    elif 'rtx 30' in chipset_lower or 'ampere' in chipset_lower:
+        return 1.2
+    elif 'rtx 20' in chipset_lower or 'turing' in chipset_lower:
+        return 1.1
+    elif 'gtx 16' in chipset_lower:
+        return 1.0
+    elif 'gtx 10' in chipset_lower or 'pascal' in chipset_lower:
+        return 0.9
+    
+    # AMD
+    elif 'rx 7000' in chipset_lower or 'rdna3' in chipset_lower:
+        return 1.25
+    elif 'rx 6000' in chipset_lower or 'rdna2' in chipset_lower:
+        return 1.15
+    elif 'rx 5000' in chipset_lower or 'rdna' in chipset_lower:
+        return 1.05
+    elif 'rx 500' in chipset_lower or 'polaris' in chipset_lower:
+        return 0.85
+    
+    # Intel (Arc)
+    elif 'arc' in chipset_lower:
+        return 1.0
+    
+    # Default para chipsets desconhecidos
+    return 1.0
+
+def get_igpu_multiplier(chipset):
+    """
+    Multiplier específico para iGPUs
+    """
+    chipset_lower = chipset.lower()
+    
+    if 'iris xe' in chipset_lower or 'arc' in chipset_lower:
+        return 0.3
+    elif 'iris' in chipset_lower:
+        return 0.2
+    elif 'uhd' in chipset_lower or 'hd' in chipset_lower:
+        return 0.1
+    elif 'vega' in chipset_lower:
+        return 0.25
+    elif 'radeon' in chipset_lower:
+        return 0.15
+    
+    return 0.1  # Default muito baixo para iGPUs genéricas
+
+def calculate_gpu_performance(gpu):
+    """
+    Calcula performance da GPU baseada nos campos disponíveis
+    """
+    if gpu.__class__.__name__ == "Igpu":
+        # iGPU tem performance muito menor
+        base_performance = gpu.speed * get_igpu_multiplier(gpu.name)
+        return base_performance
+    else:
+        # Frequência média (MHz)
+        avg_frequency = (gpu.speed + gpu.turbo) / 2
+        
+        # Performance bruta: frequência × memória (com expoente menor para não super-valorizar memória)
+        raw_performance = avg_frequency * (gpu.memory ** 0.7)
+        
+        # Fator de correção por chipset
+        chipset_multiplier = get_chipset_multiplier(gpu.chipset)
+        
+        # Performance ajustada
+        adjusted_performance = raw_performance * chipset_multiplier
+        
+        return adjusted_performance
+
 try:
     MAXCPU = (
         Cpu.objects.annotate(
@@ -21,15 +100,9 @@ try:
         or 0
     )
 
-    # GPU max
-    MAXGPU = (
-        Gpu.objects.annotate(
-            perf=ExpressionWrapper(
-                ((F("speed") + F("turbo")) / 2) * F("memory"), output_field=FloatField()
-            )
-        ).aggregate(Max("perf"))["perf__max"]
-        or 0
-    )
+    all_gpus = Gpu.objects.all()  # ou como você obtém todas as GPUs
+    max_gpu_performance = max(calculate_gpu_performance(gpu) for gpu in all_gpus)
+    MAXGPU = max_gpu_performance
 
     MAXRAM = Ram.objects.annotate(
         perf=ExpressionWrapper(
@@ -39,6 +112,7 @@ try:
 
     # Global part caches (reduces DB hits)
     ALL_CPUS = list(Cpu.objects.all())
+    ALL_GPUS = list(Gpu.objects.all())
     ALL_GPUS = list(Gpu.objects.all())
     ALL_PSUS = list(Psu.objects.all())
     ALL_MOBOS = list(Mobo.objects.all())
@@ -58,23 +132,17 @@ _price_cache = {}
 def updateProductCache():
     try:
         MAXCPU = (
-            Cpu.objects.annotate(
-                perf=ExpressionWrapper(
-                    ((F("speed") + F("turbo")) / 2) * F("cores"), output_field=FloatField()
-                )
-            ).aggregate(Max("perf"))["perf__max"]
-            or 0
+        Cpu.objects.annotate(
+            perf=ExpressionWrapper(
+                ((F("speed") + F("turbo")) / 2) * F("cores"), output_field=FloatField()
+            )
+        ).aggregate(Max("perf"))["perf__max"]
+        or 0
         )
 
-        # GPU max
-        MAXGPU = (
-            Gpu.objects.annotate(
-                perf=ExpressionWrapper(
-                    ((F("speed") + F("turbo")) / 2) * F("memory"), output_field=FloatField()
-                )
-            ).aggregate(Max("perf"))["perf__max"]
-            or 0
-        )
+        all_gpus = Gpu.objects.all()  # ou como você obtém todas as GPUs
+        max_gpu_performance = max(calculate_gpu_performance(gpu) for gpu in all_gpus)
+        MAXGPU = max_gpu_performance
 
         MAXRAM = Ram.objects.annotate(
             perf=ExpressionWrapper(
@@ -84,6 +152,7 @@ def updateProductCache():
 
         # Global part caches (reduces DB hits)
         ALL_CPUS = list(Cpu.objects.all())
+        ALL_GPUS = list(Gpu.objects.all())
         ALL_GPUS = list(Gpu.objects.all())
         ALL_PSUS = list(Psu.objects.all())
         ALL_MOBOS = list(Mobo.objects.all())
@@ -211,11 +280,14 @@ creator.create("Individual", list, fitness=creator.FitnessMax)
 toolbox = base.Toolbox()
 
 
-def fitness_function(ind, weights,budget):
-    if not weights:
-       weights = {"cpu": 0.45, "gpu": 0.45, "ram": 0.1}
-    cpu, gpu, psu, mobo, ram, storage = ind
 
+
+def fitness_function(ind, weights, budget):
+    if not weights:
+        weights = {"cpu": 0.45, "gpu": 0.45, "ram": 0.1}
+    
+    cpu, gpu, psu, mobo, ram, storage = ind
+    
     # Compatibility checks
     if cpu.socket != mobo.socket:
         return (-1000,)
@@ -223,43 +295,48 @@ def fitness_function(ind, weights,budget):
         return (-1000,)
     if ram.memory_type != mobo.memory_type:
         return (-1000,)
-
+    
     # Performance calculation
     cpu_perf = (((cpu.speed + cpu.turbo) / 2) * cpu.cores) / MAXCPU
-    gpu_perf = (((gpu.speed + gpu.turbo) / 2) * gpu.memory) / MAXGPU
+    
+    # GPU performance calculation melhorada
+    gpu_raw_perf = calculate_gpu_performance(gpu)
+    gpu_perf = gpu_raw_perf / MAXGPU
+    
     ram_perf = (ram.memory_size * (ram.memory_speed / 1000)) / MAXRAM
-
+    
     total_perf = (
         cpu_perf * weights.cpu
         + gpu_perf * weights.gpu
         + ram_perf * weights.ram
     )
-
+    
     # Calculate total price
     total_price = sum(
         getBestPrice(p) if p.__class__.__name__ != "Igpu" else 0 for p in ind
     )
-
+    
     # Power requirement check
     if gpu.__class__.__name__ == "Igpu":
         required_watt = estimateWatts(cpu.tdp, 0)
     else:
-        required_watt = estimateWatts(cpu.tdp, gpu.tdp)  # 100W overhead approx
+        required_watt = estimateWatts(cpu.tdp, gpu.tdp)
     if psu.wattage < required_watt:
         return (-1000,)  # power inadequate penalty
-
+    
     # Penalize if price exceeds budget, but allow partial credit (soft penalty)
     if total_price > budget:
-        penalty = 1000 * (total_price - budget)  # penalty grows fast
+        # Penalty graduado - cresce mais devagar no início
+        overspend_ratio = (total_price - budget) / budget
+        penalty = 1000 * (overspend_ratio ** 1.5)  # Crescimento mais suave
     else:
         penalty = 0
-
+    
     # Fitness: combine price and inverted performance to minimize
     fitness_score = total_perf * 1000 - penalty
-
+    
     # Make sure fitness is never negative zero or less, so min 1 or so
-    return (fitness_score,)
-
+    return (max(fitness_score, 1),)
 
 def crossover(ind1, ind2):
     point = random.randint(1, 5)

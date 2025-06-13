@@ -8,7 +8,7 @@ export const StyledHomeWrapper = styled.div`
   width: 100%;
   padding: 2rem;
   background-color: #f8f9fa; /* Light background for better contrast */
-  margin-top: 50px;
+  margin-top: 0px;
 `;
 
 export const StyledHomeTitleWrapper = styled.div`

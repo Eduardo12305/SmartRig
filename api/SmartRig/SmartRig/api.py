@@ -5,7 +5,7 @@ from ninja_jwt.authentication import JWTAuth
 from ninja_jwt.routers.obtain import obtain_pair_router
 
 from db import product, views
-from db.algoritmo import run_ga
+from db.algoritmo import run_ga, updateProductCache
 from db.datagen import genAll, genAllPrices
 from SmartRig import schema
 
@@ -308,6 +308,9 @@ def genBuild(request, data: schema.genBuild):
         raise HttpError(401, "Só usuários registrados podem gerar builds!")
     return run_ga(data)
 
+@api.post("/builds/updateCache", auth=auth)
+def updateBuildCache(request):
+    return updateProductCache()
 
 @api.post("/builds/save", auth=auth)
 def saveBuild(request, data: schema.build):
