@@ -335,8 +335,8 @@ def fitness_function(ind, weights, budget):
     # Fitness: combine price and inverted performance to minimize
     fitness_score = total_perf * 1000 - penalty
     
-    # Make sure fitness is never negative zero or less, so min 1 or so
-    return (max(fitness_score, 1),)
+
+    return fitness_score,
 
 def crossover(ind1, ind2):
     point = random.randint(1, 5)

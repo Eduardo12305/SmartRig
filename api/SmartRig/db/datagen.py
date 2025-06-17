@@ -39,50 +39,201 @@ def genStores():
 
 def genCpus():
     brand = random.choice(["Intel", "AMD"])
-
-    # Define socket options based on brand
-    socket_options = {"Intel": ["LGA1151", "LGA1200", "LGA1700"], "AMD": ["AM4", "AM5"]}
-
-    socket = random.choice(socket_options[brand])
-
+    
+    # More realistic socket distributions
+    socket_options = {
+        "Intel": ["LGA1151", "LGA1200", "LGA1700"], 
+        "AMD": ["AM4", "AM5", "sTRX4"]  # Added sTRX4 for high-end
+    }
+    
     if brand == "Intel":
-        series = random.choice(["Core i3", "Core i5", "Core i7", "Core i9"])
-        gen = random.randint(8, 14)  # Example: 8th to 14th gen
-        model = random.randint(1, 9)
-        suffix = random.choice(["", "K", "KF", "F", "T"])
-        cpu_name = f"{brand} {series}-{gen}{model}00{suffix} {gen}th Gen"
-    else:
-        series = random.choice(["Ryzen 3", "Ryzen 5", "Ryzen 7", "Ryzen 9"])
-        model = random.randint(10, 99)
-        suffix = random.choice(["", "X", "XT", "G", "GE"])
-        cpu_name = f"{brand} {series} {model}00{suffix}"
-
-    # 50% chance to have an iGPU
+        # More realistic Intel generation
+        series_weights = [
+            ("Core i3", 0.25),
+            ("Core i5", 0.35), 
+            ("Core i7", 0.25),
+            ("Core i9", 0.15)
+        ]
+        series = random.choices(
+            [s[0] for s in series_weights], 
+            weights=[s[1] for s in series_weights]
+        )[0]
+        
+        # Generation and socket correlation
+        gen_socket_map = {
+            8: "LGA1151", 9: "LGA1151", 
+            10: "LGA1200", 11: "LGA1200",
+            12: "LGA1700", 13: "LGA1700", 14: "LGA1700"
+        }
+        gen = random.choice(list(gen_socket_map.keys()))
+        socket = gen_socket_map[gen]
+        
+        # Realistic model numbers based on series and generation
+        if series == "Core i3":
+            model_ranges = {8: [100, 350], 9: [100, 350], 10: [100, 320], 
+                          11: [100, 320], 12: [100, 300], 13: [100, 300], 14: [100, 300]}
+            cores = random.choice([4, 6]) if gen >= 12 else 4
+            base_speed = random.randint(3000, 3700)
+            turbo_speed = base_speed + random.randint(400, 800)
+            tdp = random.choice([35, 65])
+        elif series == "Core i5":
+            model_ranges = {8: [400, 680], 9: [400, 680], 10: [400, 640], 
+                          11: [400, 650], 12: [400, 600], 13: [400, 600], 14: [400, 600]}
+            cores = random.choice([6, 8]) if gen >= 12 else 6
+            base_speed = random.randint(2400, 3200)
+            turbo_speed = base_speed + random.randint(800, 1400)
+            tdp = random.choice([65, 95, 125])
+        elif series == "Core i7":
+            model_ranges = {8: [700, 870], 9: [700, 870], 10: [700, 870], 
+                          11: [700, 870], 12: [700, 790], 13: [700, 790], 14: [700, 790]}
+            cores = random.choice([8, 12]) if gen >= 12 else 8
+            base_speed = random.randint(2000, 2900)
+            turbo_speed = base_speed + random.randint(1200, 2000)
+            tdp = random.choice([65, 95, 125])
+        else:  # Core i9
+            model_ranges = {8: [900, 980], 9: [900, 980], 10: [900, 980], 
+                          11: [900, 980], 12: [900, 980], 13: [900, 980], 14: [900, 980]}
+            cores = random.choice([8, 12, 16]) if gen >= 12 else random.choice([8, 10])
+            base_speed = random.randint(2000, 2700)
+            turbo_speed = base_speed + random.randint(1500, 2500)
+            tdp = random.choice([95, 125, 165])
+        
+        model_min, model_max = model_ranges[gen]
+        model = random.randint(model_min, model_max)
+        
+        # Realistic suffix distribution
+        suffix_weights = [("", 0.4), ("K", 0.25), ("KF", 0.15), ("F", 0.15), ("T", 0.05)]
+        suffix = random.choices(
+            [s[0] for s in suffix_weights], 
+            weights=[s[1] for s in suffix_weights]
+        )[0]
+        
+        # Adjust TDP for suffixes
+        if suffix == "T":
+            tdp = random.choice([35, 45])
+        elif suffix in ["K", "KF"]:
+            tdp = max(tdp, 95)  # K series typically higher TDP
+        
+        cpu_name = f"{brand} {series}-{gen}{model:03d}{suffix}"
+        
+    else:  # AMD
+        # More realistic AMD series distribution
+        series_weights = [
+            ("Ryzen 3", 0.20),
+            ("Ryzen 5", 0.40),
+            ("Ryzen 7", 0.25),
+            ("Ryzen 9", 0.10),
+            ("Threadripper", 0.05)
+        ]
+        series = random.choices(
+            [s[0] for s in series_weights], 
+            weights=[s[1] for s in series_weights]
+        )[0]
+        
+        if series == "Threadripper":
+            socket = "sTRX4"
+            gen = random.choice([3, 5])  # 3000 or 5000 series
+            model = random.choice([24, 32, 64])
+            suffix = random.choice(["WX", "X"])
+            cores = {"24": 24, "32": 32, "64": 64}[str(model)]
+            cpu_name = f"{brand} {series} {gen}9{model}{suffix}"
+            base_speed = random.randint(2700, 3200)
+            turbo_speed = base_speed + random.randint(1100, 1600)
+            tdp = random.choice([280, 350])
+        else:
+            socket = random.choice(["AM4", "AM5"])
+            
+            # Generation based on socket
+            if socket == "AM4":
+                gen = random.choice([1, 2, 3, 5])  # 1000, 2000, 3000, 5000 series
+            else:  # AM5
+                gen = random.choice([7, 8, 9])  # 7000, 8000, 9000 series
+            
+            # Realistic model numbers and specs based on series
+            if series == "Ryzen 3":
+                if gen <= 5:
+                    model_options = [100, 200, 300] if gen <= 3 else [100, 300, 500, 600]
+                else:
+                    model_options = [100, 200, 300]
+                cores = random.choice([4, 6])
+                base_speed = random.randint(3200, 3800)
+                turbo_speed = base_speed + random.randint(400, 800)
+                tdp = random.choice([45, 65])
+            elif series == "Ryzen 5":
+                if gen <= 5:
+                    model_options = [500, 600, 700, 800] if gen <= 3 else [500, 600, 700, 800]
+                else:
+                    model_options = [500, 600, 700, 800]
+                cores = random.choice([6, 8])
+                base_speed = random.randint(3000, 3700)
+                turbo_speed = base_speed + random.randint(600, 1200)
+                tdp = random.choice([65, 95, 105])
+            elif series == "Ryzen 7":
+                if gen <= 5:
+                    model_options = [700, 800, 900] if gen <= 3 else [700, 800, 900]
+                else:
+                    model_options = [700, 800, 900]
+                cores = random.choice([8, 12])
+                base_speed = random.randint(2800, 3400)
+                turbo_speed = base_speed + random.randint(800, 1600)
+                tdp = random.choice([65, 95, 105])
+            else:  # Ryzen 9
+                model_options = [900, 950]
+                cores = random.choice([12, 16])
+                base_speed = random.randint(2700, 3200)
+                turbo_speed = base_speed + random.randint(1000, 1800)
+                tdp = random.choice([105, 170])
+            
+            model = random.choice(model_options)
+            
+            # Realistic suffix distribution for AMD
+            suffix_weights = [("", 0.3), ("X", 0.35), ("XT", 0.15), ("G", 0.15), ("GE", 0.05)]
+            suffix = random.choices(
+                [s[0] for s in suffix_weights], 
+                weights=[s[1] for s in suffix_weights]
+            )[0]
+            
+            # Adjust specs for suffixes
+            if suffix == "G":
+                tdp = min(tdp, 65)  # G series typically lower TDP
+            elif suffix == "GE":
+                tdp = 35
+            elif suffix in ["X", "XT"]:
+                base_speed += random.randint(100, 300)
+                turbo_speed += random.randint(100, 400)
+            
+            cpu_name = f"{brand} {series} {gen}{model:01d}00{suffix}"
+    
+    # iGPU logic - more realistic
     igpu = None
-    if suffix in ["G", "GE"] or not suffix in ["F", "KF"]:
+    has_igpu_chance = 0.7 if suffix in ["G", "GE"] else 0.3 if brand == "Intel" and suffix not in ["F", "KF"] else 0.1
+    
+    if random.random() < has_igpu_chance:
         igpu_queryset = Igpu.objects.filter(brand=brand)
         if igpu_queryset.exists():
             igpu = random.choice(list(igpu_queryset))
-
+    
     cpu = Cpu(
         **{
             "name": cpu_name,
-            "image": "https://prd.place/200",
+            "image": "https://prd.place/200?id=38",
             "date_added": fake.date_this_decade(),
             "brand": brand,
             "igpu": igpu,
             "socket": socket,
-            "tdp": random.randint(35, 125),
-            "cores": random.choice([2, 4, 6, 8, 12, 16]),
-            "speed": random.randint(2000, 3600),  # realistic base clocks
-            "turbo": random.randint(3600, 5200),  # realistic turbo clocks
+            "tdp": tdp,
+            "cores": cores,
+            "speed": base_speed,
+            "turbo": turbo_speed,
         }
     )
+    
     registry = PartRegistry(
         content_type=ContentType.objects.get_for_model(cpu),
         object_id=cpu.uid,
         part_type="cpu",
     )
+    
     cpu.save()
     registry.save()
 
@@ -165,10 +316,11 @@ def get_random_gpu_chipset():
 
 def genGpus():
     brand, chipset, tdp, memory, speed, turbo = get_random_gpu_chipset()
+    manufacturer = random.choice(["ASUS", "MSI", "Gigabyte", "EVGA", "Sapphire", "Zotac"])
 
     gpu = Gpu(
-        name=f"{brand} {chipset}",
-        image="https://prd.place/200",
+        name=f"{manufacturer} {brand} {chipset} {memory}GB",
+        image="https://prd.place/200?id=2",
         brand=brand,
         chipset=chipset,
         tdp=tdp,
@@ -214,7 +366,7 @@ def genPsus():
 
     psu = Psu(
         name=f"{brand} {fake.word().capitalize()} {wattage}W {efficiency}",
-        image="https://prd.place/200",
+        image="https://prd.place/200?id=43",
         brand=brand,
         type=random.choices(["ATX", "SFX"], weights=[85, 15])[0],  # SFX is rarer
         wattage=wattage,
@@ -249,7 +401,7 @@ def genRam():
 
     ram = Ram(
         name=f"{brand} {fake.word().capitalize()} {memory_modules}x{memory_size_per_module}GB {memory_type}",
-        image="https://prd.place/200",
+        image="https://prd.place/200?id=3",
         brand=brand,
         memory_type=memory_type,
         memory_size=memory_size_per_module,
@@ -269,11 +421,12 @@ def genRam():
 
 def genMobo():
     socket_chipsets = {
-        "AM4": ["B450", "X570"],
-        "AM5": ["B650", "X670", "X670E"],
-        "LGA1151": ["B360", "Z370"],
-        "LGA1200": ["B460", "Z490", "H470", "H410"],
-        "LGA1700": ["B660", "Z690", "Z790"],
+    "AM4": ["B450", "X570"],
+    "AM5": ["B650", "X670", "X670E"],
+    "sTRX4": ["TRX40", "WRX80"],
+    "LGA1151": ["B360", "Z370"],
+    "LGA1200": ["B460", "Z490", "H470", "H410"],
+    "LGA1700": ["B660", "Z690", "Z790"],
     }
     brand = random.choice(["ASUS", "Gigabyte", "MSI", "ASRock", "Biostar"])
     socket = random.choice(list(socket_chipsets.keys()))
@@ -291,7 +444,7 @@ def genMobo():
 
     mobo = Mobo(
         name=f"{brand} {chipset} {fake.word().capitalize()} {socket}",
-        image="https://prd.place/200",
+        image="https://prd.place/200?id=5",
         brand=brand,
         socket=socket,
         form_factor=form_factor,
@@ -335,7 +488,7 @@ def genStorage():
     storage = Storage(
         **{
             "name": f"{fake.company()} {capacity}GB {type} {interface} {form_factor}",
-            "image": "https://prd.place/200",
+            "image": "https://prd.place/200?id=1",
             "brand": fake.company(),
             "type": type,
             "capacity": capacity,
@@ -361,7 +514,6 @@ def estimate_base_price(part):
         base_ghz = part.speed / 1000
         turbo_ghz = part.turbo / 1000
         
-        # Ajuste mais realista para CPUs brasileiras
         # CPUs entry-level (4 cores): R$400-800
         # CPUs mid-range (6-8 cores): R$800-1500
         # CPUs high-end (12+ cores): R$1500-3000+
@@ -376,7 +528,6 @@ def estimate_base_price(part):
     elif model == "Gpu":
         core_ghz = part.speed / 1000
         
-        # Ajuste para GPUs brasileiras
         # Entry-level: R$500-1000
         # Mid-range: R$1000-2500
         # High-end: R$2500-5000+
@@ -389,7 +540,6 @@ def estimate_base_price(part):
         )
     
     elif model == "Ram":
-        # Ajuste para memória RAM
         # 8GB DDR4: ~R$180-300
         # 16GB DDR4: ~R$300-500
         # 32GB DDR4: ~R$600-1000
@@ -432,13 +582,11 @@ def genPrice(part):
     # Base estimated price for the part
     base_price = estimate_base_price(part)
     
-    # Variação de preço mais realista para lojas brasileiras
-    # Algumas lojas são conhecidas por serem mais caras/baratas
     store_price_bias = random.uniform(-0.15, 0.25)  # -15% a +25%
     price_variation = random.uniform(-0.08, 0.12)   # -8% a +12%
     
     final_price = base_price * (1 + store_price_bias + price_variation)
-    final_price = round(max(final_price, 50), 2)  # Preço mínimo mais realista
+    final_price = round(max(final_price, 50), 2)  
     
     # Determine if the product is on sale
     is_on_sale = random.choices([True, False], weights=[0.25, 0.75])[0]
@@ -448,7 +596,6 @@ def genPrice(part):
     sale_end = None
     
     if is_on_sale:
-        # Descontos mais típicos do mercado brasileiro
         sale_increase = random.uniform(0.08, 0.30)  # 8–30% discount
         old_price = round(final_price * (1 + sale_increase), 2)
         sale_percent = int(((old_price - final_price) / old_price) * 100)
