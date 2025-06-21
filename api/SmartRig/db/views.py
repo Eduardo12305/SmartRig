@@ -7,7 +7,7 @@ from ninja.errors import HttpError
 from ninja_jwt.tokens import RefreshToken
 
 from db.product import get as getProduct
-from db.models import Builds, Favorites, PartRegistry, Users
+from db.models import Builds, Cpu, Gpu, Ram, Mobo, Psu, Storage, Favorites, PartRegistry, Users
 
 
 def registrar(data):
@@ -147,24 +147,23 @@ def deleteFavoritos(uid, user):
 
 
 def saveBuild(data, user):
-    build = {
-        "cpu": data.cpu,
-        "gpu": data.gpu,
-        "psu": data.psu,
-        "mobo": data.mobo,
-        "ram": data.ram,
-        "storage": data.storage,
-    }
     try:
-        Builds.objects.create(user=user, build=build, name=data.name)
+        Builds.objects.create(
+            user=user,
+            cpu= Cpu.objects.get(pk=data.cpu) if data.cpu else None,
+            gpu= Gpu.objects.get(pk=data.gpu) if data.gpu else None,
+            psu= Psu.objects.get(pk=data.psu) if data.psu else None,
+            mobo= Mobo.objects.get(pk=data.mobo) if data.mobo else None,
+            ram= Ram.objects.get(pk=data.ram) if data.ram else None,
+            storage= Storage.objects.get(pk=data.storage) if data.storage else None,
+            name=data.name)
         return {
             "message": "Build salva com sucesso",
-            "data": model_to_dict(Builds.objects.get(user=user, build=build))
         }
-    except ValueError:
-        raise HttpError(400, "Valor invalido")
+    except ValueError as e:
+        raise HttpError(400, f"Valor invalido, {e}")
     except Exception as e:
-        raise HttpError(500, "Erro ao tentar salvar a build")
+        raise HttpError(500, f"Erro ao tentar salvar a build: {e}")
 
 def deleteBuild(uid, user):
     if uid:
@@ -182,20 +181,13 @@ def deleteBuild(uid, user):
 def getAllBuilds(user):
 
     try:
-        builds = Builds.objects.filter(user=user)
+        builds = Builds.objects.filter(user=user).values("uid", "name", "created")
     except:
         raise HttpError(404, "Nenhum favorito encontrado")
 
     data = []
     for build in builds:
-        build_dict = {}
-        for part in build.build.values():
-            part_obj = getProduct(part)
-            build_dict[part_obj.__class__.__name__.lower()] = part_obj
-        build_dict["uid"] = build.uid
-        build_dict["name"] = build.name
-        build_dict["date"] = build.created
-        data.append(build_dict)
+        data.append(build)
     return {
         "message": "Builds encontradas",
         "data": data
@@ -210,16 +202,21 @@ def getBuild(uid, user):
     if build.user != user:
         raise HttpError(403, "Você não tem permissão para acessar esta build")
     
-    build_dict = {}
-    for key, uid in build.build.items():
-        print(uid)
-        part_obj = getProduct(uid)["data"]
-        build_dict[key] = part_obj
-    
+    build_dict = model_to_dict(build)
     build_dict["uid"] = str(build.uid)
-    build_dict["name"] = build.name
-    build_dict["date"] = build.created
-    print (build_dict)
+
+    build_dict["cpu"] = getProduct(build.cpu.uid)["data"] if build.cpu else None
+   
+    build_dict["gpu"] = getProduct(build.gpu.uid)["data"] if build.gpu else getProduct(build.cpu.igpu.uid)["data"] if build.cpu.igpu else None
+ 
+    build_dict["mobo"] = getProduct(build.mobo.uid)["data"] if build.mobo else None
+   
+    build_dict["psu"] = getProduct(build.psu.uid)["data"] if build.psu else None
+ 
+    build_dict["ram"] = getProduct(build.ram.uid)["data"] if build.ram else None
+
+    build_dict["storage"] = getProduct(build.storage.uid)["data"] if build.storage else None
+
     return {
         "message": "Build encontrada",
         "data": build_dict

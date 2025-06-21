@@ -161,11 +161,15 @@ export const favoriteBuild = async (result) => {
     const buildData = {
         cpu: result.cpu?.uid?.toString() || result.cpu?.object_id?.toString() || "",
         gpu: result.gpu?.uid?.toString() || result.gpu?.object_id?.toString() || "",
+        gpu_dedicated: result.gpu?.dedicated || false,
         mobo: result.mobo?.uid?.toString() || result.mobo?.object_id?.toString() || "",
         psu: result.psu?.uid?.toString() || result.psu?.object_id?.toString() || "",
         ram: result.ram?.uid?.toString() || result.ram?.object_id?.toString() || "",
         storage: result.storage?.uid?.toString() || result.storage?.object_id?.toString() || "",
         name: result.name || null
+    };
+    if (buildData.gpu_dedicated === false) {
+        buildData.gpu = null; // Remove GPU se for integrada
     };
     try {
         const response = await axiosInstanceAuth.post("/builds/save", buildData);

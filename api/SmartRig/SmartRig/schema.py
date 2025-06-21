@@ -29,12 +29,12 @@ class genProd(Schema):
 
 
 class build(Schema):
-    cpu: str
-    gpu: str
-    mobo: str
-    psu: str
-    ram: str
-    storage: str
+    cpu: UUID
+    gpu: Optional[UUID] = None
+    mobo: UUID
+    psu: UUID
+    ram: UUID
+    storage: UUID
     name: Optional[str] = None
 
 

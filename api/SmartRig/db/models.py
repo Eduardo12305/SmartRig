@@ -5,7 +5,7 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin,
 )
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -89,25 +89,29 @@ class PartRegistry(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.UUIDField()
     part = GenericForeignKey("content_type", "object_id")
-    part_type = models.CharField(max_length=50)
 
 
-class Igpu(models.Model):
-    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=200)
-    date_added = models.DateField(auto_now_add=True)
-    brand = models.CharField(max_length=50)
-    memory = models.IntegerField()
-    speed = models.IntegerField()
-    turbo = models.IntegerField()
-
-
-class Cpu(models.Model):
+class Part(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200)
     image = models.CharField(max_length=500, blank=True)
     date_added = models.DateField(auto_now_add=True)
     brand = models.CharField(max_length=50)
+    prices = GenericRelation("Prices")
+
+    class Meta:
+        abstract = True
+
+
+class Igpu(Part):
+    image = None
+    prices = None 
+    memory = models.IntegerField()
+    speed = models.IntegerField()
+    turbo = models.IntegerField()
+
+
+class Cpu(Part):
     igpu = models.ForeignKey(Igpu, null=True, on_delete=models.CASCADE)
     socket = models.CharField(max_length=50)
     tdp = models.IntegerField()
@@ -116,12 +120,7 @@ class Cpu(models.Model):
     turbo = models.IntegerField()
 
 
-class Gpu(models.Model):
-    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=200)
-    image = models.CharField(max_length=500, blank=True)
-    date_added = models.DateField(auto_now_add=True)
-    brand = models.CharField(max_length=50)
+class Gpu(Part):
     chipset = models.CharField(max_length=100)
     tdp = models.IntegerField()
     memory = models.IntegerField()
@@ -129,24 +128,14 @@ class Gpu(models.Model):
     turbo = models.IntegerField()
 
 
-class Psu(models.Model):
-    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=200)
-    image = models.CharField(max_length=500, blank=True)
-    date_added = models.DateField(auto_now_add=True)
-    brand = models.CharField(max_length=50)
+class Psu(Part):
     type = models.CharField(max_length=100)
     wattage = models.IntegerField()
     efficiency = models.CharField(max_length=50)
     modular = models.CharField(max_length=50, null=True)
 
 
-class Mobo(models.Model):
-    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=200)
-    image = models.CharField(max_length=500, blank=True)
-    date_added = models.DateField(auto_now_add=True)
-    brand = models.CharField(max_length=50)
+class Mobo(Part):
     socket = models.CharField(max_length=50)
     form_factor = models.CharField(max_length=50)
     memory_max = models.IntegerField()
@@ -157,7 +146,7 @@ class Mobo(models.Model):
     m2_sata = models.IntegerField()
 
 
-class Ram(models.Model):
+class Ram(Part):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200)
     image = models.CharField(max_length=500, blank=True)
@@ -169,12 +158,7 @@ class Ram(models.Model):
     memory_speed = models.IntegerField()
 
 
-class Storage(models.Model):
-    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=200)
-    image = models.CharField(max_length=500, blank=True)
-    date_added = models.DateField(auto_now_add=True)
-    brand = models.CharField(max_length=50)
+class Storage(Part):
     type = models.CharField(max_length=10)
     capacity = models.IntegerField()
     form_factor = models.CharField(max_length=30)
@@ -186,7 +170,24 @@ class Builds(models.Model):
     name = models.CharField(max_length=200, blank=True, null=True)
     created = models.DateField(auto_now_add=True)
     user = models.ForeignKey(Users, on_delete=models.CASCADE)
-    build = models.JSONField()
+    cpu = models.ForeignKey(
+        Cpu, on_delete=models.CASCADE, related_name="build_cpu", null=True
+    )
+    gpu = models.ForeignKey(
+        Gpu, on_delete=models.CASCADE, related_name="build_gpu", null=True
+    )
+    psu = models.ForeignKey(
+        Psu, on_delete=models.CASCADE, related_name="build_psu", null=True
+    )
+    mobo = models.ForeignKey(
+        Mobo, on_delete=models.CASCADE, related_name="build_mobo", null=True
+    )
+    ram = models.ForeignKey(
+        Ram, on_delete=models.CASCADE, related_name="build_ram", null=True
+    )
+    storage = models.ForeignKey(
+        Storage, on_delete=models.CASCADE, related_name="build_storage", null=True
+    )
 
 
 class Favorites(models.Model):

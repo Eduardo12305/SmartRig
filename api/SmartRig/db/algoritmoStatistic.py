@@ -1,5 +1,8 @@
 import random
 from functools import partial
+import time
+import numpy as np
+import matplotlib.pyplot as plt
 from deap import base, creator, tools
 from django.db.models import ExpressionWrapper, F, FloatField, IntegerField, Max, Q
 from django.forms import model_to_dict
@@ -433,8 +436,48 @@ def mutate(ind, data):
 toolbox.register("mate", crossover)
 toolbox.register("select", tools.selTournament, tournsize=3)
 
+stats = tools.Statistics(lambda ind: ind.fitness.values[0])
+stats.register("avg", np.mean)
+stats.register("std", np.std)
+stats.register("min", np.min)
+stats.register("max", np.max)
+
+logbook = tools.Logbook()
+logbook.header = ["gen", "nevals", "time"] + stats.fields
+
+
+def plot_logbook(logbook):
+    gen = logbook.select("gen")
+    avg = logbook.select("avg")
+    std = logbook.select("std")
+    min_ = logbook.select("min")
+    max_ = logbook.select("max")
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(gen, avg, label="Fitness Média", color="blue")
+    plt.fill_between(
+        gen,
+        [a - s for a, s in zip(avg, std)],
+        [a + s for a, s in zip(avg, std)],
+        alpha=0.2,
+        label="Desvio Padrão",
+        color="blue",
+    )
+    plt.plot(gen, min_, label="Min Fitness", linestyle="--", color="red")
+    plt.plot(gen, max_, label="Max Fitness", linestyle="--", color="green")
+
+    plt.xlabel("Gerações")
+    plt.ylabel("Fitness")
+    plt.title("Evolução da Fitness ao longo das Gerações")
+    plt.legend(loc="lower right")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig("ga_fitness_evolution.png")
+    plt.clf()
+
 
 def run_ga(data):
+    total_start_time = time.time()
 
     # Register functions
     toolbox.register("individual", partial(random_build, data=data))
@@ -444,13 +487,31 @@ def run_ga(data):
     )
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
+    # Statistics and logbook
+    stats = tools.Statistics(lambda ind: ind.fitness.values[0])
+    stats.register("avg", np.mean)
+    stats.register("std", np.std)
+    stats.register("min", np.min)
+    stats.register("max", np.max)
+
+    logbook = tools.Logbook()
+    logbook.header = ["gen", "nevals", "time"] + stats.fields
+
     # Initial population
     population = toolbox.population(n=POPULATION_SIZE)
     for ind in population:
         ind.fitness.values = toolbox.evaluate(ind)
 
+    # Record initial stats
+    gen_start_time = time.time()
+    record = stats.compile(population)
+    gen_duration = time.time() - gen_start_time
+    logbook.record(gen=0, nevals=len(population), time=gen_duration, **record)
+    print(logbook.stream)
+
     # Evolution loop
     for gen in range(1, GENERATIONS + 1):
+        gen_start_time = time.time()
 
         # Selection and cloning
         offspring = toolbox.select(population, len(population))
@@ -476,8 +537,19 @@ def run_ga(data):
         # Replacement
         population[:] = offspring
 
+        # Record stats
+        record = stats.compile(population)
+        gen_duration = time.time() - gen_start_time
+        logbook.record(gen=gen, nevals=len(invalid_ind), time=gen_duration, **record)
+
     # Get best individual
     best = tools.selBest(population, 1)[0]
+    print(logbook.stream)
+    plot_logbook(logbook)  # Plot the logbook after evolution
+
+    # Total time
+    total_duration = time.time() - total_start_time
+    print(f"\nTotal evolution time: {total_duration:.2f} seconds")
 
     prices = []
     for item in best:
@@ -491,15 +563,9 @@ def run_ga(data):
     cpu_dict["uid"] = best[0].uid
     cpu_dict["price"] = prices[0]
 
-    
-
     gpu_dict = model_to_dict(best[1])
     gpu_dict["uid"] = best[1].uid
     gpu_dict["price"] = prices[1]
-    gpu_dict["dedicated"] = True
-    if cpu_dict["igpu"] != None:
-        if cpu_dict["igpu"] == best[1].uid:
-            gpu_dict["dedicated"] = False
 
     psu_dict = model_to_dict(best[2])
     psu_dict["uid"] = best[2].uid
